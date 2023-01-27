@@ -1,0 +1,2 @@
+[app]
+max_process_cnt = 3
