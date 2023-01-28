@@ -1,25 +1,30 @@
 from PyQt6.QtWidgets import QMainWindow
 from PyQt6.QtCore import pyqtSignal
 from ui.ui_app import Ui_MainWindow
+from system_hotkey import SystemHotkey
 
 
 class App(QMainWindow, Ui_MainWindow):
-    star_sig = pyqtSignal(str)
-    pause_sig = pyqtSignal(str)
-    stop_sig = pyqtSignal(str)
+    sig_hotkey = pyqtSignal(str)
 
     def __init__(self, parent=None):
         super(App, self).__init__(parent)
         self.setupUi(self)
-        self.star_sig.connect(self.handle_start)
-        self.pause_sig.connect(self.handle_pause)
-        self.stop_sig.connect(self.handle_stop)
 
-    def handle_start(self):
-        pass
+        self.hk_start_pause = SystemHotkey()
+        self.hk_stop = SystemHotkey()
 
-    def handle_pause(self):
-        pass
+        self.sig_hotkey.connect(self.handleHotKeyEvent)
+        self.hk_start_pause.register(('f10',), callback=lambda x: self.sendHotKeySig('f10'))
+        self.hk_stop.register(('f11',), callback=lambda x: self.sendHotKeySig('f11'))
 
-    def handle_stop(self):
-        pass
+    def sendHotKeySig(self, i_str):
+        self.sig_hotkey.emit(i_str)
+
+    def handleHotKeyEvent(self, i_str):
+        if i_str == 'f10':
+            # 开始 / 暂停
+            self.OpCtrl.clicked_for_start_pause_button()
+        if i_str == 'f11':
+            # 停止
+            self.OpCtrl.clicked_for_end_button()

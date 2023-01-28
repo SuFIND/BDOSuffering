@@ -1,2 +1,6 @@
 [app]
-max_process_cnt = 3
+max_process_cnt = 1
+
+[BDO]
+window_title = "黑色沙漠 - 434706"
+window_class = "BlackDesertWindowClass"
