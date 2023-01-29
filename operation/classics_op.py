@@ -15,12 +15,12 @@ def skil_action():
     kb.press("shift")
     ms.click()
     kb.release("shift")
-    time.sleep(1.5)
+    time.sleep(1.4)
 
     # 强：飓风/
-    kb.press_and_release("space")
+    kb.press("space")
     time.sleep(1)
-    kb.press_and_release("space")
+    kb.release("space")
     time.sleep(0.5)
 
 
@@ -58,8 +58,8 @@ def get_call_volume_pos(hwnd):
 
 
 def use_call_volume(pos):
-    ms.move(pos[0], pos[1], duration=0.2)
-    time.sleep(0.5)
+    ms.move(pos[0], pos[1], duration=0.1)
+    time.sleep(0.2)
     ms.click(ms.RIGHT)
     time.sleep(1)
     kb.press_and_release("return")
@@ -142,16 +142,17 @@ def cell_volume(hwnd):
     find = False
     retry_scroll_cnt = 0
     max_retry_scroll_cnt = 16
-    bag_ui_pos = None
+    bag_ui_pos = get_bag_ui_pos(hwnd)
     while retry_scroll_cnt <= max_retry_scroll_cnt:
+        ms.move(bag_ui_pos[0] - 30, bag_ui_pos[0]- 30, duration=0.05)
         call_volume_pos = get_call_volume_pos(hwnd)
         if call_volume_pos is not None:
             use_call_volume(call_volume_pos)
             find = True
             break
         else:
-            if bag_ui_pos is None:
-                bag_ui_pos = get_bag_ui_pos(hwnd)
+            # if bag_ui_pos is None:
+            #     bag_ui_pos = get_bag_ui_pos(hwnd)
             if bag_ui_pos is not None:
                 ms.move(bag_ui_pos[0], bag_ui_pos[1], duration=0.1)
                 ms.scroll(0, 100, scroll_type=ms.SCROLLDOWN)

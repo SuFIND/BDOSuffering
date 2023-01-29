@@ -102,7 +102,7 @@ def start_action(sig_dic, sig_mutex, msg_queue,
         err = traceback.format_exc()
         Logger.error(err)
         now_at = time.perf_counter()
-        with sig_mutex:
-            sig_dic.update({"stop": True, "start": False, "pause": False})
         msg_queue.put(FormatMsg("意外退出!请查看日志文件定位错误。", "error", "模拟动作").to_str())
         msg_queue.put(FormatMsg(f"运行时长{round((now_at - start_at) / 60)}分钟", "info", "模拟动作").to_str())
+    with sig_mutex:
+            sig_dic.update({"stop": True, "start": False, "pause": False})
