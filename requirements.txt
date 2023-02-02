@@ -4,3 +4,4 @@ opencv-python>=4.7.0
 keyboard>=0.13.0
 mouse>=0.7.1
 pywin32>=305
+system_hotkey>=1.0.3
