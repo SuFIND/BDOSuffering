@@ -62,9 +62,13 @@ class WinDCApiCap:
         # 返回截图数据为numpy.ndarray
         return np.frombuffer(buffer, dtype=np.uint8).reshape(height, width, 4)
 
+    def is_available(self) -> bool:
+        return win32gui.IsWindowEnabled(self.hwnd)
+
 
 try:
     import d3dshot
+
 
     class WinDXApiCap:
         """

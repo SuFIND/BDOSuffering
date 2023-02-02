@@ -5,3 +5,5 @@ keyboard>=0.13.0
 mouse>=0.7.1
 pywin32>=305
 system_hotkey>=1.0.3
+torch>=1.13.1
+torchvision>= 0.14.1
