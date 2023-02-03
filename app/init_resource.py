@@ -1,10 +1,13 @@
 import sys
 import traceback
-
-import toml
 from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import Manager
+
+import toml
+import onnxruntime as ort
+
 from utils.log_utils import Logger
+
 global global_var
 global exitFlag
 global_var = {}
@@ -60,6 +63,24 @@ def init_gm_check_config(cfg: dict):
         global_var["gm_check_cool_time"] = cfg["GM"]["check_cool_time"]
         global_var["gm_chat_color"] = cfg["GM"]["chat_color"]
         global_var["gm_find_pix_max_count"] = cfg["GM"]["find_pix_max_count"]
+    except Exception as e:
+        ok = False
+        err = traceback.format_exc()
+        Logger.error(err)
+    return ok
+
+
+def init_model_config(cfg: dict):
+    """
+    加载模型相关的配置
+    :param cfg:
+    :return:
+    """
+    ok = True
+    try:
+        global_var["device"] = cfg["model"]["devices"]
+        global_var["onnx_file_path"] = cfg["model"]["onnx_file_path"]
+        global_var["classes_id_file_path"] = cfg["model"]["classes_id_file_path"]
     except Exception as e:
         ok = False
         err = traceback.format_exc()
