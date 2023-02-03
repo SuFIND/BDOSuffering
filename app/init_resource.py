@@ -6,7 +6,9 @@ from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import Manager
 from utils.log_utils import Logger
 global global_var
+global exitFlag
 global_var = {}
+exitFlag = 0
 
 
 def init_config(paths: list):
@@ -47,10 +49,29 @@ def init_process_pool(cfg: dict):
     return ok
 
 
+def init_gm_check_config(cfg: dict):
+    """
+    初始化GM检测相关的配置内容
+    :param cfg:
+    :return:
+    """
+    ok = True
+    try:
+        global_var["gm_check_cool_time"] = cfg["GM"]["check_cool_time"]
+        global_var["gm_chat_color"] = cfg["GM"]["chat_color"]
+        global_var["gm_find_pix_max_count"] = cfg["GM"]["find_pix_max_count"]
+    except Exception as e:
+        ok = False
+        err = traceback.format_exc()
+        Logger.error(err)
+    return ok
+
+
 def init_resource(cfg: dict):
     funcs = [
         init_process_pool,
         init_bod_config,
+        init_gm_check_config,
     ]
     for func in funcs:
         ok = func(cfg)

@@ -1,6 +1,11 @@
 [app]
-max_process_cnt = 1
+max_process_cnt = 2
 
 [BDO]
 window_title = "黑色沙漠 - 435356"
 window_class = "BlackDesertWindowClass"
+
+[GM]
+check_cool_time = 1800
+chat_color = [57, 181, 47]
+find_pix_max_count = 500

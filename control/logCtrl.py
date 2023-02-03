@@ -55,8 +55,15 @@ class LogCtrl(QtWidgets.QWidget):
         刷新日志浏览器
         :return:
         """
-        log_content = ""
-        for time, level, msg in self.logLines:
+        html = ""
+        for (time, level, msg) in self.logLines:
             time_str = time.strftime("%Y-%m-%d %H:%M:%S")
-            log_content += f"{time_str} - [{level}]: {msg}\n"
-        self.viewer.textBrowser.setPlainText(log_content)
+            line_one_str = f"{time_str} - [{level}]: {msg}\n"
+
+            if level == "error":
+                html += f"<div><font color=#ff4d4f>{line_one_str}</font><div>"
+            elif level == "warning":
+                html += f"<div><font color=#ffa940>{line_one_str}</font><div>"
+            else:
+                html += f"<div><font color=#434343>{line_one_str}</font><div>"
+        self.viewer.textBrowser.setHtml(html)

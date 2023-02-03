@@ -4,6 +4,7 @@ from PyQt6 import QtWidgets, QtCore
 from ui.ui_op_ctrl import Ui_OpCtrl
 from app.init_resource import global_var
 from operation.v1 import start_action
+from operation.gm_check import GM_check_loop
 
 
 class OpCtrl(QtWidgets.QWidget):
@@ -38,9 +39,9 @@ class OpCtrl(QtWidgets.QWidget):
         if sig == "start":
             with sig_mutex:
                 if sig_dic["pause"]:
-                    sig_dic.update({"start": True, "pause": False})
+                    sig_dic.update({"start": True, "pause": False, "stop": False})
                 else:
-                    # 启动打三角进程
+                    # 从全局变量中获取进程所需资源
                     process_pool = global_var["process_pool"]
                     sig_dic = global_var["process_sig"]
                     sig_mutex = global_var["process_sig_lock"]
@@ -48,9 +49,17 @@ class OpCtrl(QtWidgets.QWidget):
                     window_title = global_var['BDO_window_title']
                     window_class = global_var['BDO_window_class']
 
+                    # #GM检测想关资源
+                    gm_check_cool_time = global_var["gm_check_cool_time"]
+                    gm_chat_color = global_var["gm_chat_color"]
+                    gm_find_pix_max_count = global_var["gm_find_pix_max_count"]
+
+                    # 启动打三角进程
                     process_pool.submit(start_action, sig_dic, sig_mutex, msg_queue, window_title, window_class)
 
-            # TODO 启动GM守护进程
+                    # 启动GM守护进程
+                    process_pool.submit(GM_check_loop, sig_dic, sig_mutex, msg_queue, window_title, window_class,
+                                        gm_chat_color, gm_check_cool_time, gm_find_pix_max_count)
             # 并重置按钮文字为暂停
             self.viewer.StartPauseButton.setText("暂停 F10")
         elif sig == "pause":
@@ -63,8 +72,6 @@ class OpCtrl(QtWidgets.QWidget):
             self.viewer.StartPauseButton.setText("开始 F10")
         elif sig == "stop":
             # 释放结束信号
-            sig_dic = global_var["process_sig"]
-            sig_mutex = global_var["process_sig_lock"]
             with sig_mutex:
                 sig_dic.update({"stop": True, "start": False, "pause": False})
 

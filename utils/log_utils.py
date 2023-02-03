@@ -1,8 +1,8 @@
 import os
+import logging.handlers
 
 
 class Logger:
-    import logging.handlers
     # 初始化日志模块
     logging.basicConfig()
     _logger = logging.getLogger("app")
@@ -14,12 +14,30 @@ class Logger:
         os.path.join(_log_dir, "BDOWingman.log"),
         when='midnight',
         interval=1,
-        backupCount=7
+        backupCount=7,
+        encoding="utf8",
     )
     _timeFileHandler.suffix = "%Y-%m-%d_%H-%M-%S.log"
     _formatter = logging.Formatter('%(asctime)s|%(name)s | %(levelname)s | %(message)s')
     _timeFileHandler.setFormatter(_formatter)
     _logger.addHandler(_timeFileHandler)
+
+    @classmethod
+    def set_log_name(cls, name):
+        # 先写在原有的loggerHandler
+        cls._logger.removeHandler(cls._timeFileHandler)
+
+        _timeFileHandler = logging.handlers.TimedRotatingFileHandler(
+            os.path.join(cls._log_dir, name),
+            when='midnight',
+            interval=1,
+            backupCount=7,
+            encoding="utf8",
+        )
+        _timeFileHandler.suffix = "%Y-%m-%d_%H-%M-%S.log"
+        _formatter = logging.Formatter('%(asctime)s|%(name)s | %(levelname)s | %(message)s')
+        _timeFileHandler.setFormatter(_formatter)
+        cls._logger.addHandler(_timeFileHandler)
 
     @classmethod
     def error(cls, msg, *args, **kwargs):

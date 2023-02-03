@@ -7,20 +7,9 @@ from app.init_resource import global_var
 from utils.log_utils import Logger
 from operation.classics_op import open_bag, close_bag, reposition_after_call, reposition_before_call, cell_volume, \
     skil_action, call_black_wizard_to_finish_task
-from utils.muti_utils import StopSig, OverSig
+from utils.muti_utils import StopSig, OverSig, FormatMsg
 
-
-class FormatMsg:
-    def __init__(self, msg, level="info", source=""):
-        self.msg = msg
-        self.level = level
-        self.source = source
-
-    def to_str(self):
-        return self.__str__()
-
-    def __str__(self):
-        return f"{self.level}${self.source}${self.msg}"
+fmmsg = FormatMsg(source="模拟动作")
 
 
 def start_action(sig_dic, sig_mutex, msg_queue,
@@ -34,6 +23,7 @@ def start_action(sig_dic, sig_mutex, msg_queue,
     :param window_class:
     :return:
     """
+    Logger.set_log_name("action_simulate.log")
     start_at = time.perf_counter()
     exec_cnt = 0
 
@@ -45,10 +35,12 @@ def start_action(sig_dic, sig_mutex, msg_queue,
 
         hwnd = FindWindow(window_class, window_title)
         if hwnd == 0:
-            msg_queue.put(FormatMsg("无法找到黑色沙漠窗口句柄！", "error", "模拟动作").to_str())
-            raise OSError("无法找到黑色沙漠窗口句柄！")
+            msg_queue.put(fmmsg.to_str(
+                "无法检测到黑色沙漠窗口句柄！请先打开游戏或检查 config/my_config.toml 中的 BDO.window_class 是否与游戏窗口名一致",
+                level="error"))
+            return 
 
-        msg_queue.put(FormatMsg("开始准备召唤!", "info", "模拟动作").to_str())
+        msg_queue.put(fmmsg.to_str("开始准备召唤!", level="info"))
         with sig_mutex:
             sig_dic.update({"start": True, "stop": False, "pause": False})
         while True:
@@ -89,20 +81,20 @@ def start_action(sig_dic, sig_mutex, msg_queue,
                 func(*args)
             exec_cnt += 1
             now_at = time.perf_counter()
-            msg_queue.put(FormatMsg(f"完成第{exec_cnt}次, 约为 {round(exec_cnt / ((now_at - start_at) / 3600), 2)}个/小时",
-                                    "info",
-                                    "模拟动作").to_str())
+            msg_queue.put(
+                fmmsg.to_str(f"完成第{exec_cnt}次, 约为 {round(exec_cnt / ((now_at - start_at) / 3600), 2)}个/小时",
+                             level="info"))
     except OverSig:
         now_at = time.perf_counter()
-        msg_queue.put(FormatMsg("完成了所有召唤书的召唤，停止模拟！", "info", "模拟动作").to_str())
-        msg_queue.put(FormatMsg(f"运行时长{round((now_at - start_at) / 60)}分钟", "info", "模拟动作").to_str())
+        msg_queue.put(fmmsg.to_str("完成了所有召唤书的召唤，停止模拟！", level="info"))
     except StopSig as e:
-        msg_queue.put(FormatMsg("接受到停止请求，停止模拟!", "info", "模拟动作").to_str())
+        msg_queue.put(fmmsg.to_str("接受到停止请求，停止模拟!", level="info"))
     except Exception as e:
         err = traceback.format_exc()
         Logger.error(err)
         now_at = time.perf_counter()
-        msg_queue.put(FormatMsg("意外退出!请查看日志文件定位错误。", "error", "模拟动作").to_str())
-        msg_queue.put(FormatMsg(f"运行时长{round((now_at - start_at) / 60)}分钟", "info", "模拟动作").to_str())
+        msg_queue.put(fmmsg.to_str("意外退出!请查看日志文件定位错误。", level="error"))
+    finally:
+        msg_queue.put(fmmsg.to_str(f"运行时长{round((now_at - start_at) / 60)}分钟", level="info"))
     with sig_mutex:
-            sig_dic.update({"stop": True, "start": False, "pause": False})
+        sig_dic.update({"stop": True, "start": False, "pause": False})

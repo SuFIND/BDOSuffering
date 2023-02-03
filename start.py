@@ -6,10 +6,8 @@ import multiprocessing
 from PyQt6 import QtWidgets
 from app.app import App
 from utils.log_utils import Logger
-from app.init_resource import init_config, init_resource, global_var
+from app.init_resource import init_config, init_resource, global_var, exitFlag
 from app.del_resource import del_resource
-
-exitFlag = 0
 
 
 def app_exit(app, cfg):
@@ -27,12 +25,7 @@ def monitor_msg_queue_thread(app):
     sig_dic = global_var["process_sig"]
     sig_mutex = global_var["process_sig_lock"]
 
-    # msg_queue = queue.Queue()
     while exitFlag == 0:
-        if not msg_queue.empty():
-            msg_str = msg_queue.get(block=False)
-            level, head, msg = msg_str.split("$")
-            app.LogCtrl.add_log(msg=f"{head}->{msg}", level=level)
         with sig_mutex:
             try:
                 if sig_dic["start"] and app.OpCtrl.viewer.StartPauseButton.text() != "暂停 F10":
@@ -41,7 +34,16 @@ def monitor_msg_queue_thread(app):
                     app.OpCtrl.button_sig.emit("refresh_display:start")
             except RuntimeError:
                 pass
-        time.sleep(1)
+
+        if not msg_queue.empty():
+            msg_str = msg_queue.get(block=False)
+            if msg_str == "action::show_gm_modal":
+                app.sig_gm_check.emit("show_gm_modal")
+            else:
+                level, src, msg = msg_str.split("$")
+                app.LogCtrl.add_log(msg=f"{src}->{msg}", level=level)
+        else:
+            time.sleep(1)
 
 
 def main():
