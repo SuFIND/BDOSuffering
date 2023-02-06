@@ -59,6 +59,7 @@ def init_process_pool(cfg: dict):
     global_var["process_sig"] = sig_dic
     global_var["process_sig_lock"] = sig_mutex
     global_var["process_msg_queue"] = msg_queue
+    global_var["threads"] = []
     return ok
 
 

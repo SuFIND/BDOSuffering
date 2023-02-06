@@ -129,7 +129,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 # 播放动作  TODO 未来配置化
                 q.append((classics_op.skil_action, ()))
                 # 等待BOSS玛格岚倒地动画完成
-                q.append((time.sleep, boss1_dead_action_time))
+                q.append((time.sleep, (boss1_dead_action_time,)))
                 # 目标检测-是否看到BOSS玛格岚
                 q.append((cv_op.found_boss_Magram, (detector, hwnd, debug)))
 
@@ -152,7 +152,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 # 播放动作  TODO 未来配置化
                 q.append((classics_op.skil_action, ()))
                 # 等待BOSS玛格岚倒地动画完成
-                q.append((time.sleep, boss1_dead_action_time))
+                q.append((time.sleep, (boss1_dead_action_time,)))
                 # 目标检测-是否看到BOSS玛格岚
                 q.append((cv_op.found_boss_Magram, (detector, hwnd, debug)))
 
@@ -162,6 +162,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 q.append((time.sleep, (boss2_real_wait_time,)))
                 # 播放动作  TODO 未来配置化
                 q.append((classics_op.skil_action, ()))
+                q.append((time.sleep, (1,)))
                 # 检测是否完成任务
                 q.append((cv_op.found_task_over, (detector, hwnd, debug)))
 
@@ -190,22 +191,22 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 # 检测是否完成任务
                 q.append((cv_op.found_task_over, (detector, hwnd, debug)))
 
-    # after do
-    # #关闭背包
-    classics_op.close_bag()
-    time.sleep(1)
-
-    # #修理当前装备
-    classics_op.repair_weapons_by_tent(hwnd)
-    time.sleep(2)
-
-    # # TODO 把背包中的目标杂物放置到仓库中
-
-    # #回到交易所NPC处
-    cv_op.back_to_market(detector, hwnd, debug=debug)
-
-    # #路上的预计耗时为127秒,加上冗余时间保守设置为160秒 TODO 未来配置化
-    time.sleep(160)
-
-    # #对话鲁西比恩坤并打开交易所仓库
-    classics_op.chat_with_LucyBenKun_to_show_market_ui(hwnd)
+    # # after do
+    # # #关闭背包
+    # classics_op.close_bag()
+    # time.sleep(1)
+    #
+    # # #修理当前装备
+    # classics_op.repair_weapons_by_tent(hwnd)
+    # time.sleep(2)
+    #
+    # # # TODO 把背包中的目标杂物放置到仓库中
+    #
+    # # #回到交易所NPC处
+    # cv_op.back_to_market(detector, hwnd, debug=debug)
+    #
+    # # #路上的预计耗时为127秒,加上冗余时间保守设置为160秒 TODO 未来配置化
+    # time.sleep(160)
+    #
+    # # #对话鲁西比恩坤并打开交易所仓库
+    # classics_op.chat_with_LucyBenKun_to_show_market_ui(hwnd)

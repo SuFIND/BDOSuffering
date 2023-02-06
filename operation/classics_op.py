@@ -148,7 +148,8 @@ def repair_weapons_by_tent(hwnd):
 
     # 定位修理图标修理
     icon_pos = get_repair_weapons_icon_pos(hwnd)
-    ms.move(icon_pos[0], icon_pos[1], duration=0.1)
+    if icon_pos:
+        ms.move(icon_pos[0], icon_pos[1], duration=0.1)
 
     kb.press_and_release('return')
 
@@ -195,9 +196,10 @@ def chat_with_LucyBenKun_to_show_market_ui(hwnd):
     pos = get_market_management_gps_pos(hwnd)
     if pos is None:
         # TODO raise RetrySig(redo=["kb::esc", "kb::esc", "kb::esc"])
-        raise RetrySig
+        return False
     ms.move(pos[0], pos[1], duration=0.1)
     ms.click()
+    return True
 
 
 def into_action_state():

@@ -12,5 +12,5 @@ chat_color = [57, 181, 47]
 find_pix_max_count = 500
 
 [model]
-onnx_file_path = "data/onnx/end2end_simple.onnx"
-classes_id_file_path = "data/onnx/class_with_id.txt"
+onnx_file_path = "data/onnx/20230206.onnx"
+classes_id_file_path = "data/onnx/class_20230206.txt"

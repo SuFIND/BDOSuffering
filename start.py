@@ -11,7 +11,6 @@ from app.del_resource import del_resource
 
 
 def app_exit(app, cfg):
-    exitFlag = 1
     app.exec()
     del_resource(cfg)
 
@@ -64,6 +63,7 @@ def main():
 
     t = threading.Thread(target=monitor_msg_queue_thread, args=(main_app,), daemon=True)
     t.start()
+    global_var["threads"].append(t)
 
     main_app.show()
     sys.exit(app_exit(app, config))

@@ -26,10 +26,10 @@ def back_to_market(detector, hwnd, debug=False):
     img = wdac.get_hwnd_screenshot_to_numpy_array(collection=debug, save_dir="logs/img/FindNPCUI")
     infer_rst = detector.infer(img)
 
-    if "FindNPCUI" not in infer_rst:
+    if "ui$Find NPC" not in infer_rst:
         return
 
-    bbox_tup = infer_rst["FindNPCUI"][0]["bbox"]
+    bbox_tup = infer_rst["ui$Find NPC"][0]["bbox"]
     target_pos = (bbox_tup[0] + bbox_tup[2]) / 2, (bbox_tup[1] + bbox_tup[3]) / 2 / 2
     target_pos = c_left + target_pos[0], c_top + target_pos[1]
     ms.move(target_pos[0], target_pos[1], duration=0.1)
@@ -54,10 +54,10 @@ def get_bag_ui_bbox(detector, win_dc: WinDCApiCap, bdo_rect: list[int], debug=Fa
     c_left, c_top, _, _ = bdo_rect
     img = win_dc.get_hwnd_screenshot_to_numpy_array(collection=debug, save_dir="logs/img/BagUI")
     infer_rst = detector.infer(img)
-    if "BagUI" not in infer_rst:
+    if "ui$Bag" not in infer_rst:
         return None
 
-    bbox_tup = infer_rst["BagUI"][0]["bbox"]
+    bbox_tup = infer_rst["ui$Bag"][0]["bbox"]
     return bbox_tup[0] + c_left, bbox_tup[1] + c_top, bbox_tup[2] + c_left, bbox_tup[3] + c_top
 
 
@@ -110,7 +110,7 @@ def use_Pila_Fe_scroll(detector, hwnd, debug=False, save_dir="logs/img"):
     win_dc = WinDCApiCap(hwnd)
     bdo_rect = get_bdo_rect(hwnd)
 
-    bag_ui_bbox = get_bag_ui_bbox(detector, win_dc, bdo_rect, debug=debug, save_dir=save_dir+"BagUI")
+    bag_ui_bbox = get_bag_ui_bbox(detector, win_dc, bdo_rect, debug=debug)
     into_pos = (bag_ui_bbox[0] + bag_ui_bbox[2]) / 2, (bag_ui_bbox[1] + bag_ui_bbox[3]) / 2
     out_pos = bag_ui_bbox[0] - 50, bag_ui_bbox[1] - 50
     step = 4
@@ -134,7 +134,7 @@ def found_target(detector, hwnd, label, debug=False, save_dir="") -> bool:
     win_dc = WinDCApiCap(hwnd)
     img = win_dc.get_hwnd_screenshot_to_numpy_array(collection=debug, save_dir=save_dir)
     infer_rst = detector.infer(img)
-    if label not in infer_rst and len(infer_rst[label]) < 1:
+    if label not in infer_rst or len(infer_rst[label]) < 1:
         return False
     return True
 
