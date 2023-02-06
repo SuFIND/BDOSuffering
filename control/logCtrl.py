@@ -1,6 +1,6 @@
 import datetime
 
-from PyQt6 import QtWidgets, QtCore
+from PyQt6 import QtWidgets, QtCore, QtGui
 from ui.ui_log_ctrl import Ui_LogCtrl
 
 
@@ -67,3 +67,4 @@ class LogCtrl(QtWidgets.QWidget):
             else:
                 html += f"<div><font color=#434343>{line_one_str}</font><div>"
         self.viewer.textBrowser.setHtml(html)
+        self.viewer.textBrowser.moveCursor(QtGui.QTextCursor.MoveOperation.End)

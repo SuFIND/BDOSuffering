@@ -7,7 +7,7 @@ import win32gui
 from utils.capture_utils import WinDCApiCap
 from utils.simulate_utils import KeyboardSimulate as kb, MouseSimulate as ms
 from utils.win_utils import get_bdo_rect
-from utils.muti_utils import OverSig
+from utils.muti_utils import OverSig, StopSig, RetrySig
 
 
 def skil_action():
@@ -57,7 +57,7 @@ def get_call_volume_pos(hwnd):
     return None
 
 
-def use_call_volume(pos):
+def use_scroll(pos):
     ms.move(pos[0], pos[1], duration=0.1)
     time.sleep(0.2)
     ms.click(ms.RIGHT)
@@ -101,72 +101,123 @@ def get_bag_ui_pos(hwnd):
     return None
 
 
-def old_action(hwnd):
-    is_call_volume_over = True
-
-    reposition_before_call()
-
-    open_bag()
-
-    cell_volume(hwnd)
-
-    close_bag()
-
-    if is_call_volume_over:
-        raise StopIteration("call volume is all over!")
-
-    # 从成功使用召唤券到第一个boss出现
-    time.sleep(35)
-
-    reposition_after_call()
-
-    skil_action()
-
-    # 从成功使用召唤券到第二个boss出现
-    time.sleep(11.25)
-
-    skil_action()
-
-    # 等待任务结束展示
-    time.sleep(2.5)
-
-    call_black_wizard_to_finish_task()
+def get_market_npc_gps_pos(hwnd):
+    cap = WinDCApiCap(hwnd)
+    if not cap.is_available():
+        return
+    cur_windows_left, cur_windows_top, _, _ = get_bdo_rect(hwnd)
+    sc_hots = cap.get_hwnd_screenshot_to_numpy_array()
+    trans_hots = cv2.cvtColor(sc_hots, cv2.COLOR_RGBA2RGB)
+    template = cv2.imread("data/temple/marketPos.bmp")
+    res = cv2.matchTemplate(trans_hots, template, cv2.TM_CCOEFF_NORMED)
+    threshold = 0.7
+    loc = np.where(res >= threshold)
+    for pt_left, pt_top in zip(*loc[::-1]):
+        return cur_windows_left + pt_left + 5, cur_windows_top + pt_top + 5
+    return None
 
 
-def cell_volume(hwnd):
+def reset_viewer():
     """
-    寻找背包里的卷轴并右击使用召唤
+    调整视角
+    :return:
+    """
+    ms.wheel_scroll(-1000)
+
+
+def get_repair_weapons_icon_pos(hwnd):
+    """
+    获取修理icon的位置
     :param hwnd:
     :return:
     """
-    find = False
-    retry_scroll_cnt = 0
-    max_retry_scroll_cnt = 16
-    bag_ui_pos = get_bag_ui_pos(hwnd)
-    while retry_scroll_cnt <= max_retry_scroll_cnt:
-        ms.move(bag_ui_pos[0] - 30, bag_ui_pos[0]- 30, duration=0.05)
-        call_volume_pos = get_call_volume_pos(hwnd)
-        if call_volume_pos is not None:
-            use_call_volume(call_volume_pos)
-            find = True
-            break
-        else:
-            # if bag_ui_pos is None:
-            #     bag_ui_pos = get_bag_ui_pos(hwnd)
-            if bag_ui_pos is not None:
-                ms.move(bag_ui_pos[0], bag_ui_pos[1], duration=0.1)
-                ms.scroll(0, 100, scroll_type=ms.SCROLLDOWN)
-                ms.scroll(0, 100, scroll_type=ms.SCROLLDOWN)
-                ms.scroll(0, 100, scroll_type=ms.SCROLLDOWN)
-                ms.scroll(0, 100, scroll_type=ms.SCROLLDOWN)
-            retry_scroll_cnt += 4
-            continue
-
-    if find:
+    cap = WinDCApiCap(hwnd)
+    if not cap.is_available():
         return
-    else:
-        raise OverSig
+    cur_windows_left, cur_windows_top, _, _ = get_bdo_rect(hwnd)
+    sc_hots = cap.get_hwnd_screenshot_to_numpy_array()
+    trans_hots = cv2.cvtColor(sc_hots, cv2.COLOR_RGBA2RGB)
+    template = cv2.imread("data/temple/repairIcon.bmp")
+    res = cv2.matchTemplate(trans_hots, template, cv2.TM_CCOEFF_NORMED)
+    threshold = 0.7
+    loc = np.where(res >= threshold)
+    for pt_left, pt_top in zip(*loc[::-1]):
+        return cur_windows_left + pt_left + 5, cur_windows_top + pt_top + 5
+    return None
 
 
+def repair_weapons_by_tent(hwnd):
+    # 利用快捷键打开帐篷
+    kb.press("alt")
+    kb.press_and_release("3")
+    kb.release("alt")
+
+    time.sleep(2)
+
+    # 利用快捷键打开修理
+    kb.press("alt")
+    kb.press_and_release("4")
+    kb.release("alt")
+
+    time.sleep(1)
+
+    # 定位修理图标修理
+    icon_pos = get_repair_weapons_icon_pos(hwnd)
+    ms.move(icon_pos[0], icon_pos[1], duration=0.1)
+
+    kb.press_and_release('return')
+
+    time.sleep(1)
+    kb.press_and_release('esc')
+
+    time.sleep(0.5)
+
+    # 利用快捷键回收帐篷
+    kb.press("alt")
+    kb.press_and_release("5")
+    kb.release("alt")
+    kb.press_and_release('return')
 
 
+def get_market_management_gps_pos(hwnd):
+    cap = WinDCApiCap(hwnd)
+    if not cap.is_available():
+        return
+    cur_windows_left, cur_windows_top, _, _ = get_bdo_rect(hwnd)
+    sc_hots = cap.get_hwnd_screenshot_to_numpy_array()
+    trans_hots = cv2.cvtColor(sc_hots, cv2.COLOR_RGBA2RGB)
+    template = cv2.imread("data/temple/marketManagementButton.bmp")
+    res = cv2.matchTemplate(trans_hots, template, cv2.TM_CCOEFF_NORMED)
+    threshold = 0.7
+    loc = np.where(res >= threshold)
+    for pt_left, pt_top in zip(*loc[::-1]):
+        return cur_windows_left + pt_left + 5, cur_windows_top + pt_top + 5
+    return None
+
+
+def chat_with_LucyBenKun_to_show_market_ui(hwnd):
+    """
+    和鲁西比恩坤交流并打开交易所内部ui
+    :param hwnd
+    :return:
+    """
+    kb.press_and_release("R")
+    time.sleep(0.5)
+
+    kb.press_and_release("2")
+    time.sleep(0.5)
+
+    pos = get_market_management_gps_pos(hwnd)
+    if pos is None:
+        # TODO raise RetrySig(redo=["kb::esc", "kb::esc", "kb::esc"])
+        raise RetrySig
+    ms.move(pos[0], pos[1], duration=0.1)
+    ms.click()
+
+
+def into_action_state():
+    """
+    进入动作模式
+    :return:
+    """
+    ms.click()

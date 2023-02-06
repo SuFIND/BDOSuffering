@@ -8,6 +8,14 @@ class StopSig(Exception):
     pass
 
 
+class RetrySig(RuntimeError):
+    def __init__(self, *args, **kwargs):
+        super(RetrySig, self).__init__(*args)
+        self.redo = []
+        if 'redo' in kwargs:
+            self.redo = kwargs.get("redo", [])
+
+
 class FormatMsg:
     def __init__(self, source):
         self.source = source

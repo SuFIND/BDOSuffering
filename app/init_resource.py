@@ -78,7 +78,6 @@ def init_model_config(cfg: dict):
     """
     ok = True
     try:
-        global_var["device"] = cfg["model"]["devices"]
         global_var["onnx_file_path"] = cfg["model"]["onnx_file_path"]
         global_var["classes_id_file_path"] = cfg["model"]["classes_id_file_path"]
     except Exception as e:
@@ -93,6 +92,7 @@ def init_resource(cfg: dict):
         init_process_pool,
         init_bod_config,
         init_gm_check_config,
+        init_model_config,
     ]
     for func in funcs:
         ok = func(cfg)

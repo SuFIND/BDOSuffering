@@ -81,6 +81,14 @@ class MouseSimulate(HumanSimulate):
         cls.human_delay()
         return True
 
+    @classmethod
+    def wheel_scroll(cls, delta) -> bool:
+        if cls.is_stop():
+            return False
+        mouse.wheel(delta)
+        cls.human_delay()
+        return True
+
 
 class KeyboardSimulate(HumanSimulate):
     MinOpDelay = 50

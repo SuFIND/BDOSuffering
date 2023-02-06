@@ -54,8 +54,13 @@ class OpCtrl(QtWidgets.QWidget):
                     gm_chat_color = global_var["gm_chat_color"]
                     gm_find_pix_max_count = global_var["gm_find_pix_max_count"]
 
+                    # 模型相关的资源
+                    onnx_file_path = global_var["onnx_file_path"]
+                    classes_id_file_path = global_var["classes_id_file_path"]
+
                     # 启动打三角进程
-                    process_pool.submit(start_action, sig_dic, sig_mutex, msg_queue, window_title, window_class)
+                    process_pool.submit(start_action, sig_dic, sig_mutex, msg_queue, window_title, window_class,
+                                        onnx_file_path, classes_id_file_path)
 
                     # 启动GM守护进程
                     process_pool.submit(GM_check_loop, sig_dic, sig_mutex, msg_queue, window_title, window_class,

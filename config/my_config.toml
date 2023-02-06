@@ -2,10 +2,14 @@
 max_process_cnt = 2
 
 [BDO]
-window_title = "黑色沙漠 - 435356"
+window_title = "黑色沙漠 - 435534"
 window_class = "BlackDesertWindowClass"
 
 [GM]
 check_cool_time = 1800
 chat_color = [57, 181, 47]
 find_pix_max_count = 500
+
+[model]
+onnx_file_path = "data/onnx/end2end_simple.onnx"
+classes_id_file_path = "data/onnx/class_with_id.txt"
