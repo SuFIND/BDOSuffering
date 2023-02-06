@@ -6,10 +6,13 @@
 @Time : 2022/12/24 16:53
 """
 import logging
+import os.path
+import time
 from ctypes import windll, byref, c_ubyte
 from ctypes.wintypes import RECT
 
 import numpy as np
+import cv2
 import win32gui
 
 GetDC = windll.user32.GetDC
@@ -36,9 +39,11 @@ class WinDCApiCap:
     def __init__(self, hwnd):
         self.hwnd = hwnd
 
-    def get_hwnd_screenshot_to_numpy_array(self) -> np.ndarray:
+    def get_hwnd_screenshot_to_numpy_array(self, collection=False, save_dir="") -> np.ndarray:
         """
         获取客户区截图
+        :param collection
+        :param save_dir
         :return:
         """
         # 获取窗口客户区的大小
@@ -59,8 +64,18 @@ class WinDCApiCap:
         DeleteObject(bitmap)
         DeleteObject(cdc)
         ReleaseDC(self.hwnd, dc)
+
+        img = np.frombuffer(buffer, dtype=np.uint8).reshape(height, width, 4)
+
+        # 如果
+        if collection:
+            if not os.path.exists(save_dir):
+                os.mkdir(save_dir)
+            img_name = f"{round(time.time())}.jpg"
+            cv2.imwrite(os.path.join(save_dir, img_name))
+
         # 返回截图数据为numpy.ndarray
-        return np.frombuffer(buffer, dtype=np.uint8).reshape(height, width, 4)
+        return img
 
     def is_available(self) -> bool:
         return win32gui.IsWindowEnabled(self.hwnd)

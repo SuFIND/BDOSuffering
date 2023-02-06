@@ -1,5 +1,6 @@
 [app]
 max_process_cnt = 2
+debug = false
 
 [BDO]
 window_title = "黑色沙漠 - 435534"

@@ -3,7 +3,7 @@ import datetime
 from PyQt6 import QtWidgets, QtCore
 from ui.ui_op_ctrl import Ui_OpCtrl
 from app.init_resource import global_var
-from operation.v1 import start_action
+from operation.v2 import start_action
 from operation.gm_check import GM_check_loop
 
 
@@ -42,6 +42,7 @@ class OpCtrl(QtWidgets.QWidget):
                     sig_dic.update({"start": True, "pause": False, "stop": False})
                 else:
                     # 从全局变量中获取进程所需资源
+                    debug = global_var["debug"]
                     process_pool = global_var["process_pool"]
                     sig_dic = global_var["process_sig"]
                     sig_mutex = global_var["process_sig_lock"]
@@ -60,7 +61,7 @@ class OpCtrl(QtWidgets.QWidget):
 
                     # 启动打三角进程
                     process_pool.submit(start_action, sig_dic, sig_mutex, msg_queue, window_title, window_class,
-                                        onnx_file_path, classes_id_file_path)
+                                        onnx_file_path, classes_id_file_path, debug)
 
                     # 启动GM守护进程
                     process_pool.submit(GM_check_loop, sig_dic, sig_mutex, msg_queue, window_title, window_class,

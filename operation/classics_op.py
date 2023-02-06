@@ -42,21 +42,6 @@ def open_bag():
     time.sleep(0.75)
 
 
-def get_call_volume_pos(hwnd):
-    assert win32gui.IsWindowEnabled(hwnd), True
-    cur_windows_left, cur_windows_top, _, _ = get_bdo_rect(hwnd)
-    cap = WinDCApiCap(hwnd)
-    sc_hots = cap.get_hwnd_screenshot_to_numpy_array()
-    trans_hots = cv2.cvtColor(sc_hots, cv2.COLOR_RGBA2RGB)
-    template = cv2.imread("data/temple/cellVolume.bmp")
-    res = cv2.matchTemplate(trans_hots, template, cv2.TM_CCOEFF_NORMED)
-    threshold = 0.7
-    loc = np.where(res >= threshold)
-    for pt_left, pt_top in zip(*loc[::-1]):
-        return cur_windows_left + pt_left + 3, cur_windows_top + pt_top + 3
-    return None
-
-
 def use_scroll(pos):
     ms.move(pos[0], pos[1], duration=0.1)
     time.sleep(0.2)
@@ -122,7 +107,7 @@ def reset_viewer():
     调整视角
     :return:
     """
-    ms.wheel_scroll(-1000)
+    ms.wheel(-1000)
 
 
 def get_repair_weapons_icon_pos(hwnd):

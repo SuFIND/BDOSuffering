@@ -4,7 +4,6 @@ from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import Manager
 
 import toml
-import onnxruntime as ort
 
 from utils.log_utils import Logger
 
@@ -17,6 +16,17 @@ exitFlag = 0
 def init_config(paths: list):
     config = toml.load(paths)
     return config
+
+
+def init_app_config(cfg: dict):
+    ok = True
+    try:
+        global_var["debug"] = cfg["app"]["debug"]
+    except Exception as e:
+        err = traceback.format_exc()
+        Logger.error(err)
+        ok = False
+    return ok
 
 
 def init_bod_config(cfg: dict):
@@ -89,6 +99,7 @@ def init_model_config(cfg: dict):
 
 def init_resource(cfg: dict):
     funcs = [
+        init_app_config,
         init_process_pool,
         init_bod_config,
         init_gm_check_config,

@@ -29,28 +29,15 @@ class MouseSimulate(HumanSimulate):
     MaxOpDelay = 140
     LEFT = mouse.LEFT
     RIGHT = mouse.RIGHT
-    SCROLLUP = 1
-    SCROLLDOWN = -1
-
-    @classmethod
-    def is_stop(cls) -> bool:
-        sig_dic = global_var["process_sig"]
-        sig_mutex = global_var["process_sig_lock"]
-        with sig_mutex:
-            return sig_dic["pause"] or sig_dic["stop"]
 
     @classmethod
     def move(cls, x, y, absolute=True, duration=0) -> bool:
-        if cls.is_stop():
-            return False
         mouse.move(x, y, absolute=absolute, duration=duration)
         cls.human_delay()
         return True
 
     @classmethod
     def click(cls, button=LEFT) -> bool:
-        if cls.is_stop():
-            return False
         mouse.press(button=button)
         cls.human_delay()
         mouse.release(button=button)
@@ -59,32 +46,18 @@ class MouseSimulate(HumanSimulate):
 
     @classmethod
     def press(cls, button=LEFT) -> bool:
-        if cls.is_stop():
-            return False
         mouse.press(button=button)
         cls.human_delay()
         return True
 
     @classmethod
     def release(cls, button=LEFT) -> bool:
-        if cls.is_stop():
-            return False
         mouse.release(button=button)
         cls.human_delay()
         return True
 
     @classmethod
-    def scroll(cls, x, y, scroll_type=SCROLLDOWN) -> bool:
-        if cls.is_stop():
-            return False
-        win32api.mouse_event(win32con.MOUSEEVENTF_WHEEL, x, y, scroll_type, 0)
-        cls.human_delay()
-        return True
-
-    @classmethod
-    def wheel_scroll(cls, delta) -> bool:
-        if cls.is_stop():
-            return False
+    def wheel(cls, delta) -> bool:
         mouse.wheel(delta)
         cls.human_delay()
         return True
@@ -95,16 +68,7 @@ class KeyboardSimulate(HumanSimulate):
     MaxOpDelay = 80
 
     @classmethod
-    def is_stop(cls) -> bool:
-        sig_dic = global_var["process_sig"]
-        sig_mutex = global_var["process_sig_lock"]
-        with sig_mutex:
-            return sig_dic["pause"] or sig_dic["stop"]
-
-    @classmethod
     def press_and_release(cls, key) -> bool:
-        if cls.is_stop():
-            return False
         if key in VK_CODE:
             hex_vk_code = VK_CODE[key]
             scan_code = keyboard.key_to_scan_codes(key)[1]
@@ -117,8 +81,6 @@ class KeyboardSimulate(HumanSimulate):
 
     @classmethod
     def press(cls, key) -> bool:
-        if cls.is_stop():
-            return False
         if key in VK_CODE:
             hex_vk_code = VK_CODE[key]
             scan_code = keyboard.key_to_scan_codes(key)[1]
@@ -130,8 +92,6 @@ class KeyboardSimulate(HumanSimulate):
 
     @classmethod
     def release(cls, key) -> bool:
-        if cls.is_stop():
-            return False
         if key in VK_CODE:
             hex_vk_code = VK_CODE[key]
             scan_code = keyboard.key_to_scan_codes(key)[1]

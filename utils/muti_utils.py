@@ -8,6 +8,11 @@ class StopSig(Exception):
     pass
 
 
+class ExceptionSig(Exception):
+    """异常停止信号"""
+    pass
+
+
 class RetrySig(RuntimeError):
     def __init__(self, *args, **kwargs):
         super(RetrySig, self).__init__(*args)
