@@ -237,6 +237,7 @@ def clear_bag(detector, hwnd, debug=False):
     kb.press("alt")
     kb.press_and_release("1")
     kb.release("alt")
+    time.sleep(1)
 
     bag_bbox = get_bag_ui_bbox(detector, win_dc, bdo_rect, debug)
     if bag_bbox is None:
