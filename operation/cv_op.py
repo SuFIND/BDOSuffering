@@ -1,6 +1,6 @@
+import os
 import time
 import cv2
-import mouse
 import numpy as np
 import operation.classics_op as classics_op
 from utils.capture_utils import WinDCApiCap
@@ -10,7 +10,7 @@ from utils.win_utils import get_bdo_rect
 
 def back_to_market(detector, hwnd, debug=False):
     """
-    打开寻找NPC UI
+    打开寻找NPC UI找到道具交易所并按T键自动导航
     :return:
     """
     # 利用快捷键打开寻找NPC的UI
@@ -94,7 +94,7 @@ def get_Pila_Fe_scroll_pos_by_temple(win_dc: WinDCApiCap, client_rect) -> [tuple
     return None
 
 
-def use_Pila_Fe_scroll(detector, hwnd, debug=False, save_dir="logs/img"):
+def use_Pila_Fe_scroll(detector, hwnd, debug=False):
     """
     寻找背包里的卷轴并右击使用召唤
     :param save_dir:
@@ -140,12 +140,44 @@ def found_target(detector, hwnd, label, debug=False, save_dir="") -> bool:
 
 
 def found_Pila_Fe_scroll_using_check_ui(detector, hwnd, debug=False) -> bool:
-    return found_target(detector, hwnd, "ui$Pila Fe Scroll Using Check", debug=debug, save_dir="logs/img/PilaFeScrollUsingCheck")
+    return found_target(detector, hwnd, "ui$Pila Fe Scroll Using Check", debug=debug,
+                        save_dir="logs/img/PilaFeScrollUsingCheck")
 
 
 def found_boss_Magram(detector, hwnd, debug=False) -> bool:
+    """
+    发旋目标 “玛格岚”
+    :param detector:
+    :param hwnd:
+    :param debug:
+    :return:
+    """
     return found_target(detector, hwnd, "boss$Magram", debug=debug, save_dir="logs/img/Margram")
 
 
 def found_task_over(detector, hwnd, debug=False) -> bool:
+    """
+    发现目标提示“任务结束的标志”
+    :param detector:
+    :param hwnd:
+    :param debug:
+    :return:
+    """
     return found_target(detector, hwnd, "flag$Task Over", debug=debug, save_dir="logs/img/TaskOver")
+
+
+def found_flag_have_seen_a_distant_desination(detector, hwnd, debug=False) -> bool:
+    """
+    发现目标提示“已看到远方目的地”
+    :param detector:
+    :param hwnd:
+    :param debug:
+    :return:
+    """
+    return found_target(detector, hwnd, "flag$Deviate from destination", debug=debug,
+                        save_dir="logs/img/DeviateFromDestination")
+
+
+def collect_client_img(hwnd, save_dir):
+    win_dc = WinDCApiCap(hwnd)
+    win_dc.get_hwnd_screenshot_to_numpy_array(collection=True, save_dir=save_dir)

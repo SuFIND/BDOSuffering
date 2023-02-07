@@ -10,7 +10,7 @@ from win32gui import FindWindow
 
 from utils.capture_utils import WinDCApiCap
 from utils.cv_utils import static_color_pix_count
-from utils.muti_utils import FormatMsg, StopSig
+from utils.muti_utils import FormatMsg
 from utils.log_utils import Logger
 
 fmmsg = FormatMsg(source="GM检测")
@@ -61,7 +61,7 @@ def GM_check_loop(sig_dic, sig_mutex, msg_queue,
                     time.sleep(10)
                     continue
                 if sig_dic["stop"]:
-                    raise StopSig
+                    return
 
             # 获取截图
             sc_np = obj.get_hwnd_screenshot_to_numpy_array()
@@ -88,26 +88,8 @@ def GM_check_loop(sig_dic, sig_mutex, msg_queue,
 
             # 检测间隔
             time.sleep(10)
-    except StopSig:
-        pass
     except Exception as e:
         err = traceback.format_exc()
         Logger.error(err)
 
-
-def play_sound_to_alarm(sig_dic, sig_mutex):
-    """
-    播放声音以达到报警效果
-    :param sig_dic:
-    :param sig_mutex:
-    :return:
-    """
-    while True:
-        try:
-            with sig_mutex:
-                if sig_dic["stop"]:
-                    break
-                PlaySound("data/sound/alarm.wav", SND_FILENAME)
-        except Exception:
-            break
 

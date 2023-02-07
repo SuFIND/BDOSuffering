@@ -1,24 +1,5 @@
-class OverSig(Exception):
-    """正常结束"""
-    pass
-
-
-class StopSig(Exception):
-    """停止信号"""
-    pass
-
-
-class ExceptionSig(Exception):
-    """异常停止信号"""
-    pass
-
-
-class RetrySig(RuntimeError):
-    def __init__(self, *args, **kwargs):
-        super(RetrySig, self).__init__(*args)
-        self.redo = []
-        if 'redo' in kwargs:
-            self.redo = kwargs.get("redo", [])
+import time
+from threading import Thread
 
 
 class FormatMsg:
@@ -26,4 +7,17 @@ class FormatMsg:
         self.source = source
 
     def to_str(self, msg, level="info", ):
-        return f"{level}${self.source}${msg}"
+        return f"msg::{level}${self.source}${msg}"
+
+
+class CanStopThread():
+    def __init__(self):
+        self._running = True
+
+    def terminate(self):
+        self._running = False
+
+    # 这是一个末班，请继承并重写次方法
+    # def run(self):
+    #     while self._running:
+    #         time.sleep(5)

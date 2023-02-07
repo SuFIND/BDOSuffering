@@ -7,7 +7,6 @@ import win32gui
 from utils.capture_utils import WinDCApiCap
 from utils.simulate_utils import KeyboardSimulate as kb, MouseSimulate as ms
 from utils.win_utils import get_bdo_rect
-from utils.muti_utils import OverSig, StopSig, RetrySig
 
 
 def skil_action():
@@ -51,7 +50,7 @@ def use_scroll(pos):
 
 
 def close_bag():
-    kb.press_and_release("esc")
+    kb.press_and_release("i")
     time.sleep(0.5)
 
 

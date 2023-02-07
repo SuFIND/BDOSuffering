@@ -1,32 +1,45 @@
-import sys
-from app.init_resource import global_var, exitFlag
+import traceback
+from concurrent.futures import ProcessPoolExecutor
+
+from app.init_resource import global_var
+from utils.log_utils import Logger
 
 
-def del_process_pool(cfg: dict):
-    process_pool = global_var['process_pool']
-    process_pool.shutdown()
+def release_process_pool(cfg: dict):
+    try:
+        process_pool: ProcessPoolExecutor = global_var['process_pool']
+        process_pool.shutdown(wait=True)
+    except Exception as e:
+        err = traceback.format_exc()
+        Logger.error(err)
 
 
-def del_thread(cfg: dict):
-    exitFlag = 1
-    ts = global_var["threads"]
-    for t in ts:
-        t.join()
+def release_thread(cfg: dict):
+    try:
+        threads = global_var["threads"]
+        for _, custom_t_obj in threads:
+            custom_t_obj.terminate()
+        for t, _ in threads:
+            t.join()
+    except Exception as e:
+        err = traceback.format_exc()
+        Logger.error(err)
 
 
-def del_queue(cfg):
-    q = global_var["process_msg_queue"]
-    q.close()
+def release_share_space(cfg):
+    try:
+        manager = global_var["manager"]
+        manager.shutdown()
+    except Exception as e:
+        err = traceback.format_exc()
+        Logger.error(err)
 
 
-def del_resource(cfg: dict):
+def release_resource(cfg: dict):
     funcs = [
-        del_process_pool,
-        del_thread,
-        del_queue,
+        release_process_pool,
+        release_thread,
+        release_share_space,
     ]
     for func in funcs:
-        ok = func(cfg)
-        if ok:
-            continue
-        sys.exit(-1)
+        func(cfg)

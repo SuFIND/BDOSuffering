@@ -80,7 +80,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
 
     time.sleep(1)
 
-    # init queue
+    # init queue TODO 未来根据不同的初始化位置初始化队列
     q = []
     q.append((classics_op.open_bag, ()))  # 打开背包
     q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug)))  # 找到召唤书并召唤
@@ -104,7 +104,24 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
             if not find_id:
                 # 如果找不到召唤书，正常结束
                 msg_queue.put(fmmsg.to_str("找不到更多的召唤书，接下来将执行清理背包、修武器、回城等任务。"))
-                return
+                # 关闭背包UI
+                q.append((classics_op.close_bag, ()))
+                # 睡眠0,5s 让UI完成一部分动画
+                q.append((time.sleep, (0.5,)))
+
+                # TODO 下方操作配置化，是否执行应该配置化
+                # TODO 增加杂物主动提交回仓库的功能
+
+                # 打开帐篷修理武器，后回收帐篷
+                q.append((classics_op.repair_weapons_by_tent, ()))
+                # 睡眠0.5s 让UI完成一部分动画
+                q.append((time.sleep, (0.5,)))
+                # 打开寻找NPC的UI回到交易所
+                q.append((cv_op.back_to_market, (detector, hwnd, debug)))
+                # 睡眠160s，让人物移动到交易所 TODO 配置化
+                q.append((time.sleep, (160,)))
+                # # #对话鲁西比恩坤并打开交易所仓库
+                q.append((classics_op.chat_with_LucyBenKun_to_show_market_ui, (hwnd,)))
             else:
                 # 鼠标移动到卷轴图标
                 q.append((MouseSimulate.move, (scroll_pos[0], scroll_pos[1], True, 0.1)))
@@ -114,12 +131,36 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 q.append((cv_op.found_Pila_Fe_scroll_using_check_ui, (detector, hwnd, debug)))
 
         elif func.__name__ == "found_Pila_Fe_scroll_using_check_ui":
-            # 找到了使用确认的UI
+            # 如果发现有召唤确认UI
             if rst:
                 # 使用召唤卷轴
                 q.append((KeyboardSimulate.press_and_release, ("return",)))
                 # 关闭背包
                 q.append((classics_op.close_bag, ()))
+                # 判断是否出现远方目的地 TODO 数据收集结束后记得关闭debug模式
+                q.append((cv_op.found_flag_have_seen_a_distant_desination, (detector, hwnd, True)))
+
+            # 未找到了使用确认的UI
+            else:
+                # 关闭背包UI
+                q.append((classics_op.close_bag, ()))
+                # 判断是否出现远方目的地  TODO 数据收集结束后记得关闭debug模式
+                q.append((cv_op.found_flag_have_seen_a_distant_desination, (detector, hwnd, True)))
+
+        elif func.__name__ == "found_flag_have_seen_a_distant_desination":
+            # 如果出现了看到远方目的地
+            if rst:
+                # 关闭背包UI
+                q.append((classics_op.close_bag, ()))
+                # 按T
+                q.append((KeyboardSimulate.press_and_release, ("T",)))
+                # 等待自动走到目的地
+                q.append((time.sleep, (reset_place_wait_time,)))
+                # 找到召唤书并召唤
+                q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug)))
+
+            # 如果没有出现看到远方目的地，此时的卷轴正在被正常召唤
+            else:
                 # 等待使用卷轴时的硬直事件
                 q.append((time.sleep, (the_stiffening_time_after_using_the_scroll,)))
                 # 向后移动给即将下落的boss腾出相应的体积，避免任务被挤压 TODO 未来配置化
@@ -132,19 +173,6 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 q.append((time.sleep, (boss1_dead_action_time,)))
                 # 目标检测-是否看到BOSS玛格岚
                 q.append((cv_op.found_boss_Magram, (detector, hwnd, debug)))
-
-            # 未找到了使用确认的UI
-            else:
-                # 关闭背包UI
-                q.append((classics_op.close_bag, ()))
-                # 按T
-                q.append((KeyboardSimulate.press_and_release, ("T",)))
-                # 等待自动走到目的地
-                q.append((time.sleep, (reset_place_wait_time,)))
-                # 打开背包
-                q.append((classics_op.open_bag, ()))
-                # 找到召唤书并召唤
-                q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug)))
 
         elif func.__name__ == "found_boss_Magram":
             # 还是发现boss玛格岚
@@ -191,22 +219,3 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 # 检测是否完成任务
                 q.append((cv_op.found_task_over, (detector, hwnd, debug)))
 
-    # # after do
-    # # #关闭背包
-    # classics_op.close_bag()
-    # time.sleep(1)
-    #
-    # # #修理当前装备
-    # classics_op.repair_weapons_by_tent(hwnd)
-    # time.sleep(2)
-    #
-    # # # TODO 把背包中的目标杂物放置到仓库中
-    #
-    # # #回到交易所NPC处
-    # cv_op.back_to_market(detector, hwnd, debug=debug)
-    #
-    # # #路上的预计耗时为127秒,加上冗余时间保守设置为160秒 TODO 未来配置化
-    # time.sleep(160)
-    #
-    # # #对话鲁西比恩坤并打开交易所仓库
-    # classics_op.chat_with_LucyBenKun_to_show_market_ui(hwnd)

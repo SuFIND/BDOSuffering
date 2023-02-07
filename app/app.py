@@ -5,8 +5,8 @@ from PyQt6.QtCore import pyqtSignal
 from ui.ui_app import Ui_MainWindow
 from system_hotkey import SystemHotkey
 
+from app.app_thread import GMAlarmThread
 from app.init_resource import global_var
-from operation.gm_check import play_sound_to_alarm
 from control.GMCheckDialog import GMCheckDialog
 
 
@@ -39,10 +39,10 @@ class App(QMainWindow, Ui_MainWindow):
 
     def showGMCheckDialog(self, i_str):
         # 启动警报音的播放线程
-        sig_dic = global_var["process_sig"]
-        sig_mutex = global_var["process_sig_lock"]
-        t = threading.Thread(target=play_sound_to_alarm, args=(sig_dic, sig_mutex))
+        alarm_thread = GMAlarmThread()
+        t = threading.Thread(target=obj.run, args=())
         t.start()
+        global_var["threads"].append((t, alarm_thread))
 
         # 展示弹窗信息
         dialog = GMCheckDialog(self)

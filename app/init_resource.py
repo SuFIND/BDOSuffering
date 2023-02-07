@@ -10,7 +10,6 @@ from utils.log_utils import Logger
 global global_var
 global exitFlag
 global_var = {}
-exitFlag = 0
 
 
 def init_config(paths: list):
@@ -22,6 +21,7 @@ def init_app_config(cfg: dict):
     ok = True
     try:
         global_var["debug"] = cfg["app"]["debug"]
+        exitFlag = 0
     except Exception as e:
         err = traceback.format_exc()
         Logger.error(err)
@@ -56,6 +56,7 @@ def init_process_pool(cfg: dict):
                       "stop": True, })
     sig_mutex = m.Lock()
     msg_queue = m.Queue()
+    global_var["manager"] = m
     global_var["process_sig"] = sig_dic
     global_var["process_sig_lock"] = sig_mutex
     global_var["process_msg_queue"] = msg_queue

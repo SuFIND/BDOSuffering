@@ -6,43 +6,9 @@ import multiprocessing
 from PyQt6 import QtWidgets
 from app.app import App
 from utils.log_utils import Logger
-from app.init_resource import init_config, init_resource, global_var, exitFlag
-from app.del_resource import del_resource
-
-
-def app_exit(app, cfg):
-    app.exec()
-    del_resource(cfg)
-
-
-def monitor_msg_queue_thread(app):
-    """
-    监听进程共享的消息队列刷新进入日志, 更新界面标志
-    :return:
-    """
-    msg_queue = global_var["process_msg_queue"]
-    sig_dic = global_var["process_sig"]
-    sig_mutex = global_var["process_sig_lock"]
-
-    while exitFlag == 0:
-        with sig_mutex:
-            try:
-                if sig_dic["start"] and app.OpCtrl.viewer.StartPauseButton.text() != "暂停 F10":
-                    app.OpCtrl.button_sig.emit("refresh_display:pause")
-                if (sig_dic["pause"] or sig_dic["stop"]) and app.OpCtrl.viewer.StartPauseButton.text() != "开始 F10":
-                    app.OpCtrl.button_sig.emit("refresh_display:start")
-            except RuntimeError:
-                pass
-
-        if not msg_queue.empty():
-            msg_str = msg_queue.get(block=False)
-            if msg_str == "action::show_gm_modal":
-                app.sig_gm_check.emit("show_gm_modal")
-            else:
-                level, src, msg = msg_str.split("$")
-                app.LogCtrl.add_log(msg=f"{src}->{msg}", level=level)
-        else:
-            time.sleep(1)
+from app.init_resource import init_config, init_resource, global_var
+from app.app_thread import MsgHandleThread
+from app.del_resource import release_resource
 
 
 def main():
@@ -61,12 +27,19 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
     main_app = App()
 
-    t = threading.Thread(target=monitor_msg_queue_thread, args=(main_app,), daemon=True)
+    # 启动一个消息处理线程，处理子进程与主进程的消息
+    msg_thread = MsgHandleThread()
+    t = threading.Thread(target=msg_thread.run, args=(main_app,), daemon=True)
     t.start()
-    global_var["threads"].append(t)
+
+    global_var["threads"].append((t, msg_thread))
 
     main_app.show()
-    sys.exit(app_exit(app, config))
+
+    exist_code = app.exec()
+    release_resource(config)
+
+    sys.exit(exist_code)
 
 
 if __name__ == "__main__":
