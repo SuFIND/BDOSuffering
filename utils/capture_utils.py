@@ -72,7 +72,7 @@ class WinDCApiCap:
             if not os.path.exists(save_dir):
                 os.mkdir(save_dir)
             img_name = f"{round(time.time())}.jpg"
-            cv2.imwrite(os.path.join(save_dir, img_name))
+            cv2.imwrite(os.path.join(save_dir, img_name), img)
 
         # 返回截图数据为numpy.ndarray
         return img

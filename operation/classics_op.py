@@ -149,6 +149,7 @@ def repair_weapons_by_tent(hwnd):
     icon_pos = get_repair_weapons_icon_pos(hwnd)
     if icon_pos:
         ms.move(icon_pos[0], icon_pos[1], duration=0.1)
+        ms.click()
 
     kb.press_and_release('return')
 

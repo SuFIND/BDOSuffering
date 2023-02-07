@@ -207,10 +207,6 @@ def get_scroll_written_in_ancient_language_poses_by_temple(win_dc: WinDCApiCap, 
     return poses
 
 
-def get_scroll_written_in_ancient_language_poses_by_model(win_dc: WinDCApiCap, client_rect) -> list:
-    pass
-
-
 def get_merge_button_by_temple(win_dc: WinDCApiCap, client_rect) -> [tuple, None]:
     if not win_dc.is_available():
         return None
@@ -224,6 +220,57 @@ def get_merge_button_by_temple(win_dc: WinDCApiCap, client_rect) -> [tuple, None
     loc = np.where(res >= threshold)
     for pt_left, pt_top in zip(*loc[::-1]):
         return cur_windows_left + pt_left + template_w / 2, cur_windows_top + pt_top + template_h / 2
+
+
+def clear_bag(detector, hwnd, debug=False):
+    """
+    呼出仓库女仆清理背包杂物
+    :param detector:
+    :param hwnd:
+    :param debug:
+    :return:
+    """
+    bdo_rect = get_bdo_rect(hwnd)
+    win_dc = WinDCApiCap(hwnd)
+    c_left, c_top, _, _ = bdo_rect
+
+    kb.press("alt")
+    kb.press_and_release("1")
+    kb.release("alt")
+
+    bag_bbox = get_bag_ui_bbox(detector, win_dc, bdo_rect, debug)
+    if bag_bbox is None:
+        return False
+
+    into_pos = (bag_bbox[0] + bag_bbox[2]) / 2, (bag_bbox[1] + bag_bbox[3]) / 2
+    out_pos = bag_bbox[0] - 50, bag_bbox[1] - 50
+
+    step = 4
+    cur_step = 0
+    max_step = 16
+    while cur_step <= max_step:
+        ms.move(out_pos[0], out_pos[1])
+        img = win_dc.get_hwnd_screenshot_to_numpy_array(collection=debug, save_dir="logs/img/ClearBag")
+        infer_rst = detector.infer(img)
+
+        for label in ["item$Memory Fragment", "item$Mutant Bat's Wing", "item$Bashim Mane", "item$Hunter's Seal"]:
+            if label not in infer_rst:
+                continue
+            for info in infer_rst[label]:
+                item_bbox = info["bbox"]
+                item_center_pos = c_left + (item_bbox[0] + item_bbox[2]) / 2, c_top + (item_bbox[1] + item_bbox[3]) / 2
+                ms.move(item_center_pos[0], item_center_pos[1], duration=0.1)
+                ms.click(ms.RIGHT)
+                kb.press_and_release("F")
+                kb.press_and_release("return")
+
+        ms.move(into_pos[0], into_pos[1], duration=0.1)
+        for i in range(step):
+            ms.wheel(-100)
+        cur_step += step
+
+    kb.press_and_release("esc")
+    kb.press_and_release("esc")
 
 
 def merge_scroll_written_in_ancient_language(detector, hwnd, debug=False):

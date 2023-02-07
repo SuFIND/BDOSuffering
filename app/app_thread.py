@@ -32,7 +32,7 @@ class MsgHandleThread(CanStopThread):
                 if msg_str == "action::show_gm_modal":
                     app.sig_gm_check.emit("show_gm_modal")
                 elif msg_str.startswith("msg::"):
-                    level, src, msg = msg_str[:5].split("$")
+                    level, src, msg = msg_str[5:].split("$")
                     app.LogCtrl.add_log(msg=f"{src}->{msg}", level=level)
             else:
                 time.sleep(1)

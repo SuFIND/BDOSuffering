@@ -4,7 +4,6 @@
 """
 import time
 import traceback
-from winsound import PlaySound, SND_FILENAME
 
 from win32gui import FindWindow
 

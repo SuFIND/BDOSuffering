@@ -126,11 +126,12 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 # 睡眠0,5s 让UI完成一部分动画
                 q.append((time.sleep, (0.5,)))
 
-                # TODO 下方操作配置化，是否执行应该配置化
-                # TODO 增加杂物主动提交回仓库的功能
+                # TODO 下方操作是否执行应该配置化
+                # 杂物主动利用仓库女仆提交仓库
+                q.append((cv_op.clear_bag, (detector, hwnd, True)))
 
                 # 打开帐篷修理武器，后回收帐篷
-                q.append((classics_op.repair_weapons_by_tent, ()))
+                q.append((classics_op.repair_weapons_by_tent, (hwnd,)))
                 # 睡眠0.5s 让UI完成一部分动画
                 q.append((time.sleep, (0.5,)))
                 # 打开寻找NPC的UI回到交易所
