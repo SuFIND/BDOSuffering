@@ -1,0 +1,18 @@
+1 ui$Find NPC
+2 item$Pila Fe Scroll
+3 ui$Bag
+4 ui$Pila Fe Scroll Using Check
+5 ui$Bag Work Area
+6 ui$Process Bar
+7 boss$Magram
+8 boss$Khalk
+9 flag$Task Over
+10 item$Memory Fragment
+11 item$Mutant Bat's Wing
+12 item$Bashim Mane
+13 item$Hunter's Seal
+14 ui$Trading Warehouse
+15 item$Scroll Written in Ancient Language
+16 flag$Merge Button
+17 flag$Deviate from destination
+18 flag$No Free Bag Space
