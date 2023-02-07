@@ -8,7 +8,6 @@ import toml
 from utils.log_utils import Logger
 
 global global_var
-global exitFlag
 global_var = {}
 
 
@@ -21,7 +20,6 @@ def init_app_config(cfg: dict):
     ok = True
     try:
         global_var["debug"] = cfg["app"]["debug"]
-        exitFlag = 0
     except Exception as e:
         err = traceback.format_exc()
         Logger.error(err)
@@ -30,10 +28,16 @@ def init_app_config(cfg: dict):
 
 
 def init_bod_config(cfg: dict):
+    """
+    初始化黑色沙漠窗口相关的信息
+    :param cfg:
+    :return:
+    """
     ok = True
     try:
         global_var['BDO_window_title'] = cfg["BDO"]["window_title"]
         global_var['BDO_window_class'] = cfg["BDO"]["window_class"]
+        global_var['BDO_window_title_bar_height'] = cfg["BDO"]["window_title_bar_height"]
     except Exception:
         err = traceback.format_exc()
         Logger.error(err)

@@ -6,6 +6,7 @@ from win32gui import FindWindow
 
 import operation.classics_op as classics_op
 import operation.cv_op as cv_op
+from app.init_resource import global_var
 from app.init_func import init_labels_dic
 from utils.cv_utils import Detector
 from utils.log_utils import Logger
@@ -15,8 +16,21 @@ from utils.simulate_utils import KeyboardSimulate, MouseSimulate
 fmmsg = FormatMsg(source="模拟动作")
 
 
-def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class: str, onnx_path: str,
-                 label_dic_path: str, debug=False):
+def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class: str, title_height: int, onnx_path: str,
+                 label_dic_path: str, debug: bool):
+    """
+    动作执行模块
+    :param sig_dic:
+    :param sig_mutex:
+    :param msg_queue:
+    :param window_title:
+    :param window_class:
+    :param title_height:
+    :param onnx_path:
+    :param label_dic_path:
+    :param debug:
+    :return:
+    """
     # 初始化资源
     # # 初始化相关资源
     Logger.set_log_name("action_simulate.log")
@@ -33,6 +47,9 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
     # # 目前检测器
     label_dic = init_labels_dic(label_dic_path)
     detector = Detector(onnx_path, label_dic)
+
+    # # 全局变量的加载
+    global_var["BDO_window_title_bar_height"] = title_height
 
     try:
         action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=debug)

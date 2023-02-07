@@ -47,6 +47,7 @@ class OpCtrl(QtWidgets.QWidget):
             msg_queue = global_var["process_msg_queue"]
             window_title = global_var['BDO_window_title']
             window_class = global_var['BDO_window_class']
+            window_title_bar_height = global_var["BDO_window_title_bar_height"]
 
             # #GM检测想关资源
             gm_check_cool_time = global_var["gm_check_cool_time"]
@@ -59,7 +60,7 @@ class OpCtrl(QtWidgets.QWidget):
 
             # 启动打三角进程
             process_pool.submit(start_action, sig_dic, sig_mutex, msg_queue, window_title, window_class,
-                                onnx_file_path, classes_id_file_path, debug)
+                                window_title_bar_height, onnx_file_path, classes_id_file_path, debug)
 
             # 启动GM守护进程
             process_pool.submit(GM_check_loop, sig_dic, sig_mutex, msg_queue, window_title, window_class,
