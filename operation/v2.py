@@ -99,8 +99,8 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
 
     # init queue TODO 未来根据不同的初始化位置初始化队列
     q = []
-    q.append((classics_op.open_bag, ()))  # 打开背包
-    q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug)))  # 找到召唤书并召唤
+    q.append((classics_op.open_bag, (), "打开背包"))
+    q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug), "找到召唤书并召唤"))
 
     while len(q) > 0:
         # 是否有来自GUI或者GM检测进程或者前置步骤的中断或者暂停信号
@@ -113,8 +113,9 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 break
 
         tup = q.pop(0)
-        func, args = tup
+        func, args , intention = tup
         rst = func(*args)
+        msg_queue.put(fmmsg.to_str(intention, level="debug"))
 
         if func.__name__ == "use_Pila_Fe_scroll":
             find_id, scroll_pos = rst
@@ -122,118 +123,129 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 # 如果找不到召唤书，正常结束
                 msg_queue.put(fmmsg.to_str("找不到更多的召唤书，接下来将执行清理背包、修武器、回城等任务。"))
                 # 关闭背包UI
-                q.append((classics_op.close_bag, ()))
-                # 睡眠0,5s 让UI完成一部分动画
-                q.append((time.sleep, (0.5,)))
+                q.append((classics_op.close_bag, (), "关闭背包UI"))
 
                 # TODO 下方操作是否执行应该配置化
                 # 杂物主动利用仓库女仆提交仓库
-                q.append((cv_op.clear_bag, (detector, hwnd, True)))
+                q.append((cv_op.clear_bag, (detector, hwnd, True), "杂物主动利用仓库女仆提交仓库"))
 
                 # 打开帐篷修理武器，后回收帐篷
-                q.append((classics_op.repair_weapons_by_tent, (hwnd,)))
+                q.append((classics_op.repair_weapons_by_tent, (hwnd,), "打开帐篷修理武器，后回收帐篷"))
                 # 睡眠0.5s 让UI完成一部分动画
-                q.append((time.sleep, (0.5,)))
+                q.append((time.sleep, (0.5,), "睡眠0.5s 让UI完成一部分动画"))
                 # 打开寻找NPC的UI回到交易所
-                q.append((cv_op.back_to_market, (detector, hwnd, debug)))
+                q.append((cv_op.back_to_market, (detector, hwnd, debug), "打开寻找NPC的UI回到交易所"))
                 # 睡眠160s，让人物移动到交易所 TODO 配置化
-                q.append((time.sleep, (160,)))
+                q.append((time.sleep, (160,), "等待人物回交易所的时间"))
                 # # #对话鲁西比恩坤并打开交易所仓库
-                q.append((classics_op.chat_with_LucyBenKun_to_show_market_ui, (hwnd,)))
+                q.append((classics_op.chat_with_LucyBenKun_to_show_market_ui, (hwnd,), "对话鲁西比恩坤并打开交易所仓库"))
             else:
                 # 鼠标移动到卷轴图标
-                q.append((MouseSimulate.move, (scroll_pos[0], scroll_pos[1], True, 0.1)))
+                q.append((MouseSimulate.move, (scroll_pos[0], scroll_pos[1], True, 0.1), "鼠标移动到卷轴图标"))
                 # 鼠标右键使用
-                q.append((MouseSimulate.click, (MouseSimulate.RIGHT,)))
+                q.append((MouseSimulate.click, (MouseSimulate.RIGHT,), "鼠标右键使用"))
                 # 识别弹出的召唤确认框
-                q.append((cv_op.found_Pila_Fe_scroll_using_check_ui, (detector, hwnd, debug)))
+                q.append((cv_op.found_Pila_Fe_scroll_using_check_ui, (detector, hwnd, debug), "识别弹出的召唤确认框"))
 
         elif func.__name__ == "found_Pila_Fe_scroll_using_check_ui":
             # 如果发现有召唤确认UI
             if rst:
                 # 使用召唤卷轴
-                q.append((KeyboardSimulate.press_and_release, ("return",)))
+                q.append((KeyboardSimulate.press_and_release, ("return",), "按下回城确认召唤"))
                 # 关闭背包
-                q.append((classics_op.close_bag, ()))
+                q.append((classics_op.close_bag, (), "关闭背包UI"))
                 # 判断是否出现远方目的地 TODO 数据收集结束后记得关闭debug模式
-                q.append((cv_op.found_flag_have_seen_a_distant_desination, (detector, hwnd, True)))
+                q.append((cv_op.found_flag_have_seen_a_distant_desination, (detector, hwnd, True), "判断是否出现远方目的地"))
 
             # 未找到了使用确认的UI
             else:
                 # 关闭背包UI
-                q.append((classics_op.close_bag, ()))
+                q.append((classics_op.close_bag, (), "关闭背包UI"))
                 # 判断是否出现远方目的地  TODO 数据收集结束后记得关闭debug模式
-                q.append((cv_op.found_flag_have_seen_a_distant_desination, (detector, hwnd, True)))
+                q.append((cv_op.found_flag_have_seen_a_distant_desination, (detector, hwnd, True), "判断是否出现远方目的地"))
 
         elif func.__name__ == "found_flag_have_seen_a_distant_desination":
             # 如果出现了看到远方目的地
             if rst:
-                # 关闭背包UI
-                q.append((classics_op.close_bag, ()))
                 # 按T
-                q.append((KeyboardSimulate.press_and_release, ("T",)))
+                q.append((KeyboardSimulate.press_and_release, ("T",), "按T等待回归到召唤地点"))
                 # 等待自动走到目的地
-                q.append((time.sleep, (reset_place_wait_time,)))
+                q.append((time.sleep, (reset_place_wait_time,), "等待自动走回卷轴召唤地"))
                 # 找到召唤书并召唤
-                q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug)))
+                q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug), "找到召唤书并召唤"))
 
             # 如果没有出现看到远方目的地，此时的卷轴正在被正常召唤
             else:
                 # 等待使用卷轴时的硬直事件
-                q.append((time.sleep, (the_stiffening_time_after_using_the_scroll,)))
-                # 向后移动给即将下落的boss腾出相应的体积，避免任务被挤压 TODO 未来配置化
-                q.append((classics_op.reposition_after_call, ()))
+                q.append((time.sleep, (the_stiffening_time_after_using_the_scroll,), "等待使用卷轴时的硬直事件"))
+                # 向后移动给即将下落的boss腾出相应的体积，避免人物被挤压 TODO 未来配置化
+                q.append((classics_op.reposition_after_call, (), "向后移动给即将下落的boss腾出相应的体积"))
                 # 后撤位移后等待boss1变成可击杀状态
-                q.append((time.sleep, (after_back_action_wait_time,)))
-                # 播放动作  TODO 未来配置化
-                q.append((classics_op.skil_action, ()))
-                # 等待BOSS玛格岚倒地动画完成
-                q.append((time.sleep, (boss1_dead_action_time,)))
-                # 目标检测-是否看到BOSS玛格岚
-                q.append((cv_op.found_boss_Magram, (detector, hwnd, debug)))
+                q.append((time.sleep, (after_back_action_wait_time,), "后撤位移后等待boss1变成可击杀状态"))
+                # 检测-BOSS玛格岚是否正常出现
+                q.append((cv_op.found_boss_Magram, (detector, hwnd, debug), "检测-BOSS玛格岚是否正常出现"))
 
-        elif func.__name__ == "found_boss_Magram":
+        elif func.__name__ == "found_boss_Magram" and intention == "检测-BOSS玛格岚是否正常出现":
+            # 如果发现了目标玛格岚说明卷轴召唤正常
+            if rst:
+                # 播放自定义技能动作  TODO 未来配置化
+                q.append((classics_op.skil_action, (), "播放自定义技能动作"))
+                # 等待BOSS玛格岚倒地动画完成
+                q.append((time.sleep, (boss1_dead_action_time,), "等待BOSS玛格岚倒地动画完成"))
+                # 目标检测-BOSS玛格岚是否还没死
+                q.append((cv_op.found_boss_Magram, (detector, hwnd, debug), "检测-BOSS玛格岚是否还没死"))
+
+            # 如果没有检测到目标玛格岚则说明前面的卷轴召唤异常
+            else:
+                # 重新打开背包
+                q.append((classics_op.open_bag, (), "打开背包"))
+                # 重新找到召唤书并召唤
+                q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug), "找到召唤书并召唤"))
+
+        elif func.__name__ == "found_boss_Magram" and intention == "检测-BOSS玛格岚是否还没死":
             # 还是发现boss玛格岚
             if rst:
                 # 播放动作  TODO 未来配置化
-                q.append((classics_op.skil_action, ()))
+                q.append((classics_op.skil_action, (), "播放自定义技能动作"))
                 # 等待BOSS玛格岚倒地动画完成
-                q.append((time.sleep, (boss1_dead_action_time,)))
-                # 目标检测-是否看到BOSS玛格岚
-                q.append((cv_op.found_boss_Magram, (detector, hwnd, debug)))
+                q.append((time.sleep, (boss1_dead_action_time,), "等待BOSS玛格岚倒地动画完成"))
+                # 目标检测-BOSS玛格岚是否还没死
+                q.append((cv_op.found_boss_Magram, (detector, hwnd, debug), "检测-BOSS玛格岚是否还没死"))
 
             # 如果没有发现玛格岚说明玛格岚已经寄了
             else:
                 # 等待Boss2变成可被击杀的状态
-                q.append((time.sleep, (boss2_real_wait_time,)))
-                # 播放动作  TODO 未来配置化
-                q.append((classics_op.skil_action, ()))
-                q.append((time.sleep, (1,)))
+                q.append((time.sleep, (boss2_real_wait_time,), "等待BOSS柯尔特变成可击杀状态"))
+                # 播放自定义技能动作  TODO 未来配置化
+                q.append((classics_op.skil_action, (), "播放自定义技能动作"))
+                q.append((time.sleep, (1,), "睡眠1s 让UI完成一部分动画"))
                 # 检测是否完成任务
-                q.append((cv_op.found_task_over, (detector, hwnd, debug)))
+                q.append((cv_op.found_task_over, (detector, hwnd, debug), "检测-任务是否完成"))
 
         elif func.__name__ == "found_task_over":
             if rst:
                 # 等待任务变成可以呼出小黑的状态
-                q.append((time.sleep, (2.5,)))
+                q.append((time.sleep, (2.5,), "等待任务变成可以呼出小黑的状态"))
                 # 呼出小精灵完成任务
-                q.append((classics_op.call_black_wizard_to_finish_task, ()))
-                # 统计性能指标
-                exec_count += 1
-                now_at = time.perf_counter()
-                cur_cost_min = round((now_at - start_at) / 60)
-                efficiency = round(exec_count / ((now_at - start_at) / 3600), 2)
-                msg_queue.put(fmmsg.to_str(f"执行 {exec_count} 次，花费 {cur_cost_min} 分钟，平均 {efficiency} 个/小时。"))
+                q.append((classics_op.call_black_wizard_to_finish_task, (), "呼出小精灵完成任务"))
                 # 按T回到召唤地点
-                q.append((classics_op.reposition_before_call, ()))
+                q.append((classics_op.reposition_before_call, (), "按T回到召唤地点"))
                 # 打开背包
-                q.append((classics_op.open_bag, ()))
+                q.append((classics_op.open_bag, (), "打开背包"))
                 # 找到召唤书并召唤
-                q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug)))
+                q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug), "找到召唤书并召唤"))
 
             else:
-                # 播放动作  TODO 未来配置化
-                q.append((classics_op.skil_action, ()))
+                # 播放自定义技能动作  TODO 未来配置化
+                q.append((classics_op.skil_action, (), "播放自定义技能动作"))
                 # 检测是否完成任务
-                q.append((cv_op.found_task_over, (detector, hwnd, debug)))
+                q.append((cv_op.found_task_over, (detector, hwnd, debug), "检测是否完成任务"))
+
+        elif func.__name__ == "call_black_wizard_to_finish_task":
+            # 统计性能指标
+            exec_count += 1
+            now_at = time.perf_counter()
+            cur_cost_min = round((now_at - start_at) / 60)
+            efficiency = round(exec_count / ((now_at - start_at) / 3600), 2)
+            msg_queue.put(fmmsg.to_str(f"执行 {exec_count} 次，花费 {cur_cost_min} 分钟，平均 {efficiency} 个/小时。"))
 

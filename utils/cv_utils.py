@@ -101,7 +101,7 @@ class Detector:
         """
         return [val for _, val in self.labels_map.items()]
 
-    def infer(self, or_img: np.ndarray, min_score=0.7) -> dict:
+    def infer(self, or_img: np.ndarray, min_score=0.6) -> dict:
         """
         进行推理
         :return:

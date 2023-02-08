@@ -56,15 +56,18 @@ class LogCtrl(QtWidgets.QWidget):
         :return:
         """
         html = ""
+        level_color_map = {
+            "debug": "#8c8c8c",
+            "error": "#ff4d4f",
+            "warning": "#ffa940",
+            "info": "#434343",
+        }
         for (time, level, msg) in self.logLines:
             time_str = time.strftime("%Y-%m-%d %H:%M:%S")
             line_one_str = f"{time_str} - [{level}]: {msg}\n"
 
-            if level == "error":
-                html += f"<div><font color=#ff4d4f>{line_one_str}</font><div>"
-            elif level == "warning":
-                html += f"<div><font color=#ffa940>{line_one_str}</font><div>"
-            else:
-                html += f"<div><font color=#434343>{line_one_str}</font><div>"
+            color = level_color_map.get(level, "#434343")
+            html += f"<div><font color={color}>{line_one_str}</font><div>"
+
         self.viewer.textBrowser.setHtml(html)
         self.viewer.textBrowser.moveCursor(QtGui.QTextCursor.MoveOperation.End)

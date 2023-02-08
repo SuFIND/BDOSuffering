@@ -260,6 +260,12 @@ def clear_bag(detector, hwnd, debug=False):
             for info in infer_rst[label]:
                 item_bbox = info["bbox"]
                 item_center_pos = c_left + (item_bbox[0] + item_bbox[2]) / 2, c_top + (item_bbox[1] + item_bbox[3]) / 2
+
+                # filter 如果物品的中心点不在背包UI内则不考虑对物品进行移动
+                if not bag_bbox[0] < item_center_pos[0] < bag_bbox[2] \
+                        or not bag_bbox[1] < item_center_pos[1] < bag_bbox[3]:
+                    continue
+
                 ms.move(item_center_pos[0], item_center_pos[1], duration=0.1)
                 ms.click(ms.RIGHT)
                 kb.press_and_release("F")
@@ -274,59 +280,3 @@ def clear_bag(detector, hwnd, debug=False):
     kb.press_and_release("esc")
 
 
-def merge_scroll_written_in_ancient_language(detector, hwnd, debug=False):
-    """
-    合并古语卷轴
-    :param detector:
-    :param hwnd:
-    :param debug:
-    :return:
-    """
-    # 背包的可拖拽区域
-    win_dc = WinDCApiCap(hwnd)
-    bdo_rect = get_bdo_rect(hwnd)
-    bag_bbox = get_bag_ui_bbox(detector, win_dc, bdo_rect, debug=debug)
-
-    if bag_bbox is None:
-        return False
-
-    bag_left, bag_top, bag_right, bag_bottom = bag_bbox
-    into_bag_pos = round((bag_right + bag_left) / 2), round((bag_top + bag_bottom) / 2)
-    out_to_bag_pos = bag_left - 30, bag_top - 30
-    # TODO 接入 Windows OCR， 请参考WinRT
-
-    # 先扫描背包中可以直接合成的卷轴
-    # # 先移动到UI外避免对古语卷轴识别的干扰
-    ms.move(out_to_bag_pos[0], out_to_bag_pos[1])
-
-    step = 4
-    cur_step = 0
-    max_step = 16
-    while cur_step <= max_step:
-        # 识别是否有合成的小icon
-        merge_button_pos = get_merge_button_by_temple(win_dc, bdo_rect)
-
-        # 如果有，则移动鼠标到小icon上，并点击合成
-        if merge_button_pos is not None:
-            ms.move(merge_button_pos[0], merge_button_pos[1], duration=0.1)
-            ms.click()
-
-        # 否则鼠标移动回背包内，滚轮往下滑动看看是否有其他合成图标
-        else:
-            ms.move(into_bag_pos[0], into_bag_pos[1], duration=0.1)
-            for i in range(step):
-                ms.wheel(-100)
-            cur_step += step
-
-    pass
-
-
-def get_bag_capacity_by_ocr(win_dc: WinDCApiCap, bag_bbox):
-    class _BagCapacity:
-        def __init__(self, free, total):
-            self.free = free
-            self.total = total
-
-    rst = _BagCapacity(0, 0)
-    sc = win_dc.get_hwnd_screenshot_to_numpy_array()
-    bg_sc = sc[bag_bbox[0]:bag_bbox[2], bag_bbox[1]:bag_bbox[3]]
