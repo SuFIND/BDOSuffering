@@ -2,6 +2,7 @@ import datetime
 
 from PyQt6 import QtWidgets, QtCore, QtGui
 from ui.ui_log_ctrl import Ui_LogCtrl
+from app.init_resource import global_var
 
 
 class LogCtrl(QtWidgets.QWidget):
@@ -15,6 +16,13 @@ class LogCtrl(QtWidgets.QWidget):
 
     # 信号
     refresh_sig = QtCore.pyqtSignal(str)
+
+    LEVEL_LOGS = {
+        INFO: {INFO, WARNING, ERROR},
+        WARNING: {WARNING, ERROR},
+        ERROR: {ERROR},
+        DEBUG: {DEBUG, INFO, WARNING, ERROR}
+    }
 
     def __init__(self, parent, *args):
         """
@@ -34,6 +42,7 @@ class LogCtrl(QtWidgets.QWidget):
 
         # 当前可返回的一些数据
         self.logLines = []
+        self.log_level = global_var["log_level"]
 
     def add_log(self, msg, level=INFO):
         """
@@ -63,6 +72,9 @@ class LogCtrl(QtWidgets.QWidget):
             "info": "#434343",
         }
         for (time, level, msg) in self.logLines:
+            if level not in self.LEVEL_LOGS[self.log_level]:
+                continue
+
             time_str = time.strftime("%Y-%m-%d %H:%M:%S")
             line_one_str = f"{time_str} - [{level}]: {msg}\n"
 

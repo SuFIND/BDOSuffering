@@ -20,6 +20,7 @@ def init_app_config(cfg: dict):
     ok = True
     try:
         global_var["debug"] = cfg["app"]["debug"]
+        global_var["log_level"] = cfg["app"]["log_level"]
     except Exception as e:
         err = traceback.format_exc()
         Logger.error(err)
