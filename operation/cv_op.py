@@ -6,7 +6,6 @@ import operation.classics_op as classics_op
 from utils.capture_utils import WinDCApiCap
 from utils.simulate_utils import MouseSimulate as ms, KeyboardSimulate as kb
 from utils.win_utils import get_bdo_rect
-from utils.ocr_utils import recognize_numpy
 
 
 def back_to_market(detector, hwnd, debug=False):
@@ -145,38 +144,56 @@ def found_Pila_Fe_scroll_using_check_ui(detector, hwnd, debug=False) -> bool:
                         save_dir="logs/img/PilaFeScrollUsingCheck")
 
 
-def found_boss_Magram(detector, hwnd, debug=False) -> bool:
+def found_boss_Magram(detector, hwnd, retry:int, debug:bool=False) -> bool:
     """
     发旋目标 “玛格岚”
     :param detector:
     :param hwnd:
+    :param retry:
     :param debug:
     :return:
     """
-    return found_target(detector, hwnd, "boss$Magram", debug=debug, save_dir="logs/img/Margram")
+    rst = False
+    for i in range(retry+1):
+        rst = rst or found_target(detector, hwnd, "boss$Magram", debug=debug, save_dir="logs/img/Margram")
+        if rst:
+            break
+    return rst
 
 
-def found_task_over(detector, hwnd, debug=False) -> bool:
+def found_task_over(detector, hwnd, retry:int, debug:bool=False) -> bool:
     """
     发现目标提示“任务结束的标志”
     :param detector:
     :param hwnd:
+    :param retry:
     :param debug:
     :return:
     """
-    return found_target(detector, hwnd, "flag$Task Over", debug=debug, save_dir="logs/img/TaskOver")
+    rst = False
+    for i in range(retry + 1):
+        rst = rst or found_target(detector, hwnd, "flag$Task Over", debug=debug, save_dir="logs/img/TaskOver")
+        if rst:
+            break
+    return rst
 
 
-def found_flag_have_seen_a_distant_desination(detector, hwnd, debug=False) -> bool:
+def found_flag_have_seen_a_distant_desination(detector, hwnd, retry:int, debug:bool=False) -> bool:
     """
     发现目标提示“已看到远方目的地”
     :param detector:
     :param hwnd:
+    :param retry:
     :param debug:
     :return:
     """
-    return found_target(detector, hwnd, "flag$Deviate from destination", debug=debug,
+    rst = False
+    for i in range(retry + 1):
+        rst = rst or found_target(detector, hwnd, "flag$Deviate from destination", debug=debug,
                         save_dir="logs/img/DeviateFromDestination")
+        if rst:
+            break
+    return rst
 
 
 def collect_client_img(hwnd, save_dir):

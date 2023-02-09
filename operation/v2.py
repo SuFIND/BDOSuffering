@@ -83,7 +83,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
     # # boss1完成倒地动画耗时
     boss1_dead_action_time = 3
     # # 从boss1死亡到boss2可以被打击耗时
-    boss2_can_be_hit_cool_time = 15
+    boss2_can_be_hit_cool_time = 13.75
     # # 完成boss1击杀确认目标识别后真正需要等待的数据
     boss2_real_wait_time = boss2_can_be_hit_cool_time - skill_action_time - boss1_dead_action_time - 0.1
 
@@ -144,25 +144,13 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 q.append((MouseSimulate.move, (scroll_pos[0], scroll_pos[1], True, 0.1), "鼠标移动到卷轴图标"))
                 # 鼠标右键使用
                 q.append((MouseSimulate.click, (MouseSimulate.RIGHT,), "鼠标右键使用"))
-                # 识别弹出的召唤确认框
-                q.append((cv_op.found_Pila_Fe_scroll_using_check_ui, (detector, hwnd, debug), "识别弹出的召唤确认框"))
-
-        elif func.__name__ == "found_Pila_Fe_scroll_using_check_ui":
-            # 如果发现有召唤确认UI
-            if rst:
-                # 使用召唤卷轴
+                # 按下回城确认召唤
                 q.append((KeyboardSimulate.press_and_release, ("return",), "按下回城确认召唤"))
                 # 关闭背包
                 q.append((classics_op.close_bag, (), "关闭背包UI"))
                 # 判断是否出现远方目的地 TODO 数据收集结束后记得关闭debug模式
-                q.append((cv_op.found_flag_have_seen_a_distant_desination, (detector, hwnd, True), "判断是否出现远方目的地"))
+                q.append((cv_op.found_flag_have_seen_a_distant_desination, (detector, hwnd, 2, True), "判断是否出现远方目的地"))
 
-            # 未找到了使用确认的UI
-            else:
-                # 关闭背包UI
-                q.append((classics_op.close_bag, (), "关闭背包UI"))
-                # 判断是否出现远方目的地  TODO 数据收集结束后记得关闭debug模式
-                q.append((cv_op.found_flag_have_seen_a_distant_desination, (detector, hwnd, True), "判断是否出现远方目的地"))
 
         elif func.__name__ == "found_flag_have_seen_a_distant_desination":
             # 如果出现了看到远方目的地
@@ -183,7 +171,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 # 后撤位移后等待boss1变成可击杀状态
                 q.append((time.sleep, (after_back_action_wait_time,), "后撤位移后等待boss1变成可击杀状态"))
                 # 检测-BOSS玛格岚是否正常出现
-                q.append((cv_op.found_boss_Magram, (detector, hwnd, debug), "检测-BOSS玛格岚是否正常出现"))
+                q.append((cv_op.found_boss_Magram, (detector, hwnd, 2, True), "检测-BOSS玛格岚是否正常出现"))
 
         elif func.__name__ == "found_boss_Magram" and intention == "检测-BOSS玛格岚是否正常出现":
             # 如果发现了目标玛格岚说明卷轴召唤正常
@@ -193,7 +181,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 # 等待BOSS玛格岚倒地动画完成
                 q.append((time.sleep, (boss1_dead_action_time,), "等待BOSS玛格岚倒地动画完成"))
                 # 目标检测-BOSS玛格岚是否还没死
-                q.append((cv_op.found_boss_Magram, (detector, hwnd, debug), "检测-BOSS玛格岚是否还没死"))
+                q.append((cv_op.found_boss_Magram, (detector, hwnd, 0, debug), "检测-BOSS玛格岚是否还没死"))
 
             # 如果没有检测到目标玛格岚则说明前面的卷轴召唤异常
             else:
@@ -210,7 +198,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 # 等待BOSS玛格岚倒地动画完成
                 q.append((time.sleep, (boss1_dead_action_time,), "等待BOSS玛格岚倒地动画完成"))
                 # 目标检测-BOSS玛格岚是否还没死
-                q.append((cv_op.found_boss_Magram, (detector, hwnd, debug), "检测-BOSS玛格岚是否还没死"))
+                q.append((cv_op.found_boss_Magram, (detector, hwnd, 0, debug), "检测-BOSS玛格岚是否还没死"))
 
             # 如果没有发现玛格岚说明玛格岚已经寄了
             else:
@@ -218,9 +206,9 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 q.append((time.sleep, (boss2_real_wait_time,), "等待BOSS柯尔特变成可击杀状态"))
                 # 播放自定义技能动作  TODO 未来配置化
                 q.append((classics_op.skil_action, (), "播放自定义技能动作"))
-                q.append((time.sleep, (1,), "睡眠1s 让UI完成一部分动画"))
+                q.append((time.sleep, (2,), "睡眠2s 让UI完成一部分动画"))
                 # 检测是否完成任务
-                q.append((cv_op.found_task_over, (detector, hwnd, debug), "检测-任务是否完成"))
+                q.append((cv_op.found_task_over, (detector, hwnd, 2, debug), "检测-任务是否完成"))
 
         elif func.__name__ == "found_task_over":
             if rst:
@@ -239,7 +227,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 # 播放自定义技能动作  TODO 未来配置化
                 q.append((classics_op.skil_action, (), "播放自定义技能动作"))
                 # 检测是否完成任务
-                q.append((cv_op.found_task_over, (detector, hwnd, debug), "检测是否完成任务"))
+                q.append((cv_op.found_task_over, (detector, hwnd, 2, debug), "检测是否完成任务"))
 
         elif func.__name__ == "call_black_wizard_to_finish_task":
             # 统计性能指标
