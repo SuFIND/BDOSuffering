@@ -184,29 +184,6 @@ def collect_client_img(hwnd, save_dir):
     win_dc.get_hwnd_screenshot_to_numpy_array(collection=True, save_dir=save_dir)
 
 
-def get_scroll_written_in_ancient_language_poses_by_temple(win_dc: WinDCApiCap, client_rect) -> list:
-    """
-    用过模版匹配找到古语召唤卷轴的中心点位置
-    :param win_dc:
-    :param client_rect:
-    :return:
-    """
-    if not win_dc.is_available():
-        return []
-    cur_windows_left, cur_windows_top, _, _ = client_rect
-    sc_hots = win_dc.get_hwnd_screenshot_to_numpy_array()
-    trans_hots = cv2.cvtColor(sc_hots, cv2.COLOR_RGBA2RGB)
-    template = cv2.imread("data/temple/ScrollWrittenInAncientLanguage.bmp")
-    template_h, template_w = template.shape[:2]
-    res = cv2.matchTemplate(trans_hots, template, cv2.TM_CCOEFF_NORMED)
-    threshold = 0.7
-    loc = np.where(res >= threshold)
-    poses = []
-    for pt_left, pt_top in zip(*loc[::-1]):
-        poses.append((cur_windows_left + pt_left + template_w / 2, cur_windows_top + pt_top + template_h / 2))
-    return poses
-
-
 def get_merge_button_by_temple(win_dc: WinDCApiCap, client_rect) -> [tuple, None]:
     if not win_dc.is_available():
         return None
@@ -240,41 +217,39 @@ def clear_bag(detector, hwnd, debug=False):
     time.sleep(1)
 
     bag_bbox = get_bag_ui_bbox(detector, win_dc, bdo_rect, debug)
-    if bag_bbox is None:
-        return False
+    if bag_bbox is not None:
+        into_pos = (bag_bbox[0] + bag_bbox[2]) / 2, (bag_bbox[1] + bag_bbox[3]) / 2
+        out_pos = bag_bbox[0] - 50, bag_bbox[1] - 50
 
-    into_pos = (bag_bbox[0] + bag_bbox[2]) / 2, (bag_bbox[1] + bag_bbox[3]) / 2
-    out_pos = bag_bbox[0] - 50, bag_bbox[1] - 50
+        step = 4
+        cur_step = 0
+        max_step = 16
+        while cur_step <= max_step:
+            ms.move(out_pos[0], out_pos[1])
+            img = win_dc.get_hwnd_screenshot_to_numpy_array(collection=debug, save_dir="logs/img/ClearBag")
+            infer_rst = detector.infer(img)
 
-    step = 4
-    cur_step = 0
-    max_step = 16
-    while cur_step <= max_step:
-        ms.move(out_pos[0], out_pos[1])
-        img = win_dc.get_hwnd_screenshot_to_numpy_array(collection=debug, save_dir="logs/img/ClearBag")
-        infer_rst = detector.infer(img)
-
-        for label in ["item$Memory Fragment", "item$Mutant Bat's Wing", "item$Bashim Mane", "item$Hunter's Seal"]:
-            if label not in infer_rst:
-                continue
-            for info in infer_rst[label]:
-                item_bbox = info["bbox"]
-                item_center_pos = c_left + (item_bbox[0] + item_bbox[2]) / 2, c_top + (item_bbox[1] + item_bbox[3]) / 2
-
-                # filter 如果物品的中心点不在背包UI内则不考虑对物品进行移动
-                if not bag_bbox[0] < item_center_pos[0] < bag_bbox[2] \
-                        or not bag_bbox[1] < item_center_pos[1] < bag_bbox[3]:
+            for label in ["item$Memory Fragment", "item$Mutant Bat's Wing", "item$Bashim Mane", "item$Hunter's Seal"]:
+                if label not in infer_rst:
                     continue
+                for info in infer_rst[label]:
+                    item_bbox = info["bbox"]
+                    item_center_pos = c_left + (item_bbox[0] + item_bbox[2]) / 2, c_top + (item_bbox[1] + item_bbox[3]) / 2
 
-                ms.move(item_center_pos[0], item_center_pos[1], duration=0.1)
-                ms.click(ms.RIGHT)
-                kb.press_and_release("F")
-                kb.press_and_release("return")
+                    # filter 如果物品的中心点不在背包UI内则不考虑对物品进行移动
+                    if not bag_bbox[0] < item_center_pos[0] < bag_bbox[2] \
+                            or not bag_bbox[1] < item_center_pos[1] < bag_bbox[3]:
+                        continue
 
-        ms.move(into_pos[0], into_pos[1], duration=0.1)
-        for i in range(step):
-            ms.wheel(-100)
-        cur_step += step
+                    ms.move(item_center_pos[0], item_center_pos[1], duration=0.1)
+                    ms.click(ms.RIGHT)
+                    kb.press_and_release("F")
+                    kb.press_and_release("return")
+
+            ms.move(into_pos[0], into_pos[1], duration=0.1)
+            for i in range(step):
+                ms.wheel(-100)
+            cur_step += step
 
     kb.press_and_release("esc")
     kb.press_and_release("esc")

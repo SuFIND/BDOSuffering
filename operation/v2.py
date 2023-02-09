@@ -89,16 +89,22 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
 
     # 统计指标
     exec_count = 0
+    msg_queue.put(fmmsg.to_str("开始运行"))
     start_at = time.perf_counter()
+
+    q = []
 
     # 任务开始前全局执行一次
     # # 重置到最大视角
-    classics_op.reset_viewer()
+    q.append((classics_op.reset_viewer(), (), "重置到最大视角"))
+    q.append((time.sleep, (0.5,), "等待0.5s"))
+    # # 先确认一遍背包把杂物提交仓库，防止一个批次没有结束就满负重
+    q.append((cv_op.clear_bag, (detector, hwnd, True), "杂物主动利用仓库女仆提交仓库"))
+    # # TODO 确认宠物是否开启
 
     time.sleep(1)
 
     # init queue TODO 未来根据不同的初始化位置初始化队列
-    q = []
     q.append((classics_op.open_bag, (), "打开背包"))
     q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug), "找到召唤书并召唤"))
 
