@@ -40,7 +40,7 @@ class App(QMainWindow, Ui_MainWindow):
     def showGMCheckDialog(self, i_str):
         # 启动警报音的播放线程
         alarm_thread = GMAlarmThread()
-        t = threading.Thread(target=obj.run, args=())
+        t = threading.Thread(target=alarm_thread.run, args=())
         t.start()
         global_var["threads"].append((t, alarm_thread))
 

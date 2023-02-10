@@ -20,6 +20,7 @@ class OpCtrl(QtWidgets.QWidget):
 
         self.viewer.StartPauseButton.clicked.connect(self.clicked_for_start_pause_button)
         self.viewer.EndButton.clicked.connect(self.clicked_for_end_button)
+        self.viewer.AuditionAlarmButton.clicked.connect(self.handle_audition_alarm)
 
         self.button_sig.connect(self.handel_button_logic)
 
@@ -87,3 +88,11 @@ class OpCtrl(QtWidgets.QWidget):
             self.viewer.StartPauseButton.setText("暂停 F10")
         elif sig == "refresh_display:start":
             self.viewer.StartPauseButton.setText("开始 F10")
+
+    def handle_audition_alarm(self):
+        q = global_var["process_msg_queue"]
+        mutex = global_var["process_sig_lock"]
+        dic = global_var["process_sig"]
+        with mutex:
+            dic.update({"stop": False})
+        q.put("action::show_gm_modal")

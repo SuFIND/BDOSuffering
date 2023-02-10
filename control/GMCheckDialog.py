@@ -23,6 +23,7 @@ class GMCheckDialog(QtWidgets.QDialog):
         sig_mutex = global_var["process_sig_lock"]
         with sig_mutex:
             sig_dic.update({"start": False, "pause": False, "stop": True})
+        self.close()
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         """

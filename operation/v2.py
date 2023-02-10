@@ -68,7 +68,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
     # # 复位的实际
     reset_place_wait_time = 15
     # # 从开始召唤到boss第一次出现变成可打击目标的总耗时
-    boss1_can_be_hit_cool_time = 35.5
+    boss1_can_be_hit_cool_time = 35
     # # 使用卷轴后的硬直时间
     the_stiffening_time_after_using_the_scroll = 15
     # # 后撤移动作的耗时
@@ -155,8 +155,10 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 q.append((KeyboardSimulate.press_and_release, ("return",), "按下回城确认召唤"))
                 # 关闭背包
                 q.append((classics_op.close_bag, (), "关闭背包UI"))
+                # 睡眠0.5s 让UI完成一部分动画
+                q.append((time.sleep, (0.5,), "睡眠0.5s 让UI完成一部分动画"))
                 # 判断是否出现远方目的地 TODO 数据收集结束后记得关闭debug模式
-                q.append( (cv_op.found_ui_process_bar, (detector, hwnd, 2, True), "判断是否出现进度条UI"))
+                q.append((cv_op.found_ui_process_bar, (detector, hwnd, 2, debug), "判断是否出现进度条UI"))
 
         elif func.__name__ == "found_ui_process_bar":
             # 如果没有出现进度条UI

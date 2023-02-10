@@ -7,7 +7,7 @@ import numpy as np
 import traceback
 import operation.classics_op as classics_op
 from utils.capture_utils import WinDCApiCap
-from utils.simulate_utils import MouseSimulate as ms, KeyboardSimulate as kb
+from utils.simulate_utils import MouseSimulate, KeyboardSimulate
 from utils.win_utils import get_bdo_rect
 from utils.cv_utils import Detector
 from utils.muti_utils import FormatMsg
@@ -56,7 +56,7 @@ def merge_scroll_written_in_ancient_language(detector, hwnd, debug=False):
 
     # 先扫描背包中可以直接合成的卷轴
     # # 先移动到UI外避免对古语卷轴识别的干扰
-    ms.move(out_to_bag_pos[0], out_to_bag_pos[1])
+    MouseSimulate.move(out_to_bag_pos[0], out_to_bag_pos[1])
 
     step = 4
     cur_step = 0
@@ -67,20 +67,26 @@ def merge_scroll_written_in_ancient_language(detector, hwnd, debug=False):
 
         # 如果有，则移动鼠标到小icon上，并点击合成
         if merge_button_pos is not None:
-            ms.move(merge_button_pos[0], merge_button_pos[1], duration=0.1)
-            ms.click()
+            MouseSimulate.move(merge_button_pos[0], merge_button_pos[1], duration=0.1)
+            MouseSimulate.click()
 
         # 否则鼠标移动回背包内，滚轮往下滑动看看是否有其他合成图标
         else:
-            ms.move(into_bag_pos[0], into_bag_pos[1], duration=0.1)
+            MouseSimulate.move(into_bag_pos[0], into_bag_pos[1], duration=0.1)
             for i in range(step):
-                ms.wheel(-100)
+                MouseSimulate.wheel(-100)
             cur_step += step
 
     pass
 
 
 def get_bag_capacity_by_ocr(win_dc: WinDCApiCap, bag_bbox):
+    """
+    OCR获取当前背包容积
+    :param win_dc: 
+    :param bag_bbox: 
+    :return: 
+    """
     rst = None, None
     if not win_dc.is_available():
         return rst
@@ -90,11 +96,13 @@ def get_bag_capacity_by_ocr(win_dc: WinDCApiCap, bag_bbox):
         bg_sc = sc[bag_bbox[1]:bag_bbox[3], bag_bbox[0]:bag_bbox[2]]
 
         bg_sc_h, bg_sc_w = bg_sc.shape[:2]
+        # 利用超参数比例获取背包空间相关的图片，减少ocr获取的信息
         capacity_left = round(bg_sc_w * 0.8125)
         capacity_top = round(bg_sc_h * 0.1)
         capacity_bottom = round(bg_sc_h * 0.2)
         capacity_sc = bg_sc[capacity_top:capacity_bottom, capacity_left:]
 
+        # 使用英语减少错误识别数字的可能
         ocr_rst = recognize_numpy(capacity_sc, lang="en-US")
         text = ocr_rst["text"]
         clear_text = ""
@@ -103,6 +111,7 @@ def get_bag_capacity_by_ocr(win_dc: WinDCApiCap, bag_bbox):
                 continue
             clear_text += char
 
+        # 利用正则便于cur和total都能获取
         r = re.match(r"(?P<cur>\d+)/(?P<total>\d+)", clear_text)
         if r is not None:
             _ = r.groupdict()
@@ -116,7 +125,13 @@ def get_bag_capacity_by_ocr(win_dc: WinDCApiCap, bag_bbox):
     return rst
 
 
-def get_market_management_gps_pos(win_dc: WinDCApiCap, bdo_rect):
+def get_trading_warehouse_button_pos(win_dc: WinDCApiCap, bdo_rect):
+    """
+    获取和鲁西比恩坤对话后进入交易所UI后打开交易所仓库按钮的位置
+    :param win_dc: 
+    :param bdo_rect: 
+    :return: 
+    """
     if not win_dc.is_available():
         return
     cur_windows_left, cur_windows_top, _, _ = bdo_rect
@@ -132,6 +147,15 @@ def get_market_management_gps_pos(win_dc: WinDCApiCap, bdo_rect):
 
 
 def got_trading_warehouse_ui_bbox(detector: Detector, win_dc, bdo_rect, retry: int, debug=False):
+    """
+    从模型推理结果中获取交易所仓库UI的位置
+    :param detector: 
+    :param win_dc: 
+    :param bdo_rect: 
+    :param retry: 
+    :param debug: 
+    :return: 
+    """
     c_left, c_top, _, _ = bdo_rect
     for i in range(retry + 1):
         img = win_dc.get_hwnd_screenshot_to_numpy_array(collection=debug, save_dir="logs/img/TradingWarehouse")
@@ -144,6 +168,15 @@ def got_trading_warehouse_ui_bbox(detector: Detector, win_dc, bdo_rect, retry: i
 
 
 def got_trading_warehouse_and_bag_ui_bbox(detector: Detector, win_dc, bdo_rect, retry: int, debug=False):
+    """
+    从模型推理结果中获取交易所仓库UI和背包Ui的位置
+    :param detector: 
+    :param win_dc: 
+    :param bdo_rect: 
+    :param retry: 
+    :param debug: 
+    :return: 
+    """
     c_left, c_top, _, _ = bdo_rect
     bag_bbox = None
     trading_warehouse_bbox = None
@@ -163,7 +196,6 @@ def got_trading_warehouse_and_bag_ui_bbox(detector: Detector, win_dc, bdo_rect, 
             bbox = infer_rst["ui$Bag"][0]["bbox"]
             bag_bbox = bbox[0], bbox[1], bbox[2], bbox[3]
             bag_bbox_abs = bbox[0] + c_left, bbox[1] + c_top, bbox[2] + c_left, bbox[3] + c_top
-
 
     return bag_bbox, bag_bbox_abs, trading_warehouse_bbox, trading_warehouse_bbox_abs
 
@@ -190,9 +222,12 @@ def get_scroll_written_in_ancient_language_poses_by_temple(win_dc: WinDCApiCap, 
         poses.append((cur_windows_left + pt_left + template_w / 2, cur_windows_top + pt_top + template_h / 2))
     return poses
 
-def get_scroll_written_in_ancient_language_poses_by_model(detector, win_dc: WinDCApiCap, bdo_rect: list[int], debug=False):
+
+def get_scroll_written_in_ancient_language_poses_by_model(detector, win_dc: WinDCApiCap, bdo_rect: list[int],
+                                                          debug=False) -> list:
     c_left, c_top, _, _ = bdo_rect
-    img = win_dc.get_hwnd_screenshot_to_numpy_array(collection=debug, save_dir="logs/img/ScrollWrittenInAncientLanguage")
+    img = win_dc.get_hwnd_screenshot_to_numpy_array(collection=debug,
+                                                    save_dir="logs/img/ScrollWrittenInAncientLanguage")
     infer_rst = detector.infer(img)
     if "item$Scroll Written in Ancient Language" not in infer_rst:
         return []
@@ -205,20 +240,21 @@ def get_scroll_written_in_ancient_language_poses_by_model(detector, win_dc: WinD
     return poses
 
 
-def get_scroll_written_in_ancient_language_pos_which_one_belong_trading_warehouse_by_temple(detector,
-                                                                                            win_dc: WinDCApiCap,
-                                                                                            client_rect,
-                                                                                            trading_warehouse_bbox,
-                                                                                            debug=False) -> list:
+def get_scroll_written_in_ancient_language_pos_which_one_belong_trading_warehouse(detector,
+                                                                                  win_dc: WinDCApiCap,
+                                                                                  client_rect,
+                                                                                  trading_warehouse_bbox,
+                                                                                  debug=False) -> [None, tuple]:
     """
     用过模版匹配找到位于交易所仓库的古语召唤卷轴的位置
     :param win_dc:
     :param client_rect:
-    :param trading_warehouse_bbox:
+    :param trading_warehouse_bbox: 交易所仓库基于屏幕的绝对位置
+    :param debug
     :return:
     """
     rst = None
-    item_poses = get_scroll_written_in_ancient_language_poses_by_model(detector, win_dc, client_rect)
+    item_poses = get_scroll_written_in_ancient_language_poses_by_model(detector, win_dc, client_rect, debug)
     for pos in item_poses:
         # 如果不在交易仓库的UI范围内则舍弃
         if not trading_warehouse_bbox[0] < pos[0] < trading_warehouse_bbox[2] \
@@ -229,6 +265,76 @@ def get_scroll_written_in_ancient_language_pos_which_one_belong_trading_warehous
     return rst
 
 
+def auto_take_back_ancient_lang_scroll(detector,
+                                       win_dc: WinDCApiCap,
+                                       client_rect,
+                                       debug=False):
+    success = False
+    done = False
+    reason = ""
+
+    # 每次滚轮向下移动四个格子
+    wheel_step = 4
+    # 交易所的UI支持滚轮向下滚动多少次
+    max_wheel_step = 80
+
+    # step 1 识别出背包和仓库交易所的UI的位置
+    bag_bbox, bog_abs_bbox, tw_bbox, tw_abs_bbox = \
+        got_trading_warehouse_and_bag_ui_bbox(detector, win_dc, client_rect, retry=2, debug=debug)
+
+    # step 2 计算出用于悬停在UI内和UI外的绝对值坐标
+    into_tw_bbox_pos = (tw_abs_bbox[0] + tw_abs_bbox[2]) / 2, (
+            tw_abs_bbox[1] + tw_abs_bbox[3]) / 2
+    out_to_tw_bbox_pos = tw_abs_bbox[0] - 50, tw_abs_bbox[1] - 50
+
+    # step 3 ocr出背包的容量
+    cur_space, total_space = get_bag_capacity_by_ocr(win_dc, bag_bbox)
+    if None in [cur_space, total_space]:
+        reason = "ocr无法获取背包容量"
+        # ocr 识别失败
+        return success, done, reason
+
+    # step 4 计算20个20个的获取需要取多少次，10个10个的取需要取多少次
+    each_20_step = (total_space - cur_space) // 20
+    each_10_step = (total_space - cur_space - 20 * each_20_step) // 10
+
+    # step 5 在交易所仓库UI中寻找目标"用古语记录的卷轴”
+    target_pos = None
+    for _ in range(0, max_wheel_step + 1, wheel_step):
+        target_pos = get_scroll_written_in_ancient_language_pos_which_one_belong_trading_warehouse(detector,
+                                                                                                   win_dc,
+                                                                                                   client_rect,
+                                                                                                   tw_abs_bbox)
+        # 说明了找到了在交易所仓库UI的古语卷轴
+        if target_pos is not None:
+            break
+
+        # 否则继续向下滚动，看看古语是不是在交易所里比较后面的地方
+        MouseSimulate.move(into_tw_bbox_pos[0], into_tw_bbox_pos[1], duration=0.1)
+        for __ in range(wheel_step):
+            MouseSimulate.wheel(-100)
+        MouseSimulate.move(out_to_tw_bbox_pos[0], out_to_tw_bbox_pos[1])
+
+    # 如果此时古语卷轴还是找不到，说明交易仓库中已经没有卷轴，需要提醒补充
+    if target_pos is None:
+        # TODO 提醒补充卷轴
+        success = True
+        return success, done
+
+    for _ in range(each_20_step):
+        MouseSimulate.move(target_pos[0], target_pos[1], duration=0.1)
+        MouseSimulate.click(MouseSimulate.RIGHT)
+        KeyboardSimulate.press_and_release("F")
+        KeyboardSimulate.press_and_release("return")
+
+    for _ in range(each_10_step):
+        MouseSimulate.move(target_pos[0], target_pos[1], duration=0.1)
+        MouseSimulate.click(MouseSimulate.RIGHT)
+        KeyboardSimulate.press_and_release("1")
+        KeyboardSimulate.press_and_release("0")
+        KeyboardSimulate.press_and_release("return")
+
+
 def retrieve_the_scroll_from_the_trading_warehouse(sig_mutex, sig_dic, msg_queue, detector: Detector, hwnd,
                                                    debug=False):
     """
@@ -237,21 +343,12 @@ def retrieve_the_scroll_from_the_trading_warehouse(sig_mutex, sig_dic, msg_queue
     win_dc = WinDCApiCap(hwnd)
     bdo_rect = get_bdo_rect(hwnd)
 
-    cur_step = 0
-    max_step = 0
-    bag_bbox = None
-    trading_warehouse_bbox = None
-    ancient_language_scroll_wheel_cur_step = 0
-    ancient_language_scroll_wheel_max_step = 80
-    into_trading_warehouse_bbox_pos = None
-    out_to_trading_warehouse_bbox_pos = None
-
     q = [
-        (kb.press_and_release, ("R",), "按下R与鲁西比恩坤对胡"),
+        (KeyboardSimulate.press_and_release, ("R",), "按下R与鲁西比恩坤对胡"),
         (time.sleep, (0.5,), "动画0.5s"),
-        (kb.press_and_release, ("2",), "按下2进入交易所仓库UI"),
+        (KeyboardSimulate.press_and_release, ("2",), "按下2进入交易所仓库UI"),
         (time.sleep, (0.5,), "动画0.5s"),
-        (get_market_management_gps_pos, (win_dc, bdo_rect,), "是否找到交易所按钮"),
+        (get_trading_warehouse_button_pos, (win_dc, bdo_rect,), "是否找到交易所按钮"),
     ]
     while len(q) > 0:
         # 是否有来自GUI或者GM检测进程或者前置步骤的中断或者暂停信号
@@ -268,104 +365,26 @@ def retrieve_the_scroll_from_the_trading_warehouse(sig_mutex, sig_dic, msg_queue
         rst = func(*args)
         msg_queue.put(fmmsg.to_str(intention, level="debug"))
 
-        if func.__name__ == "get_market_management_gps_pos":
+        if func.__name__ == "get_trading_warehouse_button_pos":
             # 如果获取不到按钮“交易所仓库”的坐标
             if rst is None:
                 q.extend([
-                    (kb.press_and_release, ("esc",), "退出交易所UI"),
-                    (kb.press_and_release, ("2",), "按下2进入交易所仓库UI"),
+                    (KeyboardSimulate.press_and_release, ("esc",), "退出交易所UI"),
+                    (KeyboardSimulate.press_and_release, ("2",), "按下2进入交易所仓库UI"),
                     (time.sleep, (0.5,), "动画0.5s"),
-                    (get_market_management_gps_pos, (win_dc, bdo_rect,), "是否找到交易所按钮"),
+                    (get_trading_warehouse_button_pos, (win_dc, bdo_rect,), "是否找到交易所按钮"),
                 ])
 
             # 如果获取到按钮“交易所仓库”的坐标
             else:
                 q.extend([
-                    (ms.move, (rst[0], rst[1], 0.1), "鼠标移动到`交易所仓库`按钮上"),
-                    (ms.click, (), "点击鼠标左键"),
+                    (MouseSimulate.move, (rst[0], rst[1], True, 0.1), "鼠标移动到`交易所仓库`按钮上"),
+                    (MouseSimulate.click, (), "点击鼠标左键"),
                     (time.sleep, (0.5,), "动画0.5s"),
-                    (got_trading_warehouse_and_bag_ui_bbox, (detector, win_dc, bdo_rect, 2, debug),
-                     "是否找到交易仓库和背包的UI"),
+                    (auto_take_back_ancient_lang_scroll, (detector, win_dc, bdo_rect, debug),
+                     "自动从交易所仓库中拿去卷轴"),
                 ])
 
-        # 目标检测-交易仓库和背包UI
-        elif func.__name__ == "got_trading_warehouse_and_bag_ui_bbox":
-            bag_bbox, bag_bbox_abs, trading_warehouse_bbox, trading_warehouse_bbox_abs = rst
 
-            # 如果找不到背包或者交易仓库的UI
-            if bag_bbox is None or trading_warehouse_bbox is None:
-                q.extend([
-                    (kb.press_and_release, ("esc",), "退出交易所UI"),
-                    (kb.press_and_release, ("2",), "按下2进入交易所仓库UI"),
-                    (time.sleep, (0.5,), "动画0.5s"),
-                    (get_market_management_gps_pos, (win_dc, bdo_rect,), "是否找到交易所按钮"),
-                ])
 
-            # 如果背包的UI和交易所的UI都找到了
-            else:
-                into_trading_warehouse_bbox_pos = (trading_warehouse_bbox_abs[0] + trading_warehouse_bbox_abs[2]) / 2, (trading_warehouse_bbox_abs[1] + trading_warehouse_bbox_abs[3]) / 2
-                out_to_trading_warehouse_bbox_pos = trading_warehouse_bbox_abs[0] - 50, trading_warehouse_bbox_abs[1] - 50
 
-                q.extend([
-                    (get_bag_capacity_by_ocr, (win_dc, bag_bbox), "获取背包的空间情况"),
-                ])
-
-        # 获取背包的空间情况
-        elif func.__name__ == "get_bag_capacity_by_ocr":
-            cur, total = rst
-            # 如果OCR无法支持识别背包容量
-            if cur is None or total is None:
-                q.extend([
-                    (kb.press_and_release, ("esc",), "退出交易所仓库与背包Ui"),
-                    (kb.press_and_release, ("esc",), "退出与鲁西比恩坤的对话UI"),
-                ])
-                msg_queue.put(fmmsg.to_str("OCR无法成功识别背包容量", level="error"))
-
-            else:
-                max_step = (total - cur - 5) // 20
-                q.extend([
-                    (ms.move, (out_to_trading_warehouse_bbox_pos[0], out_to_trading_warehouse_bbox_pos[1], 0.1), "鼠标移到到交易仓库UI外，防止干扰识别古语卷轴"),
-                    (get_scroll_written_in_ancient_language_pos_which_one_belong_trading_warehouse_by_temple, (detector, win_dc, bdo_rect, trading_warehouse_bbox_abs, debug), "找到在交易所仓库内存放的古语的坐标位置"),
-                ])
-
-        elif func.__name__ == "get_scroll_written_in_ancient_language_pos_which_one_belong_trading_warehouse_by_temple":
-            wheel_step = 4
-            if rst is None and ancient_language_scroll_wheel_cur_step <= ancient_language_scroll_wheel_max_step:
-                q.append((ms.move, (into_trading_warehouse_bbox_pos[0], into_trading_warehouse_bbox_pos[1], 0.1), "鼠标移到到交易仓库UI外，防止干扰识别古语卷轴"))
-                for i in range(wheel_step):
-                    q.append((ms.wheel, (-100, ), "向下滚动"))
-                q.extend([
-                    (ms.move, (out_to_trading_warehouse_bbox_pos[0], out_to_trading_warehouse_bbox_pos[1], 0.1),
-                     "鼠标移到到交易仓库UI外，防止干扰识别古语卷轴"),
-                    (time.sleep, (0.5,), "动画0.5s"),
-                    (get_scroll_written_in_ancient_language_pos_which_one_belong_trading_warehouse_by_temple, (detector, win_dc, bdo_rect, trading_warehouse_bbox_abs, debug), "找到在交易所仓库内存放的古语的坐标位置"),
-                ])
-                ancient_language_scroll_wheel_cur_step += wheel_step
-            if rst is None and ancient_language_scroll_wheel_cur_step > ancient_language_scroll_wheel_max_step:
-                q.extend([
-                    (kb.press_and_release, ("esc",), "退出交易所仓库与背包Ui"),
-                    (kb.press_and_release, ("esc",), "退出与鲁西比恩坤的对话UI"),
-                ])
-                msg_queue.put(fmmsg.to_str('找不到更多的”用古语记录的卷轴“，请及时向交易仓库不愁卷轴！', level="info"))
-
-            elif rst is not None and cur_step < max_step:
-                q.extend([
-                    (ms.move, (rst[0], rst[1], 0.1), "鼠标移到到古语卷轴上"),
-                    (time.sleep, (0.5,), "等待动画0.5s"),
-                    (ms.click, (ms.RIGHT, ), "鼠标右键准备把物品移动到背包"),
-                    (time.sleep, (0.5,), "等待动画0.5s"),
-                    (kb.press_and_release, ("F",), "填写最大数量20"),
-                    (kb.press_and_release, ("return",), "回车取回物品"),
-                    (ms.move, (out_to_trading_warehouse_bbox_pos[0], out_to_trading_warehouse_bbox_pos[1], 0.1),
-                     "鼠标移到到交易仓库UI外，防止干扰识别古语卷轴"),
-                    (get_scroll_written_in_ancient_language_pos_which_one_belong_trading_warehouse_by_temple,
-                     (detector, win_dc, bdo_rect, trading_warehouse_bbox_abs, debug), "找到在交易所仓库内存放的古语的坐标位置"),
-                ])
-                cur_step += 1
-            else:
-                # 说明完成了从交易仓库到背包的物品转移，正常置空队列即可
-                # q.extend([
-                #     (kb.press_and_release, ("esc",), "退出交易所仓库与背包Ui"),
-                #     (kb.press_and_release, ("esc",), "退出与鲁西比恩坤的对话UI"),
-                # ])
-                pass
