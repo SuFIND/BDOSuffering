@@ -1,4 +1,5 @@
 import datetime
+import os
 
 from PyQt6 import QtWidgets, QtCore, QtGui
 from ui.ui_log_ctrl import Ui_LogCtrl
@@ -36,6 +37,7 @@ class LogCtrl(QtWidgets.QWidget):
         self.viewer.setupUi(self)
 
         self.viewer.ClearLogButton.clicked.connect(self.clear_log)
+        self.viewer.SaveLogButton.clicked.connect(self.save_log)
 
         # 持有的信号
         self.refresh_sig.connect(self._refresh_log_browse)
@@ -83,3 +85,24 @@ class LogCtrl(QtWidgets.QWidget):
 
         self.viewer.textBrowser.setHtml(html)
         self.viewer.textBrowser.moveCursor(QtGui.QTextCursor.MoveOperation.End)
+
+    def save_log(self):
+        plain_txt = ""
+        for (time, level, msg) in self.logLines:
+            if level not in self.LEVEL_LOGS[self.log_level]:
+                continue
+
+            time_str = time.strftime("%Y-%m-%d %H:%M:%S")
+            line_one_str = f"{time_str} - [{level}]: {msg}\n"
+            plain_txt += line_one_str
+
+        fileName_choose, filetype = QtWidgets.QFileDialog.getSaveFileName(self,
+                                                                          caption="保存日志文件",
+                                                                          directory=os.getcwd(),  # 起始路径
+                                                                          initialFilter="*.log")
+        if fileName_choose == "":
+            # 取消选择
+            return
+
+        with open(fileName_choose, 'w', encoding="utf-8") as fp:
+            fp.write(plain_txt)
