@@ -119,7 +119,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 break
 
         tup = q.pop(0)
-        func, args , intention = tup
+        func, args, intention = tup
         rst = func(*args)
         msg_queue.put(fmmsg.to_str(intention, level="debug"))
 
@@ -144,7 +144,8 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 # 睡眠160s，让人物移动到交易所 TODO 配置化
                 q.append((time.sleep, (160,), "等待人物回交易所的时间"))
                 # # #对话鲁西比恩坤并打开交易所仓库
-                q.append((classics_op.chat_with_LucyBenKun_to_show_market_ui, (hwnd,), "对话鲁西比恩坤并打开交易所仓库"))
+                q.append(
+                    (classics_op.chat_with_LucyBenKun_to_show_market_ui, (hwnd,), "对话鲁西比恩坤并打开交易所仓库"))
             else:
                 # 鼠标移动到卷轴图标
                 q.append((MouseSimulate.move, (scroll_pos[0], scroll_pos[1], True, 0.1), "鼠标移动到卷轴图标"))
@@ -155,12 +156,11 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 # 关闭背包
                 q.append((classics_op.close_bag, (), "关闭背包UI"))
                 # 判断是否出现远方目的地 TODO 数据收集结束后记得关闭debug模式
-                q.append((cv_op.found_flag_have_seen_a_distant_desination, (detector, hwnd, 2, True), "判断是否出现远方目的地"))
+                q.append( (cv_op.found_ui_process_bar, (detector, hwnd, 2, True), "判断是否出现进度条UI"))
 
-
-        elif func.__name__ == "found_flag_have_seen_a_distant_desination":
-            # 如果出现了看到远方目的地
-            if rst:
+        elif func.__name__ == "found_ui_process_bar":
+            # 如果没有出现进度条UI
+            if not rst:
                 # 按T
                 q.append((KeyboardSimulate.press_and_release, ("T",), "按T等待回归到召唤地点"))
                 # 等待自动走到目的地
@@ -168,7 +168,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 # 找到召唤书并召唤
                 q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug), "找到召唤书并召唤"))
 
-            # 如果没有出现看到远方目的地，此时的卷轴正在被正常召唤
+            # 如果出现了进度条UI，此时的卷轴正在被正常召唤
             else:
                 # 等待使用卷轴时的硬直事件
                 q.append((time.sleep, (the_stiffening_time_after_using_the_scroll,), "等待使用卷轴时的硬直事件"))
@@ -177,7 +177,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 # 后撤位移后等待boss1变成可击杀状态
                 q.append((time.sleep, (after_back_action_wait_time,), "后撤位移后等待boss1变成可击杀状态"))
                 # 检测-BOSS玛格岚是否正常出现
-                q.append((cv_op.found_boss_Magram, (detector, hwnd, 2, True), "检测-BOSS玛格岚是否正常出现"))
+                q.append((cv_op.found_boss_Magram, (detector, hwnd, 2, debug), "检测-BOSS玛格岚是否正常出现"))
 
         elif func.__name__ == "found_boss_Magram" and intention == "检测-BOSS玛格岚是否正常出现":
             # 如果发现了目标玛格岚说明卷轴召唤正常
@@ -242,4 +242,3 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
             cur_cost_min = round((now_at - start_at) / 60)
             efficiency = round(exec_count / ((now_at - start_at) / 3600), 2)
             msg_queue.put(fmmsg.to_str(f"执行 {exec_count} 次，花费 {cur_cost_min} 分钟，平均 {efficiency} 个/小时。"))
-

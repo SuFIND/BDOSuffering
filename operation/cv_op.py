@@ -144,7 +144,7 @@ def found_Pila_Fe_scroll_using_check_ui(detector, hwnd, debug=False) -> bool:
                         save_dir="logs/img/PilaFeScrollUsingCheck")
 
 
-def found_boss_Magram(detector, hwnd, retry:int, debug:bool=False) -> bool:
+def found_boss_Magram(detector, hwnd, retry: int, debug: bool = False) -> bool:
     """
     发旋目标 “玛格岚”
     :param detector:
@@ -154,14 +154,14 @@ def found_boss_Magram(detector, hwnd, retry:int, debug:bool=False) -> bool:
     :return:
     """
     rst = False
-    for i in range(retry+1):
+    for i in range(retry + 1):
         rst = rst or found_target(detector, hwnd, "boss$Magram", debug=debug, save_dir="logs/img/Margram")
         if rst:
             break
     return rst
 
 
-def found_task_over(detector, hwnd, retry:int, debug:bool=False) -> bool:
+def found_task_over(detector, hwnd, retry: int, debug: bool = False) -> bool:
     """
     发现目标提示“任务结束的标志”
     :param detector:
@@ -178,7 +178,7 @@ def found_task_over(detector, hwnd, retry:int, debug:bool=False) -> bool:
     return rst
 
 
-def found_flag_have_seen_a_distant_desination(detector, hwnd, retry:int, debug:bool=False) -> bool:
+def found_flag_deviate_from_destination(detector, hwnd, retry: int, debug: bool = False) -> bool:
     """
     发现目标提示“已看到远方目的地”
     :param detector:
@@ -190,7 +190,7 @@ def found_flag_have_seen_a_distant_desination(detector, hwnd, retry:int, debug:b
     rst = False
     for i in range(retry + 1):
         rst = rst or found_target(detector, hwnd, "flag$Deviate from destination", debug=debug,
-                        save_dir="logs/img/DeviateFromDestination")
+                                  save_dir="logs/img/DeviateFromDestination")
         if rst:
             break
     return rst
@@ -251,7 +251,8 @@ def clear_bag(detector, hwnd, debug=False):
                     continue
                 for info in infer_rst[label]:
                     item_bbox = info["bbox"]
-                    item_center_pos = c_left + (item_bbox[0] + item_bbox[2]) / 2, c_top + (item_bbox[1] + item_bbox[3]) / 2
+                    item_center_pos = c_left + (item_bbox[0] + item_bbox[2]) / 2, c_top + (
+                                item_bbox[1] + item_bbox[3]) / 2
 
                     # filter 如果物品的中心点不在背包UI内则不考虑对物品进行移动
                     if not bag_bbox[0] < item_center_pos[0] < bag_bbox[2] \
@@ -272,3 +273,18 @@ def clear_bag(detector, hwnd, debug=False):
     kb.press_and_release("esc")
 
 
+def found_ui_process_bar(detector, hwnd, retry: int, debug: bool = False) -> bool:
+    """
+    发现目标"进度条"
+    :param detector:
+    :param hwnd:
+    :param retry:
+    :param debug:
+    :return:
+    """
+    rst = False
+    for i in range(retry + 1):
+        rst = rst or found_target(detector, hwnd, "ui$Process Bar", debug=debug, save_dir="logs/img/Process Bar")
+        if rst:
+            break
+    return rst
