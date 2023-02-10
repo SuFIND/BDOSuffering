@@ -111,6 +111,9 @@ def use_Pila_Fe_scroll(detector, hwnd, debug=False):
     bdo_rect = get_bdo_rect(hwnd)
 
     bag_ui_bbox = get_bag_ui_bbox(detector, win_dc, bdo_rect, debug=debug)
+    if bag_ui_bbox is None:
+        return find, item_pos
+
     into_pos = (bag_ui_bbox[0] + bag_ui_bbox[2]) / 2, (bag_ui_bbox[1] + bag_ui_bbox[3]) / 2
     out_pos = bag_ui_bbox[0] - 50, bag_ui_bbox[1] - 50
     step = 4

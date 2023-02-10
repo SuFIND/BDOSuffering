@@ -68,7 +68,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
     # # 复位的实际
     reset_place_wait_time = 15
     # # 从开始召唤到boss第一次出现变成可打击目标的总耗时
-    boss1_can_be_hit_cool_time = 36
+    boss1_can_be_hit_cool_time = 35.5
     # # 使用卷轴后的硬直时间
     the_stiffening_time_after_using_the_scroll = 15
     # # 后撤移动作的耗时
@@ -165,6 +165,8 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 q.append((KeyboardSimulate.press_and_release, ("T",), "按T等待回归到召唤地点"))
                 # 等待自动走到目的地
                 q.append((time.sleep, (reset_place_wait_time,), "等待自动走回卷轴召唤地"))
+                # 打开背包
+                q.append((classics_op.open_bag, (), "打开背包"))
                 # 找到召唤书并召唤
                 q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug), "找到召唤书并召唤"))
 
