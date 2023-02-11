@@ -295,8 +295,10 @@ def auto_take_back_ancient_lang_scroll(detector,
         return success, done, reason
 
     # step 4 计算20个20个的获取需要取多少次，10个10个的取需要取多少次
-    each_20_step = (total_space - cur_space) // 20
-    each_10_step = (total_space - cur_space - 20 * each_20_step) // 10
+    real_can_use_space = total_space - cur_space -5
+    each_20_step = real_can_use_space // 20
+    each_10_step = (real_can_use_space - 20 * each_20_step) // 10
+    each_5_step = (real_can_use_space - 20 * each_20_step - 10 *each_10_step) // 5
 
     # step 5 在交易所仓库UI中寻找目标"用古语记录的卷轴”
     target_pos = None
@@ -326,6 +328,7 @@ def auto_take_back_ancient_lang_scroll(detector,
         MouseSimulate.click(MouseSimulate.RIGHT)
         KeyboardSimulate.press_and_release("F")
         KeyboardSimulate.press_and_release("return")
+        time.sleep(0.5)
 
     for _ in range(each_10_step):
         MouseSimulate.move(target_pos[0], target_pos[1], duration=0.1)
@@ -333,6 +336,14 @@ def auto_take_back_ancient_lang_scroll(detector,
         KeyboardSimulate.press_and_release("1")
         KeyboardSimulate.press_and_release("0")
         KeyboardSimulate.press_and_release("return")
+        time.sleep(0.5)
+
+    for _ in range(each_5_step):
+        MouseSimulate.move(target_pos[0], target_pos[1], duration=0.1)
+        MouseSimulate.click(MouseSimulate.RIGHT)
+        KeyboardSimulate.press_and_release("5")
+        KeyboardSimulate.press_and_release("return")
+        time.sleep(0.5)
 
 
 def retrieve_the_scroll_from_the_trading_warehouse(sig_mutex, sig_dic, msg_queue, detector: Detector, hwnd,
@@ -383,6 +394,9 @@ def retrieve_the_scroll_from_the_trading_warehouse(sig_mutex, sig_dic, msg_queue
                     (time.sleep, (0.5,), "动画0.5s"),
                     (auto_take_back_ancient_lang_scroll, (detector, win_dc, bdo_rect, debug),
                      "自动从交易所仓库中拿去卷轴"),
+                    (KeyboardSimulate.press_and_release, ("esc",), "退出交易所仓库与背包Ui"),
+                    (KeyboardSimulate.press_and_release, ("esc",), "退出交易所UI"),
+                    (KeyboardSimulate.press_and_release, ("esc",), "退出与鲁西比恩坤的对话UI"),
                 ])
 
 

@@ -65,17 +65,19 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
 
 
 def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
-    # # 复位的实际
+    # # 复位的耗时
     reset_place_wait_time = 15
+    # # 等待识别允许开始识别进度条的时间
+    allow_infer_process_time = 1
     # # 从开始召唤到boss第一次出现变成可打击目标的总耗时
-    boss1_can_be_hit_cool_time = 35
+    boss1_can_be_hit_cool_time = 35.5
     # # 使用卷轴后的硬直时间
     the_stiffening_time_after_using_the_scroll = 15
     # # 后撤移动作的耗时
     back_action_cost_time = 1
     # # 第二段等待多时间到第一个boss的出现
     after_back_action_wait_time = boss1_can_be_hit_cool_time - the_stiffening_time_after_using_the_scroll - \
-                                  back_action_cost_time
+                                  back_action_cost_time - allow_infer_process_time
     # # 技能组动作耗时
     skill_action_time = 3.5
     # # 真正击杀boss1耗时
@@ -83,7 +85,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
     # # boss1完成倒地动画耗时
     boss1_dead_action_time = 3
     # # 从boss1死亡到boss2可以被打击耗时
-    boss2_can_be_hit_cool_time = 14
+    boss2_can_be_hit_cool_time = 14.5
     # # 完成boss1击杀确认目标识别后真正需要等待的数据
     boss2_real_wait_time = boss2_can_be_hit_cool_time - skill_action_time - boss1_dead_action_time - 0.1
 
@@ -99,7 +101,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
     q.append((classics_op.reset_viewer, (), "重置到最大视角"))
     q.append((time.sleep, (0.5,), "等待0.5s"))
     # # 先确认一遍背包把杂物提交仓库，防止一个批次没有结束就满负重
-    q.append((cv_op.clear_bag, (detector, hwnd, True), "杂物主动利用仓库女仆提交仓库"))
+    q.append((cv_op.clear_bag, (detector, hwnd, debug), "杂物主动利用仓库女仆提交仓库"))
     # # TODO 确认宠物是否开启
 
     time.sleep(1)
@@ -138,7 +140,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 # 打开帐篷修理武器，后回收帐篷
                 q.append((classics_op.repair_weapons_by_tent, (hwnd,), "打开帐篷修理武器，后回收帐篷"))
                 # 睡眠0.5s 让UI完成一部分动画
-                q.append((time.sleep, (0.5,), "睡眠0.5s 让UI完成一部分动画"))
+                q.append((time.sleep, (allow_infer_process_time,), "睡眠0.5s 让UI完成一部分动画"))
                 # 打开寻找NPC的UI回到交易所
                 q.append((cv_op.back_to_market, (detector, hwnd, debug), "打开寻找NPC的UI回到交易所"))
                 # 睡眠160s，让人物移动到交易所 TODO 配置化
@@ -156,15 +158,15 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 # 关闭背包
                 q.append((classics_op.close_bag, (), "关闭背包UI"))
                 # 睡眠0.5s 让UI完成一部分动画
-                q.append((time.sleep, (0.5,), "睡眠0.5s 让UI完成一部分动画"))
+                q.append((time.sleep, (1,), "睡眠0.5s 让UI完成一部分动画"))
                 # 判断是否出现远方目的地 TODO 数据收集结束后记得关闭debug模式
-                q.append((cv_op.found_ui_process_bar, (detector, hwnd, 2, debug), "判断是否出现进度条UI"))
+                q.append((cv_op.found_ui_process_bar, (detector, hwnd, 2, True or debug), "判断是否出现进度条UI"))
 
         elif func.__name__ == "found_ui_process_bar":
             # 如果没有出现进度条UI
             if not rst:
-                # 按T
-                q.append((KeyboardSimulate.press_and_release, ("T",), "按T等待回归到召唤地点"))
+                # # 按T
+                # q.append((KeyboardSimulate.press_and_release, ("T",), "按T等待回归到召唤地点"))
                 # 等待自动走到目的地
                 q.append((time.sleep, (reset_place_wait_time,), "等待自动走回卷轴召唤地"))
                 # 打开背包
@@ -180,12 +182,9 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 q.append((classics_op.reposition_after_call, (), "向后移动给即将下落的boss腾出相应的体积"))
                 # 后撤位移后等待boss1变成可击杀状态
                 q.append((time.sleep, (after_back_action_wait_time,), "后撤位移后等待boss1变成可击杀状态"))
-                # 检测-BOSS玛格岚是否正常出现
-                q.append((cv_op.found_boss_Magram, (detector, hwnd, 2, debug), "检测-BOSS玛格岚是否正常出现"))
+                # # 检测-BOSS玛格岚是否正常出现
+                # q.append((cv_op.found_boss_Magram, (detector, hwnd, 2, debug or True), "检测-BOSS玛格岚是否正常出现"))
 
-        elif func.__name__ == "found_boss_Magram" and intention == "检测-BOSS玛格岚是否正常出现":
-            # 如果发现了目标玛格岚说明卷轴召唤正常
-            if rst:
                 # 播放自定义技能动作  TODO 未来配置化
                 q.append((classics_op.skil_action, (), "播放自定义技能动作"))
                 # 等待BOSS玛格岚倒地动画完成
@@ -193,12 +192,22 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 # 目标检测-BOSS玛格岚是否还没死
                 q.append((cv_op.found_boss_Magram, (detector, hwnd, 0, debug), "检测-BOSS玛格岚是否还没死"))
 
-            # 如果没有检测到目标玛格岚则说明前面的卷轴召唤异常
-            else:
-                # 重新打开背包
-                q.append((classics_op.open_bag, (), "打开背包"))
-                # 重新找到召唤书并召唤
-                q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug), "找到召唤书并召唤"))
+        # elif func.__name__ == "found_boss_Magram" and intention == "检测-BOSS玛格岚是否正常出现":
+        #     # 如果发现了目标玛格岚说明卷轴召唤正常
+        #     if rst:
+        #         # 播放自定义技能动作  TODO 未来配置化
+        #         q.append((classics_op.skil_action, (), "播放自定义技能动作"))
+        #         # 等待BOSS玛格岚倒地动画完成
+        #         q.append((time.sleep, (boss1_dead_action_time,), "等待BOSS玛格岚倒地动画完成"))
+        #         # 目标检测-BOSS玛格岚是否还没死
+        #         q.append((cv_op.found_boss_Magram, (detector, hwnd, 0, debug), "检测-BOSS玛格岚是否还没死"))
+        #
+        #     # 如果没有检测到目标玛格岚则说明前面的卷轴召唤异常
+        #     else:
+        #         # 重新打开背包
+        #         q.append((classics_op.open_bag, (), "打开背包"))
+        #         # 重新找到召唤书并召唤
+        #         q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug), "找到召唤书并召唤"))
 
         elif func.__name__ == "found_boss_Magram" and intention == "检测-BOSS玛格岚是否还没死":
             # 还是发现boss玛格岚
@@ -216,7 +225,6 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 q.append((time.sleep, (boss2_real_wait_time,), "等待BOSS柯尔特变成可击杀状态"))
                 # 播放自定义技能动作  TODO 未来配置化
                 q.append((classics_op.skil_action, (), "播放自定义技能动作"))
-                q.append((time.sleep, (2,), "睡眠2s 让UI完成一部分动画"))
                 # 检测是否完成任务
                 q.append((cv_op.found_task_over, (detector, hwnd, 2, debug), "检测-任务是否完成"))
 

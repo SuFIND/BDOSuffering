@@ -1,6 +1,6 @@
 import ctypes.wintypes
 
-import win32gui, win32api
+import win32gui, win32api, win32con
 from app.init_resource import global_var
 
 
@@ -10,6 +10,7 @@ def get_bdo_rect(hwnd):
     except WindowsError:
         f = None
     title_height = global_var["BDO_window_title_bar_height"]
+    have_borderless = is_borderless(hwnd)
     if f:
         rect = ctypes.wintypes.RECT()
         DWMWA_EXTENDED_FRAME_BOUNDS = 9
@@ -18,8 +19,24 @@ def get_bdo_rect(hwnd):
           ctypes.byref(rect),
           ctypes.sizeof(rect)
           )
-        return rect.left, rect.top + title_height, rect.right, rect.bottom
+        if have_borderless:
+            return rect.left, rect.top + title_height, rect.right, rect.bottom
+        else:
+            return rect.left, rect.top, rect.right, rect.bottom
     else:
         rect = win32gui.GetWindowRect(hwnd)
         title_height = win32api.GetSystemMetrics(12)
-        return rect[0], rect[1] + title_height, rect[2], rect[4]
+        if have_borderless:
+            return rect[0], rect[1] + title_height, rect[2], rect[4]
+        else:
+            return rect[0], rect[1], rect[2], rect[4]
+
+
+def is_borderless(hwnd):
+    """
+    判断窗口是否有边框
+    :param hwnd:
+    :return:
+    """
+    style = win32gui.GetWindowLong(hwnd, win32con.GWL_STYLE)
+    return style & win32con.WS_POPUP == win32con.WS_POPUP
