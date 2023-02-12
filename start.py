@@ -3,6 +3,8 @@ import time
 import threading
 import multiprocessing
 
+import qdarkstyle
+
 from PyQt6 import QtWidgets
 from app.app import App
 from utils.log_utils import Logger
@@ -26,6 +28,7 @@ def main():
 
     app = QtWidgets.QApplication(sys.argv)
     main_app = App()
+    app.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt6'))
 
     # 启动一个消息处理线程，处理子进程与主进程的消息
     msg_thread = MsgHandleThread()

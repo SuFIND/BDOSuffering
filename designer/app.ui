@@ -6,14 +6,23 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>907</width>
+    <height>681</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>BDOSuffering</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Rounded</enum>
+  </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
    <layout class="QGridLayout" name="gridLayout_2">
     <item row="0" column="0">
      <layout class="QGridLayout" name="gridLayout">
@@ -33,22 +42,7 @@
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
          <item row="0" column="0">
-          <layout class="QGridLayout" name="TopFrameLayout">
-           <item row="0" column="0">
-            <widget class="QPushButton" name="StartPauseButton">
-             <property name="text">
-              <string>Start / Pause F10</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QPushButton" name="EndButton">
-             <property name="text">
-              <string>End F11</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <layout class="QGridLayout" name="TopFrameLayout"/>
          </item>
         </layout>
        </widget>
@@ -63,47 +57,7 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <layout class="QVBoxLayout" name="ButtomFrameLayout">
-           <item>
-            <widget class="QFrame" name="LogOpFrame">
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_2">
-              <item>
-               <layout class="QHBoxLayout" name="LogOpFrameLayout">
-                <item>
-                 <widget class="QPushButton" name="SaveLogButton">
-                  <property name="text">
-                   <string>Save</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="ClearLogButton">
-                  <property name="text">
-                   <string>Clear</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QTextBrowser" name="textBrowser"/>
-           </item>
-          </layout>
+          <layout class="QVBoxLayout" name="ButtomFrameLayout"/>
          </item>
         </layout>
        </widget>
@@ -124,8 +78,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
-     <height>37</height>
+     <width>907</width>
+     <height>26</height>
     </rect>
    </property>
   </widget>

@@ -38,13 +38,14 @@ class LogCtrl(QtWidgets.QWidget):
 
         self.viewer.ClearLogButton.clicked.connect(self.clear_log)
         self.viewer.SaveLogButton.clicked.connect(self.save_log)
+        self.viewer.LogLevelComboBox.currentTextChanged.connect(self.filter_log)
 
         # 持有的信号
         self.refresh_sig.connect(self._refresh_log_browse)
 
         # 当前可返回的一些数据
         self.logLines = []
-        self.log_level = global_var["log_level"]
+        self.log_level = self.viewer.LogLevelComboBox.itemText(0).lower()
 
     def add_log(self, msg, level=INFO):
         """
@@ -68,10 +69,10 @@ class LogCtrl(QtWidgets.QWidget):
         """
         html = ""
         level_color_map = {
-            "debug": "#8c8c8c",
-            "error": "#ff4d4f",
-            "warning": "#ffa940",
-            "info": "#434343",
+            "debug": "#595959",
+            "error": "#f5222d",
+            "warning": "#fa8c16",
+            "info": "#ffffff",
         }
         for (time, level, msg) in self.logLines:
             if level not in self.LEVEL_LOGS[self.log_level]:
@@ -106,3 +107,8 @@ class LogCtrl(QtWidgets.QWidget):
 
         with open(fileName_choose, 'w', encoding="utf-8") as fp:
             fp.write(plain_txt)
+
+    def filter_log(self, level: str):
+        level = level.lower()
+        self.log_level = level
+        self.refresh_sig.emit("")

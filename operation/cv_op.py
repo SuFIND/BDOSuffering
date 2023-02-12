@@ -72,15 +72,16 @@ def get_Pila_Fe_scroll_pos_by_model(detector, win_dc: WinDCApiCap, bdo_rect: lis
     return (bbox_tup[0] + bbox_tup[2]) / 2 + c_left, (bbox_tup[1] + bbox_tup[3]) / 2 + c_top
 
 
-def get_Pila_Fe_scroll_pos_by_temple(win_dc: WinDCApiCap, client_rect) -> [tuple, None]:
+def get_Pila_Fe_scroll_poses_by_temple(win_dc: WinDCApiCap, client_rect) -> [tuple, None]:
     """
     用过模版匹配找到卷轴中心点的位置
     :param win_dc:
     :param client_rect:
     :return:
     """
+    poses = []
     if not win_dc.is_available():
-        return None
+        return poses
     cur_windows_left, cur_windows_top, _, _ = client_rect
     sc_hots = win_dc.get_hwnd_screenshot_to_numpy_array()
     trans_hots = cv2.cvtColor(sc_hots, cv2.COLOR_RGBA2RGB)
@@ -90,8 +91,8 @@ def get_Pila_Fe_scroll_pos_by_temple(win_dc: WinDCApiCap, client_rect) -> [tuple
     threshold = 0.7
     loc = np.where(res >= threshold)
     for pt_left, pt_top in zip(*loc[::-1]):
-        return cur_windows_left + pt_left + template_w / 2, cur_windows_top + pt_top + template_h / 2
-    return None
+        poses.append([cur_windows_left + pt_left + template_w / 2, cur_windows_top + pt_top + template_h / 2])
+    return poses
 
 
 def use_Pila_Fe_scroll(detector, hwnd, debug=False):
@@ -118,17 +119,21 @@ def use_Pila_Fe_scroll(detector, hwnd, debug=False):
     out_pos = bag_ui_bbox[0] - 50, bag_ui_bbox[1] - 50
     step = 4
     while retry_scroll_cnt <= max_retry_scroll_cnt:
-        ms.move(out_pos[0] - 30, out_pos[0] - 30)
-        item_pos = get_Pila_Fe_scroll_pos_by_temple(win_dc, bdo_rect)
-        if item_pos is not None:
-            find = True
+        ms.move(out_pos[0] - 30, out_pos[1] - 30, duration=0.1)
+        item_poses = get_Pila_Fe_scroll_poses_by_temple(win_dc, bdo_rect)
+        for pos in item_poses:
+            if bag_ui_bbox[0] < pos[0] < bag_ui_bbox[2] \
+                    and bag_ui_bbox[1] < pos[1] < bag_ui_bbox[3]:
+                find = True
+                item_pos = pos
+                break
+        if find:
             break
-        else:
-            ms.move(into_pos[0], into_pos[1], duration=0.1)
-            for _ in range(step):
-                ms.wheel(-100)
-            retry_scroll_cnt += step
-            continue
+
+        ms.move(into_pos[0], into_pos[1], duration=0.1)
+        for _ in range(step):
+            ms.wheel(-100)
+        retry_scroll_cnt += step
 
     return find, item_pos
 
@@ -162,6 +167,26 @@ def found_boss_Magram(detector, hwnd, retry: int, debug: bool = False) -> bool:
         if rst:
             break
     return rst
+
+
+def found_boss_Magram_dead_or_Khalk_appear(detector, hwnd, retry: int, debug: bool = False) -> bool:
+    """
+    没有发旋目标 “玛格岚”，或者发现了目标柯尔克
+    :param detector:
+    :param hwnd:
+    :param retry:
+    :param debug:
+    :return:
+    """
+    rst = False
+    for i in range(retry + 1):
+        found_magram = found_target(detector, hwnd, "boss$Magram", debug=debug, save_dir="logs/img/Margram")
+        found_khalk = found_target(detector, hwnd, "boss$Khalk", debug=debug, save_dir="logs/img/Khalk")
+        rst = rst or (not found_magram or found_khalk)
+        if rst:
+            break
+    return rst
+
 
 
 def found_task_over(detector, hwnd, retry: int, debug: bool = False) -> bool:
@@ -263,8 +288,11 @@ def clear_bag(detector, hwnd, debug=False):
                         continue
 
                     ms.move(item_center_pos[0], item_center_pos[1], duration=0.1)
+                    time.sleep(0.1)
                     ms.click(ms.RIGHT)
+                    time.sleep(0.1)
                     kb.press_and_release("F")
+                    time.sleep(0.1)
                     kb.press_and_release("return")
 
             ms.move(into_pos[0], into_pos[1], duration=0.1)
@@ -290,4 +318,6 @@ def found_ui_process_bar(detector, hwnd, retry: int, debug: bool = False) -> boo
         rst = rst or found_target(detector, hwnd, "ui$Process Bar", debug=debug, save_dir="logs/img/Process Bar")
         if rst:
             break
+        time.sleep(0.1)
+
     return rst
