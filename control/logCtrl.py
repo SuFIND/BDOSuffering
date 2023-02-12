@@ -3,7 +3,6 @@ import os
 
 from PyQt6 import QtWidgets, QtCore, QtGui
 from ui.ui_log_ctrl import Ui_LogCtrl
-from app.init_resource import global_var
 
 
 class LogCtrl(QtWidgets.QWidget):
