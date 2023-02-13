@@ -2,9 +2,12 @@
 """
 用于检测是否有GM出现的足迹
 """
+import math
 import time
 import traceback
+import os
 
+import cv2
 from win32gui import FindWindow
 
 from utils.capture_utils import WinDCApiCap
@@ -84,6 +87,14 @@ def GM_check_loop(sig_dic, sig_mutex, msg_queue,
                 last_find_at = now_at
                 msg_queue.put(fmmsg.to_str("发现GM进行检测，模拟仿真程序紧急停止！", level="warning"))
                 msg_queue.put("action::show_gm_modal")
+
+                # save img
+                dir = os.path.join("log", "GMCheck")
+                if os.path.exists(dir):
+                    os.mkdir(dir)
+                abs_path = os.path.join(dir, f"{math.floor(time.time())}.jpg")
+
+                cv2.imwrite(abs_path, sc_np)
 
             # 检测间隔
             time.sleep(10)

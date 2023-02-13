@@ -1,7 +1,8 @@
+import queue
 import time
 import traceback
 import re
-from multiprocessing import Manager
+from threading import Lock
 
 import win32con
 import win32gui
@@ -47,6 +48,38 @@ def get_bag_capacity_by_ocr(win_dc: WinDCApiCap, bag_bbox):
     return rst
 
 
+def get_bag_capacity_by_tesseract_ocr(win_dc: WinDCApiCap, bag_bbox):
+    rst = None
+    if win_dc.is_available():
+        return rst
+
+    try:
+        sc = win_dc.get_hwnd_screenshot_to_numpy_array()
+        bg_sc = sc[bag_bbox[1]:bag_bbox[3], bag_bbox[0]:bag_bbox[2]]
+
+        bg_sc_h, bg_sc_w = bg_sc.shape[:2]
+        capacity_left = round(bg_sc_w * 0.85)
+        capacity_top = round(bg_sc_h * 0.1)
+        capacity_bottom = round(bg_sc_h * 0.2)
+        capacity_sc = bg_sc[capacity_top:capacity_bottom, capacity_left:]
+        color_coverted = cv2.cvtColor(capacity_sc, cv2.COLOR_BGR2RGB)
+
+        pil_image = Image.fromarray(color_coverted)
+        string = pytesseract.image_to_string(pil_image, lang="eng",
+                                             config="--psm 6 --oem 3 -c tessedit_char_whitelist=0123456789/")
+        r = re.match(r"(?P<cur>\d+)/(?P<total>\d+)", string)
+        if r is not None:
+            _ = r.groupdict()
+            cur, total = _["cur"], _["total"]
+            cur = int(cur)
+            total = int(total)
+            rst = cur, total
+    except Exception as e:
+        err = traceback.format_exc()
+        Logger.error(err)
+    return rst
+
+
 if __name__ == '__main__':
     for i in [3, 2, 1]:
         time.sleep(1)
@@ -64,61 +97,21 @@ if __name__ == '__main__':
     start_at = time.perf_counter()
 
     # TODO
-    m = Manager()
-    msg_queue = m.Queue()
-    sig_mutex = m.Lock()
-    sig_dic = m.dict()
+    msg_queue = queue.Queue()
+    sig_mutex = Lock()
+    sig_dic = dict()
     sig_dic.update({"stop": False, "pause": False, "start": False})
     global_var["BDO_window_title_bar_height"] = 30
-    # bdo_rect = get_bdo_rect(hwnd)
-    # bag_bbox = get_bag_ui_bbox(detector, win_dc, bdo_rect)
+    bdo_rect = get_bdo_rect(hwnd)
+    bag_bbox = get_bag_ui_bbox(detector, win_dc, bdo_rect)
 
     # sc = cv2.imread("draft/ocr_demo4.jpg")
-    # sc = win_dc.get_hwnd_screenshot_to_numpy_array()
-    # infer_rst = detector.infer(sc)
-    # bag_bbox = infer_rst["ui$Bag"][0]["bbox"]
-    # if not bag_bbox:
-    #     exit(0)
-    # bg_sc = sc[bag_bbox[1]:bag_bbox[3], bag_bbox[0]:bag_bbox[2]]
-    # cv2.imshow("bg_sc", bg_sc)
+
+    retrieve_the_scroll_from_the_trading_warehouse(sig_mutex, sig_dic, msg_queue, detector, hwnd)
+
+    # t_img = detector.test(win_dc.get_hwnd_screenshot_to_numpy_array(), min_score=0.3)
+    # cv2.imshow("t_img", t_img)
     # cv2.waitKey(0)
-
-    # bg_sc_h, bg_sc_w = bg_sc.shape[:2]
-    # capacity_left = round(bg_sc_w * 0.8125)
-    # capacity_top = round(bg_sc_h * 0.1)
-    # capacity_bottom = round(bg_sc_h * 0.2)
-    # capacity_sc = bg_sc[capacity_top:capacity_bottom, capacity_left:]
-
-
-    # cv2.imshow("capacity_sc", capacity_sc)
-    # cv2.waitKey(0)
-
-    # ocr_rst = recognize_numpy(capacity_sc, lang="en-US")
-    # text = ocr_rst["text"]
-    # clear_text = ""
-    # for char in text:
-    #     if char not in {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "/"}:
-    #         continue
-    #     clear_text += char
-    #
-    # r = re.match(r"(?P<cur>\d+)/(?P<total>\d+)", clear_text)
-    # if r is not None:
-    #     _ = r.groupdict()
-    #     cur, total = _["cur"], _["total"]
-    #     cur = int(cur)
-    #     total = int(total)
-    #     rst = cur, total
-    #     print(rst)
-    #
-
-
-    # retrieve_the_scroll_from_the_trading_warehouse(sig_mutex, sig_dic, msg_queue, detector, hwnd)
-
-    def is_borderless(hwnd):
-        style = win32gui.GetWindowLong(hwnd, win32con.GWL_STYLE)
-        return style & win32con.WS_POPUP == win32con.WS_POPUP
-
-    print(is_borderless(hwnd))
 
     end_at = time.perf_counter()
     print("cost", round(end_at - start_at, 2))

@@ -181,10 +181,14 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
             elif not rst and retry_back_to_call_place > max_retry_back_to_call_place:
                 retry_back_to_call_place += 1
 
+                move_keys = ["A", "D", "S"]
+                move_key = move_keys[retry_back_to_call_place % len(move_keys)]
+
                 # 按住s向后走几步，帮助自动路线规划重置
-                q.append((KeyboardSimulate.press, ("s",), "按住s向后走几步"))
-                q.append((time.sleep, (2,), "等待自动走回卷轴召唤地"))
-                q.append((KeyboardSimulate.release, ("s",), "松开S"))
+                q.append((KeyboardSimulate.press_and_release, ("S",), f"按下S终端自动走路"))
+                q.append((KeyboardSimulate.press, (move_key,), f"按住{move_key}向后走几步"))
+                q.append((time.sleep, (5,), "等待自动走回卷轴召唤地"))
+                q.append((KeyboardSimulate.release, (move_key,), f"松开{move_key}"))
                 q.append((KeyboardSimulate.press_and_release, ("T",), "按下T重新按照游戏规划的自动路线前进"))
 
                 # 等待自动走到目的地

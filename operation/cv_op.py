@@ -292,7 +292,7 @@ def clear_bag(detector, hwnd, debug=False):
                     ms.click(ms.RIGHT)
                     time.sleep(0.1)
                     kb.press_and_release("F")
-                    time.sleep(0.1)
+                    time.sleep(0.3)
                     kb.press_and_release("return")
 
             ms.move(into_pos[0], into_pos[1], duration=0.1)

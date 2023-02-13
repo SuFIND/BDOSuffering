@@ -131,3 +131,4 @@ dmypy.json
 draft/
 dev_release/
 logs
+third_part/tesseract

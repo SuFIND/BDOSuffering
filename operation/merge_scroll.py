@@ -5,6 +5,7 @@ import time
 import cv2
 import numpy as np
 import traceback
+
 import operation.classics_op as classics_op
 from utils.capture_utils import WinDCApiCap
 from utils.simulate_utils import MouseSimulate, KeyboardSimulate
@@ -14,6 +15,8 @@ from utils.muti_utils import FormatMsg
 from utils.ocr_utils import recognize_numpy
 from utils.log_utils import Logger
 import operation.cv_op as cv_op
+from utils.ocr_utils import get_bag_capacity_by_tesseract_ocr
+
 
 fmmsg = FormatMsg(source="模拟动作")
 
@@ -212,7 +215,7 @@ def get_scroll_written_in_ancient_language_poses_by_temple(win_dc: WinDCApiCap, 
     cur_windows_left, cur_windows_top, _, _ = client_rect
     sc_hots = win_dc.get_hwnd_screenshot_to_numpy_array()
     trans_hots = cv2.cvtColor(sc_hots, cv2.COLOR_RGBA2RGB)
-    template = cv2.imread("data/temple/ScrollWrittenInAncientLanguage.bmp")
+    template = cv2.imread("data/temple/ScrollWrittenInAncientLanguage_1.bmp")
     template_h, template_w = template.shape[:2]
     res = cv2.matchTemplate(trans_hots, template, cv2.TM_CCOEFF_NORMED)
     threshold = 0.7
@@ -255,6 +258,11 @@ def get_scroll_written_in_ancient_language_pos_which_one_belong_trading_warehous
     """
     rst = None
     item_poses = get_scroll_written_in_ancient_language_poses_by_model(detector, win_dc, client_rect, debug)
+
+    # 如果AI无法识别出古语卷轴的话利用末班查询匹配看看
+    if len(item_poses) == 0:
+        item_poses = get_scroll_written_in_ancient_language_poses_by_temple(win_dc, client_rect)
+
     for pos in item_poses:
         # 如果不在交易仓库的UI范围内则舍弃
         if not trading_warehouse_bbox[0] < pos[0] < trading_warehouse_bbox[2] \
@@ -288,7 +296,7 @@ def auto_take_back_ancient_lang_scroll(detector,
     out_to_tw_bbox_pos = tw_abs_bbox[0] - 50, tw_abs_bbox[1] - 50
 
     # step 3 ocr出背包的容量
-    cur_space, total_space = get_bag_capacity_by_ocr(win_dc, bag_bbox)
+    cur_space, total_space = get_bag_capacity_by_tesseract_ocr(win_dc, bag_bbox)
     if None in [cur_space, total_space]:
         reason = "ocr无法获取背包容量"
         # ocr 识别失败
@@ -344,6 +352,8 @@ def auto_take_back_ancient_lang_scroll(detector,
         KeyboardSimulate.press_and_release("5")
         KeyboardSimulate.press_and_release("return")
         time.sleep(0.5)
+
+    return success, done, reason
 
 
 def retrieve_the_scroll_from_the_trading_warehouse(sig_mutex, sig_dic, msg_queue, detector: Detector, hwnd,
