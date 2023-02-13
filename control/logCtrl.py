@@ -87,11 +87,11 @@ class LogCtrl(QtWidgets.QWidget):
 
     def save_log(self):
         plain_txt = ""
-        for (time, level, msg) in self.logLines:
+        for (time_str, level, msg) in self.logLines:
             if level not in self.LEVEL_LOGS[self.log_level]:
                 continue
 
-            time_str = time.strftime("%Y-%m-%d %H:%M:%S")
+            # time_str = time.strftime("%Y-%m-%d %H:%M:%S")
             line_one_str = f"{time_str} - [{level}]: {msg}\n"
             plain_txt += line_one_str
 

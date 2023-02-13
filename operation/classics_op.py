@@ -9,11 +9,11 @@ from utils.simulate_utils import KeyboardSimulate as kb, MouseSimulate as ms
 from utils.win_utils import get_bdo_rect
 
 
-def skil_action():
+def skill_action():
     # 强：蝶旋风
-    kb.press("shift")
+    kb.press("left shift")
     ms.click()
-    kb.release("shift")
+    kb.release("left shift")
     time.sleep(1.4)
 
     # 强：飓风/
@@ -21,6 +21,12 @@ def skil_action():
     time.sleep(1)
     kb.release("space")
     time.sleep(0.5)
+
+def skill_action2():
+    # 强：骤雨
+    kb.press("left shift")
+    kb.press_and_release("Q")
+    kb.release("left shift")
 
 
 def call_black_wizard_to_finish_task():

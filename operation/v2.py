@@ -97,6 +97,8 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
     # 运行时的计数变量
     retry_back_to_call_place = 0
     max_retry_back_to_call_place = 1
+    retry_skill = 0
+    max_retry_skill_using_skill_2 = 1   # 如果重试次数达到本次数则切换技能组（霸体，大范围）
 
     q = []
 
@@ -202,6 +204,9 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
             else:
                 # 把重试回到召唤地点的次数重置为0
                 retry_back_to_call_place = 0
+                # 把重试技能次数重置为0
+                retry_skill = 0
+
                 # 等待使用卷轴时的硬直事件
                 q.append((time.sleep, (the_stiffening_time_after_using_the_scroll,), "等待使用卷轴时的硬直事件"))
                 # 向后移动给即将下落的boss腾出相应的体积，避免人物被挤压 TODO 未来配置化
@@ -210,7 +215,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 q.append((time.sleep, (after_back_action_wait_time,), "后撤位移后等待boss1变成可击杀状态"))
 
                 # 播放自定义技能动作  TODO 未来配置化
-                q.append((classics_op.skil_action, (), "播放自定义技能动作"))
+                q.append((classics_op.skill_action, (), "播放自定义技能动作"))
                 # 等待BOSS玛格岚倒地动画完成
                 q.append((time.sleep, (boss1_dead_action_time,), "等待BOSS玛格岚倒地动画完成"))
                 # 目标检测-BOSS玛格岚是否还没死
@@ -220,17 +225,37 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
         elif func.__name__ == "found_boss_Magram_dead_or_Khalk_appear" and intention == "检测-BOSS玛格岚是否死亡或柯尔克是否出现":
             # 如果没有发现玛格岚或看到了柯尔克
             if rst:
+                # 把重试技能次数重置为0
+                retry_skill = 0
                 # 等待Boss2变成可被击杀的状态
                 q.append((time.sleep, (boss2_real_wait_time,), "等待BOSS柯尔特变成可击杀状态"))
-                # 播放  自定义技能动作  TODO 未来配置化
-                q.append((classics_op.skil_action, (), "播放自定义技能动作"))
+
+                # 如果重试次数小于
+                if retry_skill <= max_retry_skill_using_skill_2:
+                    # 播放动作  TODO 未来配置化
+                    q.append((classics_op.skill_action, (), "播放自定义技能动作"))
+                else:
+                    if retry_skill % 2 == 0:
+                        q.append((classics_op.skill_action2, (), "播放自定义技能动作2"))
+                    else:
+                        q.append((classics_op.skill_action, (), "播放自定义技能动作"))
+
                 # 检测是否完成任务
                 q.append((cv_op.found_task_over, (detector, hwnd, 2, True or debug), "检测-任务是否完成"))
 
             # 还是发现boss玛格岚
             else:
-                # 播放动作  TODO 未来配置化
-                q.append((classics_op.skil_action, (), "播放自定义技能动作"))
+                retry_skill += 1
+                # 如果重试次数小于
+                if retry_skill <= max_retry_skill_using_skill_2:
+                    # 播放动作  TODO 未来配置化
+                    q.append((classics_op.skill_action, (), "播放自定义技能动作"))
+                else:
+                    if retry_skill % 2 == 0:
+                        q.append((classics_op.skill_action2, (), "播放自定义技能动作2"))
+                    else:
+                        q.append((classics_op.skill_action, (), "播放自定义技能动作"))
+
                 # 等待BOSS玛格岚倒地动画完成
                 q.append((time.sleep, (boss1_dead_action_time,), "等待BOSS玛格岚倒地动画完成"))
                 # 检测-BOSS玛格岚是否死亡或柯尔克是否出现
@@ -238,6 +263,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
 
         elif func.__name__ == "found_task_over":
             if rst:
+                retry_skill = 0
                 # 等待任务变成可以呼出小黑的状态
                 q.append((time.sleep, (3,), "等待任务变成可以呼出小黑的状态"))
                 # 呼出小精灵完成任务
@@ -251,7 +277,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
 
             else:
                 # 播放自定义技能动作  TODO 未来配置化
-                q.append((classics_op.skil_action, (), "播放自定义技能动作"))
+                q.append((classics_op.skill_action, (), "播放自定义技能动作"))
                 # 检测是否完成任务
                 q.append((cv_op.found_task_over, (detector, hwnd, 2, debug), "检测是否完成任务"))
 
