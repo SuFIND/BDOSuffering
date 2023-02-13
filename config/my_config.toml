@@ -1,6 +1,5 @@
 [app]
 max_process_cnt = 2
-log_level="debug"
 debug = false   # 开启debug模式，会自动收集客户端的截图，保存在log/img下
 
 [BDO]
