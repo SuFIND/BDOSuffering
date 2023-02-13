@@ -239,7 +239,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
         elif func.__name__ == "found_task_over":
             if rst:
                 # 等待任务变成可以呼出小黑的状态
-                q.append((time.sleep, (2.5,), "等待任务变成可以呼出小黑的状态"))
+                q.append((time.sleep, (3,), "等待任务变成可以呼出小黑的状态"))
                 # 呼出小精灵完成任务
                 q.append((classics_op.call_black_wizard_to_finish_task, (), "呼出小精灵完成任务"))
                 # 按T回到召唤地点

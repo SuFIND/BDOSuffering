@@ -53,7 +53,7 @@ class LogCtrl(QtWidgets.QWidget):
         :param level:
         :return:
         """
-        now = datetime.datetime.now()
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.logLines.append((now, level, msg))
         self.refresh_sig.emit("refresh")
 
@@ -73,11 +73,10 @@ class LogCtrl(QtWidgets.QWidget):
             "warning": "#fa8c16",
             "info": "#ffffff",
         }
-        for (time, level, msg) in self.logLines:
+        for (time_str, level, msg) in self.logLines:
             if level not in self.LEVEL_LOGS[self.log_level]:
                 continue
 
-            time_str = time.strftime("%Y-%m-%d %H:%M:%S")
             line_one_str = f"{time_str} - [{level}]: {msg}\n"
 
             color = level_color_map.get(level, "#434343")

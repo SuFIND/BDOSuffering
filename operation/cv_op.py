@@ -50,7 +50,7 @@ def back_to_market(detector, hwnd, debug=False):
     kb.press_and_release("esc")
 
 
-def get_bag_ui_bbox(detector, win_dc: WinDCApiCap, bdo_rect: list[int], debug=False):
+def get_bag_ui_bbox(detector, win_dc: WinDCApiCap, bdo_rect: list[int], debug=False) -> [tuple, None]:
     c_left, c_top, _, _ = bdo_rect
     img = win_dc.get_hwnd_screenshot_to_numpy_array(collection=debug, save_dir="logs/img/BagUI")
     infer_rst = detector.infer(img)
@@ -58,6 +58,31 @@ def get_bag_ui_bbox(detector, win_dc: WinDCApiCap, bdo_rect: list[int], debug=Fa
         return None
 
     bbox_tup = infer_rst["ui$Bag"][0]["bbox"]
+    return bbox_tup[0] + c_left, bbox_tup[1] + c_top, bbox_tup[2] + c_left, bbox_tup[3] + c_top
+
+
+def get_bag_work_area_ui_bbox(detector, win_dc: WinDCApiCap, bdo_rect: list[int], debug=False) -> [tuple, None]:
+    c_left, c_top, _, _ = bdo_rect
+    img = win_dc.get_hwnd_screenshot_to_numpy_array(collection=debug, save_dir="logs/img/BagUIWorkArea")
+    infer_rst = detector.infer(img)
+    if "ui$Bag Work Area" not in infer_rst and "ui$Bag" in infer_rst:
+        bag_bbox = infer_rst["ui$Bag"][0]["bbox"]
+        # 如果AI无法推理出目标区域则改用图像比例计算可拖拽区域
+        bag_bbox_w = bag_bbox[2] - bag_bbox[0]
+        bag_bbox_h = bag_bbox[3] - bag_bbox[1]
+
+        exp_work_area_left = bag_bbox[0]
+        exp_work_area_right = bag_bbox[0] + round(bag_bbox_w * 0.995)
+        exp_work_area_top = bag_bbox[1] + round(bag_bbox_h * 0.178)
+        exp_work_area_bottom = bag_bbox[1] + round(bag_bbox_h * 0.735)
+
+        return exp_work_area_left + c_left, exp_work_area_top + c_top, exp_work_area_right + c_left, \
+               exp_work_area_bottom + c_top
+
+    if "ui$Bag Work Area" not in infer_rst and "ui$Bag"  not in infer_rst:
+        return None
+
+    bbox_tup = infer_rst["ui$Bag Work Area"][0]["bbox"]
     return bbox_tup[0] + c_left, bbox_tup[1] + c_top, bbox_tup[2] + c_left, bbox_tup[3] + c_top
 
 

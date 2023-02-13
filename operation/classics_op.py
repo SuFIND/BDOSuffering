@@ -27,7 +27,7 @@ def call_black_wizard_to_finish_task():
     kb.press_and_release("/")
     time.sleep(1.5)
     kb.press_and_release("r")
-    time.sleep(0.1)
+    time.sleep(0.5)
     kb.press_and_release("esc")
 
 
