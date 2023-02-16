@@ -76,13 +76,13 @@ def get_bag_work_area_ui_bbox(bag_bbox,  bdo_rect: list[int], debug=False) -> [t
            exp_work_area_bottom + c_top
 
 
-def get_Pila_Fe_scroll_poses_by_model(detector, win_dc: WinDCApiCap, bdo_rect: list[int], debug=False) -> list:
+def get_Pila_Fe_scroll_pos_by_model(detector, win_dc: WinDCApiCap, bdo_rect: list[int], debug=False) -> list:
     poses = []
     c_left, c_top, _, _ = bdo_rect
     img = win_dc.get_hwnd_screenshot_to_numpy_array(collection=debug, save_dir="logs/img/PilaFeScroll")
     infer_rst = detector.infer(img)
     if "item$Pila Fe Scroll" not in infer_rst:
-        return None
+        return poses
 
     bbox_obj = infer_rst["item$Pila Fe Scroll"]
     for obj in bbox_obj:
@@ -114,22 +114,13 @@ def get_Pila_Fe_scroll_poses_by_temple(win_dc: WinDCApiCap, client_rect) -> list
     return poses
 
 
-def get_Pila_Fe_scroll_poses(detector, win_dc: WinDCApiCap, client_rect, filter_bbox=(-9999, -9999, 9999, 9999)) -> list:
-    """
-    获取古语卷轴的坐标轴位置
-    :param detector:
-    :param win_dc:
-    :param client_rect:
-    :param filter_bbox:
-    :return:
-    """
-    poses = get_Pila_Fe_scroll_poses_by_temple(win_dc, client_rect)
-    poses = filter(lambda x: client_rect[0] <= x <= client_rect[2] and client_rect[1] <= x <= client_rect[3],
-                   poses)
-    if len(poses) == 0:
-        poses = get_Pila_Fe_scroll_poses_by_model(detector, win_dc, client_rect)
-        poses = filter(lambda x: filter_bbox[0] <= x <= filter_bbox[2] and filter_bbox[1] <= x <= filter_bbox[3],
-                       poses)
+def get_Pila_Fe_scroll_poses(detector, win_dc: WinDCApiCap, bdo_rect: list[int],
+                             bbox: [tuple, list] = (-9999, -9999, 9999, 9999)) -> list:
+    poses = get_Pila_Fe_scroll_pos_by_model(detector, win_dc, bdo_rect)
+    poses = [i for i in filter(lambda x: bbox[0] < x[0] < bbox[2] and bbox[1] < x[1] < bbox[3], poses)]
+    if len(poses) < 1:
+        poses = get_Pila_Fe_scroll_poses_by_temple(win_dc, bdo_rect)
+        poses = [i for i in filter(lambda x: bbox[0] < x[0] < bbox[2] and bbox[1] < x[1] < bbox[3], poses)]
     return poses
 
 
@@ -143,6 +134,8 @@ def use_Pila_Fe_scroll(detector, hwnd, debug=False):
     """
     find = False
     item_pos = None
+    reason = ""
+
     retry_scroll_cnt = 0
     max_retry_scroll_cnt = 16
     win_dc = WinDCApiCap(hwnd)
@@ -150,20 +143,23 @@ def use_Pila_Fe_scroll(detector, hwnd, debug=False):
 
     bag_ui_bbox = get_bag_ui_bbox(detector, win_dc, bdo_rect, debug=debug)
     if bag_ui_bbox is None:
-        return find, item_pos
+        reason = "找不到背包UI"
+        return find, item_pos, reason
 
     into_pos = (bag_ui_bbox[0] + bag_ui_bbox[2]) / 2, (bag_ui_bbox[1] + bag_ui_bbox[3]) / 2
     out_pos = bag_ui_bbox[0] - 50, bag_ui_bbox[1] - 50
     step = 4
     while retry_scroll_cnt <= max_retry_scroll_cnt:
         ms.move(out_pos[0] - 30, out_pos[1] - 30, duration=0.1)
-        item_poses = get_Pila_Fe_scroll_poses(detector, win_dc, bdo_rect)
+        item_poses = get_Pila_Fe_scroll_poses(detector, win_dc, bdo_rect, bag_ui_bbox)
         for pos in item_poses:
-            if bag_ui_bbox[0] < pos[0] < bag_ui_bbox[2] \
-                    and bag_ui_bbox[1] < pos[1] < bag_ui_bbox[3]:
-                find = True
-                item_pos = pos
-                break
+            if not bag_ui_bbox[0] < pos[0] < bag_ui_bbox[2] \
+                    or not bag_ui_bbox[1] < pos[1] < bag_ui_bbox[3]:
+                continue
+
+            find = True
+            item_pos = pos
+            break
         if find:
             break
 
@@ -172,7 +168,7 @@ def use_Pila_Fe_scroll(detector, hwnd, debug=False):
             ms.wheel(-100)
         retry_scroll_cnt += step
 
-    return find, item_pos
+    return find, item_pos, reason
 
 
 def found_target(detector, hwnd, label, debug=False, save_dir="") -> bool:

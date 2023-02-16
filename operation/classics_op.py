@@ -23,6 +23,19 @@ def skill_action():
     time.sleep(0.5)
 
 def skill_action2():
+    kb.press("left shift")
+    kb.press_and_release("D")
+    kb.release("left shift")
+
+    time.sleep(1)
+
+    kb.press("left shift")
+    kb.press_and_release("A")
+    kb.release("left shift")
+
+    time.sleep(1)
+
+
     # 强：骤雨
     kb.press("left shift")
     kb.press_and_release("Q")

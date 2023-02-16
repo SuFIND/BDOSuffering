@@ -10,7 +10,6 @@ import operation.merge_scroll as merge_scroll
 from app.init_resource import global_var
 from app.init_func import init_labels_dic
 from utils.cv_utils import Detector
-from utils.log_utils import Logger
 from utils.muti_utils import FormatMsg
 from utils.simulate_utils import KeyboardSimulate, MouseSimulate
 
@@ -32,6 +31,8 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
     :param debug:
     :return:
     """
+    from utils.log_utils import Logger
+
     # 初始化资源
     # # 初始化相关资源
     Logger.set_log_name("action_simulate.log")
@@ -47,7 +48,8 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
 
     # # 目前检测器
     label_dic = init_labels_dic(label_dic_path)
-    detector = Detector(onnx_path, label_dic)
+    detector = Detector(onnx_path, label_dic, providers=["CUDAExecutionProvider", "CPUExecutionProvider"])
+    detector.set_img_scale((576, 1024))
 
     # # 全局变量的加载
     global_var["BDO_window_title_bar_height"] = title_height
@@ -107,9 +109,6 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
     # # 重置到最大视角
     q.append((classics_op.reset_viewer, (), "重置到最大视角"))
     q.append((time.sleep, (0.5,), "等待0.5s"))
-    # # 先确认一遍背包把杂物提交仓库，防止一个批次没有结束就满负重
-    q.append((cv_op.clear_bag, (detector, hwnd, debug), "杂物主动利用仓库女仆提交仓库"))
-    q.append((time.sleep, (0.5,), "等待0.5s"))
     # # TODO 确认宠物是否开启
 
     time.sleep(1)
@@ -134,9 +133,10 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
         rst = func(*args)
 
         if func.__name__ == "use_Pila_Fe_scroll":
-            find_id, scroll_pos = rst
+            find_id, scroll_pos, reason = rst
             if not find_id:
                 # 如果找不到召唤书，正常结束
+                msg_queue.put(fmmsg.to_str(reason))
                 msg_queue.put(fmmsg.to_str("找不到更多的召唤书，接下来将执行清理背包、修武器、回城等任务。"))
                 # 关闭背包UI
                 q.append((classics_op.close_bag, (), "关闭背包UI"))
@@ -243,7 +243,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                         q.append((classics_op.skill_action, (), "播放自定义技能动作"))
 
                 # 检测是否完成任务
-                q.append((cv_op.found_task_over, (detector, hwnd, 2, True or debug), "检测-任务是否完成"))
+                q.append((cv_op.found_task_over, (detector, hwnd, 2, debug), "检测-任务是否完成"))
 
             # 还是发现boss玛格岚
             else:
@@ -261,8 +261,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 # 等待BOSS玛格岚倒地动画完成
                 q.append((time.sleep, (boss1_dead_action_time,), "等待BOSS玛格岚倒地动画完成"))
                 # 检测-BOSS玛格岚是否死亡或柯尔克是否出现
-                q.append((cv_op.found_boss_Magram_dead_or_Khalk_appear, (detector, hwnd, 0, True or debug),
-                          "检测-BOSS玛格岚是否死亡或柯尔克是否出现"))
+                q.append((cv_op.found_boss_Magram_dead_or_Khalk_appear, (detector, hwnd, 0, debug), "检测-BOSS玛格岚是否死亡或柯尔克是否出现"))
 
         elif func.__name__ == "found_task_over":
             if rst:

@@ -99,10 +99,11 @@ def to_numpy(tensor: torch.Tensor):
 class Detector:
     img_scale = (640, 640)
 
-    def __init__(self, onnx_file_path: str, labels_map: dict) -> None:
-        providers = ["CPUExecutionProvider"]
-        if torch.cuda.is_available():
-            providers.insert(0, 'CUDAExecutionProvider')
+    def __init__(self, onnx_file_path: str, labels_map: dict, providers=None) -> None:
+        if providers is None:
+            providers = ["CPUExecutionProvider"]
+        # if torch.cuda.is_available():
+        #     providers.insert(0, 'CUDAExecutionProvider')
 
         self.session = ort.InferenceSession(onnx_file_path, providers=providers)
         self.labels_map = labels_map
@@ -167,7 +168,7 @@ class Detector:
 
         return rst
 
-    def test(self, img: np.ndarray, min_score=0.7) -> np.ndarray:
+    def test(self, img: np.ndarray, min_score=0.6) -> np.ndarray:
         """可视化测试"""
 
         rst = self.infer(img, min_score)
@@ -189,3 +190,11 @@ class Detector:
                     0.75, [225, 255, 255],
                     thickness=2)
         return img
+
+    def set_img_scale(self, img_scale: tuple) -> None:
+        """
+
+        :param img_scale: (height, width)
+        :return:
+        """
+        self.img_scale = img_scale
