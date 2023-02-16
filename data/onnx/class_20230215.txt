@@ -1,0 +1,15 @@
+1 ui$Find NPC
+2 item$Pila Fe Scroll
+3 ui$Bag
+4 ui$Pila Fe Scroll Using Check
+5 ui$Process Bar
+6 boss$Magram
+7 boss$Khalk
+8 flag$Task Over
+9 item$Memory Fragment
+10 item$Mutant Bat's Wing
+11 item$Bashim Mane
+12 item$Hunter's Seal
+13 icron$Hutton
+14 ui$Trading Warehouse
+15 item$Scroll Written in Ancient Language
