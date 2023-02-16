@@ -61,43 +61,37 @@ def get_bag_ui_bbox(detector, win_dc: WinDCApiCap, bdo_rect: list[int], debug=Fa
     return bbox_tup[0] + c_left, bbox_tup[1] + c_top, bbox_tup[2] + c_left, bbox_tup[3] + c_top
 
 
-def get_bag_work_area_ui_bbox(detector, win_dc: WinDCApiCap, bdo_rect: list[int], debug=False) -> [tuple, None]:
+def get_bag_work_area_ui_bbox(bag_bbox,  bdo_rect: list[int], debug=False) -> [tuple, None]:
     c_left, c_top, _, _ = bdo_rect
-    img = win_dc.get_hwnd_screenshot_to_numpy_array(collection=debug, save_dir="logs/img/BagUIWorkArea")
-    infer_rst = detector.infer(img)
-    if "ui$Bag Work Area" not in infer_rst and "ui$Bag" in infer_rst:
-        bag_bbox = infer_rst["ui$Bag"][0]["bbox"]
-        # 如果AI无法推理出目标区域则改用图像比例计算可拖拽区域
-        bag_bbox_w = bag_bbox[2] - bag_bbox[0]
-        bag_bbox_h = bag_bbox[3] - bag_bbox[1]
 
-        exp_work_area_left = bag_bbox[0]
-        exp_work_area_right = bag_bbox[0] + round(bag_bbox_w * 0.995)
-        exp_work_area_top = bag_bbox[1] + round(bag_bbox_h * 0.178)
-        exp_work_area_bottom = bag_bbox[1] + round(bag_bbox_h * 0.735)
+    bag_bbox_w = bag_bbox[2] - bag_bbox[0]
+    bag_bbox_h = bag_bbox[3] - bag_bbox[1]
 
-        return exp_work_area_left + c_left, exp_work_area_top + c_top, exp_work_area_right + c_left, \
-               exp_work_area_bottom + c_top
+    exp_work_area_left = bag_bbox[0]
+    exp_work_area_right = bag_bbox[0] + round(bag_bbox_w * 0.995)
+    exp_work_area_top = bag_bbox[1] + round(bag_bbox_h * 0.178)
+    exp_work_area_bottom = bag_bbox[1] + round(bag_bbox_h * 0.735)
 
-    if "ui$Bag Work Area" not in infer_rst and "ui$Bag"  not in infer_rst:
-        return None
-
-    bbox_tup = infer_rst["ui$Bag Work Area"][0]["bbox"]
-    return bbox_tup[0] + c_left, bbox_tup[1] + c_top, bbox_tup[2] + c_left, bbox_tup[3] + c_top
+    return exp_work_area_left + c_left, exp_work_area_top + c_top, exp_work_area_right + c_left, \
+           exp_work_area_bottom + c_top
 
 
-def get_Pila_Fe_scroll_pos_by_model(detector, win_dc: WinDCApiCap, bdo_rect: list[int], debug=False):
+def get_Pila_Fe_scroll_poses_by_model(detector, win_dc: WinDCApiCap, bdo_rect: list[int], debug=False) -> list:
+    poses = []
     c_left, c_top, _, _ = bdo_rect
     img = win_dc.get_hwnd_screenshot_to_numpy_array(collection=debug, save_dir="logs/img/PilaFeScroll")
     infer_rst = detector.infer(img)
     if "item$Pila Fe Scroll" not in infer_rst:
         return None
 
-    bbox_tup = infer_rst["item$Pila Fe Scroll"][0]["bbox"]
-    return (bbox_tup[0] + bbox_tup[2]) / 2 + c_left, (bbox_tup[1] + bbox_tup[3]) / 2 + c_top
+    bbox_obj = infer_rst["item$Pila Fe Scroll"]
+    for obj in bbox_obj:
+        bbox = obj["bbox"]
+        poses.append(((bbox[0] + bbox[2]) / 2 + c_left, (bbox[1] + bbox[3]) / 2 + c_top))
+    return poses
 
 
-def get_Pila_Fe_scroll_poses_by_temple(win_dc: WinDCApiCap, client_rect) -> [tuple, None]:
+def get_Pila_Fe_scroll_poses_by_temple(win_dc: WinDCApiCap, client_rect) -> list:
     """
     用过模版匹配找到卷轴中心点的位置
     :param win_dc:
@@ -120,10 +114,28 @@ def get_Pila_Fe_scroll_poses_by_temple(win_dc: WinDCApiCap, client_rect) -> [tup
     return poses
 
 
+def get_Pila_Fe_scroll_poses(detector, win_dc: WinDCApiCap, client_rect, filter_bbox=(-9999, -9999, 9999, 9999)) -> list:
+    """
+    获取古语卷轴的坐标轴位置
+    :param detector:
+    :param win_dc:
+    :param client_rect:
+    :param filter_bbox:
+    :return:
+    """
+    poses = get_Pila_Fe_scroll_poses_by_temple(win_dc, client_rect)
+    poses = filter(lambda x: client_rect[0] <= x <= client_rect[2] and client_rect[1] <= x <= client_rect[3],
+                   poses)
+    if len(poses) == 0:
+        poses = get_Pila_Fe_scroll_poses_by_model(detector, win_dc, client_rect)
+        poses = filter(lambda x: filter_bbox[0] <= x <= filter_bbox[2] and filter_bbox[1] <= x <= filter_bbox[3],
+                       poses)
+    return poses
+
+
 def use_Pila_Fe_scroll(detector, hwnd, debug=False):
     """
     寻找背包里的卷轴并右击使用召唤
-    :param save_dir:
     :param debug:
     :param detector: 模型检测器
     :param hwnd: 句柄
@@ -145,7 +157,7 @@ def use_Pila_Fe_scroll(detector, hwnd, debug=False):
     step = 4
     while retry_scroll_cnt <= max_retry_scroll_cnt:
         ms.move(out_pos[0] - 30, out_pos[1] - 30, duration=0.1)
-        item_poses = get_Pila_Fe_scroll_poses_by_temple(win_dc, bdo_rect)
+        item_poses = get_Pila_Fe_scroll_poses(detector, win_dc, bdo_rect)
         for pos in item_poses:
             if bag_ui_bbox[0] < pos[0] < bag_ui_bbox[2] \
                     and bag_ui_bbox[1] < pos[1] < bag_ui_bbox[3]:
@@ -211,7 +223,6 @@ def found_boss_Magram_dead_or_Khalk_appear(detector, hwnd, retry: int, debug: bo
         if rst:
             break
     return rst
-
 
 
 def found_task_over(detector, hwnd, retry: int, debug: bool = False) -> bool:
@@ -305,7 +316,7 @@ def clear_bag(detector, hwnd, debug=False):
                 for info in infer_rst[label]:
                     item_bbox = info["bbox"]
                     item_center_pos = c_left + (item_bbox[0] + item_bbox[2]) / 2, c_top + (
-                                item_bbox[1] + item_bbox[3]) / 2
+                            item_bbox[1] + item_bbox[3]) / 2
 
                     # filter 如果物品的中心点不在背包UI内则不考虑对物品进行移动
                     if not bag_bbox[0] < item_center_pos[0] < bag_bbox[2] \

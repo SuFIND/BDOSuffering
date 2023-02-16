@@ -185,6 +185,13 @@
             </property>
            </widget>
           </item>
+          <item row="10" column="3">
+           <widget class="QPushButton" name="MergeALButton">
+            <property name="text">
+             <string>合成古语 F9</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
        </layout>

@@ -3,7 +3,7 @@ import datetime
 from PyQt6 import QtWidgets, QtCore
 from ui.ui_op_ctrl import Ui_OpCtrl
 from app.init_resource import global_var
-from operation.v2 import start_action
+from operation.v2 import start_action, start_merge
 from operation.gm_check import GM_check_loop
 
 
@@ -88,6 +88,27 @@ class OpCtrl(QtWidgets.QWidget):
             self.viewer.StartPauseButton.setText("暂停 F10")
         elif sig == "refresh_display:start":
             self.viewer.StartPauseButton.setText("开始 F10")
+        elif sig == "test":
+            with sig_mutex:
+                sig_dic.update({"start": True, "pause": False, "stop": False})
+            # 从全局变量中获取进程所需资源
+            debug = global_var["debug"]
+            process_pool = global_var["process_pool"]
+            sig_dic = global_var["process_sig"]
+            sig_mutex = global_var["process_sig_lock"]
+            msg_queue = global_var["process_msg_queue"]
+            window_title = global_var['BDO_window_title']
+            window_class = global_var['BDO_window_class']
+            window_title_bar_height = global_var["BDO_window_title_bar_height"]
+
+            # 模型相关的资源
+            onnx_file_path = global_var["onnx_file_path"]
+            classes_id_file_path = global_var["classes_id_file_path"]
+
+            # 启动打三角进程
+            process_pool.submit(start_merge, sig_dic, sig_mutex, msg_queue, window_title, window_class,
+                                window_title_bar_height, onnx_file_path, classes_id_file_path, debug)
+
 
     def handle_audition_alarm(self):
         q = global_var["process_msg_queue"]

@@ -141,6 +141,7 @@ def recognize_numpy(img: numpy.ndarray, lang=lang_zh):
 
 pytesseract.pytesseract.tesseract_cmd = "third_part/tesseract/tesseract.exe"
 
+
 def get_bag_capacity_by_tesseract_ocr(win_dc: WinDCApiCap, bag_bbox):
     rst = None, None
     if not win_dc.is_available():

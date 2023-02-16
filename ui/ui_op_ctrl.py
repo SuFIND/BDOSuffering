@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'designer/op.ui'
+# Form implementation generated from reading ui file 'designer\op.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.1
 #
@@ -86,6 +86,9 @@ class Ui_OpCtrl(object):
         self.BackExchaneCheckBox.setChecked(True)
         self.BackExchaneCheckBox.setObjectName("BackExchaneCheckBox")
         self.gridLayout.addWidget(self.BackExchaneCheckBox, 8, 1, 1, 1)
+        self.MergeALButton = QtWidgets.QPushButton(parent=self.frame)
+        self.MergeALButton.setObjectName("MergeALButton")
+        self.gridLayout.addWidget(self.MergeALButton, 10, 3, 1, 1)
         self.gridLayout_2.addLayout(self.gridLayout, 0, 0, 1, 1)
         self.verticalLayout.addWidget(self.frame)
         self.frame_2 = QtWidgets.QFrame(parent=OpCtrl)
@@ -132,5 +135,6 @@ class Ui_OpCtrl(object):
         self.IntoHuttonCheckBox.setToolTip(_translate("OpCtrl", "需要确认所在线是否可以进入赫顿领域，赛季及新手线不支持"))
         self.IntoHuttonCheckBox.setText(_translate("OpCtrl", "进入赫顿领域"))
         self.BackExchaneCheckBox.setText(_translate("OpCtrl", "回到交易所"))
+        self.MergeALButton.setText(_translate("OpCtrl", "合成古语 F9"))
         self.StartPauseButton.setText(_translate("OpCtrl", "开始 F10"))
         self.EndButton.setText(_translate("OpCtrl", "结束 F11"))

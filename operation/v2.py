@@ -6,6 +6,7 @@ from win32gui import FindWindow
 
 import operation.classics_op as classics_op
 import operation.cv_op as cv_op
+import operation.merge_scroll as merge_scroll
 from app.init_resource import global_var
 from app.init_func import init_labels_dic
 from utils.cv_utils import Detector
@@ -98,7 +99,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
     retry_back_to_call_place = 0
     max_retry_back_to_call_place = 1
     retry_skill = 0
-    max_retry_skill_using_skill_2 = 1   # 如果重试次数达到本次数则切换技能组（霸体，大范围）
+    max_retry_skill_using_skill_2 = 1  # 如果重试次数达到本次数则切换技能组（霸体，大范围）
 
     q = []
 
@@ -219,7 +220,8 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 # 等待BOSS玛格岚倒地动画完成
                 q.append((time.sleep, (boss1_dead_action_time,), "等待BOSS玛格岚倒地动画完成"))
                 # 目标检测-BOSS玛格岚是否还没死
-                q.append((cv_op.found_boss_Magram_dead_or_Khalk_appear, (detector, hwnd, 0, debug), "检测-BOSS玛格岚是否死亡或柯尔克是否出现"))
+                q.append((cv_op.found_boss_Magram_dead_or_Khalk_appear, (detector, hwnd, 0, debug),
+                          "检测-BOSS玛格岚是否死亡或柯尔克是否出现"))
 
         #
         elif func.__name__ == "found_boss_Magram_dead_or_Khalk_appear" and intention == "检测-BOSS玛格岚是否死亡或柯尔克是否出现":
@@ -259,7 +261,8 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 # 等待BOSS玛格岚倒地动画完成
                 q.append((time.sleep, (boss1_dead_action_time,), "等待BOSS玛格岚倒地动画完成"))
                 # 检测-BOSS玛格岚是否死亡或柯尔克是否出现
-                q.append((cv_op.found_boss_Magram_dead_or_Khalk_appear, (detector, hwnd, 0, True or debug), "检测-BOSS玛格岚是否死亡或柯尔克是否出现"))
+                q.append((cv_op.found_boss_Magram_dead_or_Khalk_appear, (detector, hwnd, 0, True or debug),
+                          "检测-BOSS玛格岚是否死亡或柯尔克是否出现"))
 
         elif func.__name__ == "found_task_over":
             if rst:
@@ -288,3 +291,36 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
             cur_cost_min = round((now_at - start_at) / 60)
             efficiency = round(exec_count / ((now_at - start_at) / 3600), 2)
             msg_queue.put(fmmsg.to_str(f"执行 {exec_count} 次，花费 {cur_cost_min} 分钟，平均 {efficiency} 个/小时。"))
+
+
+def start_merge(sig_dic, sig_mutex, msg_queue, window_title: str, window_class: str, title_height: int, onnx_path: str,
+                label_dic_path: str, debug: bool):
+    Logger.set_log_name("action_simulate.log")
+
+    # # 确认是否有程序句柄
+    hwnd = FindWindow(window_class, window_title)
+    if hwnd == 0:
+        msg_queue.put(fmmsg.to_str(
+            "无法检测到黑色沙漠窗口句柄！请先打开游戏或检查 config/my_config.toml 中的 BDO.window_class 是否与游戏窗口名一致",
+            level="error"))
+        Logger.error("No Found hwnd: BlackDesert!")
+        return
+
+    # # 目前检测器
+    label_dic = init_labels_dic(label_dic_path)
+    detector = Detector(onnx_path, label_dic)
+
+    # # 全局变量的加载
+    global_var["BDO_window_title_bar_height"] = title_height
+
+    try:
+        merge_scroll.retrieve_the_scroll_from_the_trading_warehouse(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=debug)
+    except Exception as e:
+        err = traceback.format_exc()
+        Logger.error(err)
+        msg_queue.put(fmmsg.to_str("意外退出!请查看日志文件定位错误。", level="error"))
+
+    # over
+    msg_queue.put(fmmsg.to_str("完成了所有操作！", level="info"))
+    with sig_mutex:
+        sig_dic.update({"stop": True, "start": False, "pause": False})

@@ -70,6 +70,11 @@ class MouseSimulate(HumanSimulate):
         cls.human_delay()
         return True
 
+    @classmethod
+    def drag(cls, start_x, start_y, end_x, end_y, absolute=True, duration=0):
+        mouse.drag(start_x, start_y, end_x, end_y, absolute=absolute, duration=duration)
+        cls.human_delay()
+
 
 class KeyboardSimulate(HumanSimulate):
     MinOpDelay = 50

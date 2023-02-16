@@ -11,9 +11,8 @@ import cv2
 from win32gui import FindWindow
 
 from utils.capture_utils import WinDCApiCap
-from utils.cv_utils import static_color_pix_count
+from utils.cv_utils import static_color_pix_count, static_color_pix_count_by_hsv
 from utils.muti_utils import FormatMsg
-from utils.log_utils import Logger
 
 fmmsg = FormatMsg(source="GM检测")
 
@@ -33,6 +32,8 @@ def GM_check_loop(sig_dic, sig_mutex, msg_queue,
     :param find_pix_max_count:  报警阀值，超出这个数量的像素会进行警报
     :return:
     """
+    from utils.log_utils import Logger
+
     # 初始化该进程的日志模块
     Logger.set_log_name("GM_check.log")
 
@@ -77,7 +78,7 @@ def GM_check_loop(sig_dic, sig_mutex, msg_queue,
             start_col = 0
             end_col = round(or_w / 4)
             cropped = sc_np[start_row:end_row, start_col:end_col, :3]
-            count = static_color_pix_count(cropped, gm_chat_color, threshold=0.6)
+            count = static_color_pix_count_by_hsv(cropped, gm_chat_color[0], gm_chat_color[1])
 
             # 如果计算出的相近颜色像素值大于阀值，且距离上一次警报已经超出冷却时间
             now_at = time.perf_counter()

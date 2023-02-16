@@ -9,7 +9,7 @@ window_title_bar_height = 30    # 窗口标题栏的高度，无边框或全屏�
 
 [GM]
 check_cool_time = 1800      # GM督查的时间间隔
-chat_color = [57, 181, 47]  # GM私聊时特殊字体的颜色
+chat_color = [[50, 55, 106], [77, 190, 255]]  # GM私聊时特殊字体的颜色
 find_pix_max_count = 500    # 检测超过该阈值则触发GM督查警报
 
 [model]

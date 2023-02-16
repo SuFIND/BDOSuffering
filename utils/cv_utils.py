@@ -41,6 +41,25 @@ def static_color_pix_count(img: np.ndarray, rgb, threshold=0.95):
     return count
 
 
+def static_color_pix_count_by_hsv(src: np.ndarray, lower, upper) -> int:
+    """
+    统计图片中特定颜色区间内像素的取值，该方法使用HSV色域，请配合tool/test_gm_check确定色域
+    :param src:
+    :param upper:
+    :param lower:
+    :return:
+    """
+    # 图色转换
+    img = cv2.cvtColor(src, cv2.COLOR_BGR2HSV)
+
+    # 创建黑白图片
+    mask = cv2.inRange(img[:, :, :3], lower, upper)
+
+    # 计算黑色像素数量
+    count = cv2.countNonZero(mask)
+    return count
+
+
 def resize_and_pad_img(img, target_height, target_width):
     """
     keep ratio and resize img and pad to target size

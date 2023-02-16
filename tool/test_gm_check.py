@@ -48,5 +48,51 @@ def main():
     print("find pix count", count)
 
 
+def main2():
+    # Only English
+    img_path = r"C:\\Users\\FF\\Desktop\\BlackDesert\\gm_chat2.jpg"
+    img = cv2.imread(img_path)
+
+    # GM字体颜色 rgb
+    gm_chat_color = (57, 181, 47,)
+    # 颜色相似度阈值
+    threshold = 0.6
+
+    lower, upper = color_threshold(gm_chat_color, threshold=threshold)
+    # 创建黑白图片
+    mask = cv2.inRange(img[:, :, :3], lower, upper)
+
+    # 展示套用黑白蒙层后的图片
+    cv2.imshow("after mask", mask)
+    cv2.waitKey(0)
+
+
+def main3():
+    # Only English
+    img_path = r"C:\\Users\\FF\\Desktop\\BlackDesert\\gm_chat2.jpg"
+    src = cv2.imread(img_path)
+    hsv_img = cv2.cvtColor(src, cv2.COLOR_BGR2HSV)
+
+    # GM字体颜色 hsv 范围
+    # 颜色相似度阈值
+    lower = (50, 55, 106)
+    upper = (77, 190, 255)
+
+    # 创建黑白图片
+    mask = cv2.inRange(hsv_img[:, :, :3], lower, upper)
+
+    # 展示套用黑白蒙层后的图片
+    cv2.imshow("after mask", mask)
+    cv2.waitKey(0)
+
+
 if __name__ == '__main__':
-    main()
+    task = 3
+    if task == 1:
+        main()
+    elif task == 2:
+        main2()
+    elif task == 3:
+        main3()
+    else:
+        print(f"no support task {task}")
