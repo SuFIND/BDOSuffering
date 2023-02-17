@@ -370,11 +370,14 @@ def start_merge(sig_dic, sig_mutex, msg_queue, window_title: str, window_class: 
 
     # # 全局变量的加载
     global_var["BDO_window_title_bar_height"] = title_height
-
+    success, to_continue, reason = True, True, ""
     try:
-        merge_scroll.retrieve_the_scroll_from_the_trading_warehouse(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=debug)
-        success, to_continue, reason = merge_scroll.merge_scroll(detector, hwnd, debug=debug)
-        msg_queue.put(fmmsg.to_str(f"success {success}, to_continue {to_continue}, reason {reason}"))
+        while to_continue and success:
+            merge_scroll.retrieve_the_scroll_from_the_trading_warehouse(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=debug)
+            success, to_continue, reason = merge_scroll.merge_scroll(detector, hwnd, debug=debug)
+
+        if not success:
+            msg_queue.put(fmmsg.to_str(reason, level="error"))
     except Exception as e:
         err = traceback.format_exc()
         Logger.error(err)

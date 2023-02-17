@@ -615,10 +615,11 @@ def merge_scroll(detector: Detector, hwnd, debug=False):
     if None in [cur_space, total_space]:
         reason = "ocr无法获取背包容量"
 
-    if total_space - cur_space < 10:
+    if total_space - cur_space < 25:
         to_continue = False
 
     # 关闭背包并结束
     classics_op.close_bag()
+    success = True
 
     return success, to_continue, reason
