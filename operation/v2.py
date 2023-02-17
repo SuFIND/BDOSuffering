@@ -124,7 +124,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
     time.sleep(1)
 
     # init queue 根据不同的初始化位置初始化队列
-    # 从卷轴召唤地点喀什
+    # 从卷轴召唤地点开始
     if gui_params["startAtCallPlace"]:
         q.append((classics_op.open_bag, (), "打开背包"))
         q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug), "找到召唤书并召唤"))
@@ -213,10 +213,16 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                     q.append((MouseSimulate.click, (MouseSimulate.RIGHT,), "鼠标右键使用"))
                     # 按下回城确认召唤
                     q.append((KeyboardSimulate.press_and_release, ("return",), "按下回城确认召唤"))
+                    # 关闭背包
+                    q.append((classics_op.close_bag, (), "关闭背包UI"))
                     # 按下回城确认召唤
                     q.append((KeyboardSimulate.press_and_release, ("T",), "开始自动导航从交易所回到打球地点"))
                     # 等待回到召唤地点的时间
                     q.append((time.sleep, (back_trading_house_time,), "等待回到召唤地点的时间"))
+                    # 打开背包
+                    q.append((classics_op.open_bag, (), "打开背包"))
+                    # 尝试召唤卷轴
+                    q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug), "找到召唤书并召唤"))
 
         elif func.__name__ == "found_ui_process_bar":
             # 如果没有出现进度条UI，并且重试次数还没有大于上线次数，则再次重试进行召唤
