@@ -275,11 +275,12 @@ def get_merge_button_by_temple(win_dc: WinDCApiCap, client_rect) -> [tuple, None
         return cur_windows_left + pt_left + template_w / 2, cur_windows_top + pt_top + template_h / 2
 
 
-def clear_bag(detector, hwnd, debug=False):
+def clear_bag(detector, hwnd, useWarehouseMaidShortcut, debug=False):
     """
     呼出仓库女仆清理背包杂物
     :param detector:
     :param hwnd:
+    :param useWarehouseMaidShortcut: 仓库女仆快捷键
     :param debug:
     :return:
     """
@@ -288,7 +289,7 @@ def clear_bag(detector, hwnd, debug=False):
     c_left, c_top, _, _ = bdo_rect
 
     kb.press("alt")
-    kb.press_and_release("1")
+    kb.press_and_release(useWarehouseMaidShortcut)
     kb.release("alt")
     time.sleep(1)
 

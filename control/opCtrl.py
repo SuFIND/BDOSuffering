@@ -22,6 +22,7 @@ class OpCtrl(QtWidgets.QWidget):
         self.viewer.EndButton.clicked.connect(self.clicked_for_end_button)
         self.viewer.AuditionAlarmButton.clicked.connect(self.handle_audition_alarm)
         self.viewer.MergeALButton.clicked.connect(self.clicked_for_al_button)
+        self.viewer.TestButton.clicked.connect(self.handel_test_button)
 
         self.button_sig.connect(self.handel_button_logic)
 
@@ -36,12 +37,20 @@ class OpCtrl(QtWidgets.QWidget):
         self.button_sig.emit("stop")
 
     def clicked_for_al_button(self):
-        self.button_sig.emit("test")
+        self.button_sig.emit("mergeAL")
 
     def handel_button_logic(self, sig):
         sig_dic = global_var["process_sig"]
         sig_mutex = global_var["process_sig_lock"]
         if sig == "start":
+            # 来自GUI可视化配置的资源
+            available, gui_params, reason = self.collect()
+            if not available:
+                msgBox = QtWidgets.QMessageBox(self)
+                msgBox.setText(reason)
+                msgBox.show()
+
+            # 初始化信号量
             with sig_mutex:
                 sig_dic.update({"start": True, "pause": False, "stop": False})
             # 从全局变量中获取进程所需资源
@@ -65,7 +74,7 @@ class OpCtrl(QtWidgets.QWidget):
 
             # 启动打三角进程
             process_pool.submit(start_action, sig_dic, sig_mutex, msg_queue, window_title, window_class,
-                                window_title_bar_height, onnx_file_path, classes_id_file_path, debug)
+                                window_title_bar_height, onnx_file_path, classes_id_file_path, gui_params, debug)
 
             # 启动GM守护进程
             process_pool.submit(GM_check_loop, sig_dic, sig_mutex, msg_queue, window_title, window_class,
@@ -92,7 +101,7 @@ class OpCtrl(QtWidgets.QWidget):
             self.viewer.StartPauseButton.setText("暂停 F10")
         elif sig == "refresh_display:start":
             self.viewer.StartPauseButton.setText("开始 F10")
-        elif sig == "test":
+        elif sig == "mergeAL":
             with sig_mutex:
                 sig_dic.update({"start": True, "pause": False, "stop": False})
             # 从全局变量中获取进程所需资源
@@ -112,7 +121,6 @@ class OpCtrl(QtWidgets.QWidget):
             process_pool.submit(start_merge, sig_dic, sig_mutex, msg_queue, window_title, window_class,
                                 window_title_bar_height, onnx_file_path, classes_id_file_path, debug)
 
-
     def handle_audition_alarm(self):
         q = global_var["process_msg_queue"]
         mutex = global_var["process_sig_lock"]
@@ -120,3 +128,97 @@ class OpCtrl(QtWidgets.QWidget):
         with mutex:
             dic.update({"stop": False})
         q.put("action::show_gm_modal")
+
+    def handel_test_button(self):
+        available, gui_params, reason = self.collect()
+        if not available:
+            msgBox = QtWidgets.QMessageBox(self)
+            msgBox.setText(reason)
+            msgBox.show()
+        else:
+            print(gui_params)
+
+    def collect(self) -> (bool, dict, str):
+        """
+        收集GUI上的所有配置设置打包成一个数据字典
+        :return:
+        """
+        available = True
+        rst = {}
+        reason = ""
+
+        # 重置最大视角
+        resetView = self.viewer.ResetViewCheckBox.isChecked()
+        # 从交易所开始
+        startAtTradingWarehouse = self.viewer.StartAtTradingWarehouseButton.isChecked()
+        # 从球点开始
+        startAtCallPlace = self.viewer.StartAtCallPlaceButton.isChecked()
+        # 仓库女仆
+        useWarehouseMaid = self.viewer.UseWarehouseMaidCheckBox.isChecked()
+        # 仓库女仆快捷键
+        useWarehouseMaidShortcut = self.viewer.WarehouseMaidkeySequenceEdit.keySequence()
+        # 使用帐篷维修武器
+        repairWeapons = self.viewer.RepairWeaponsCheckBox.isChecked()
+        # 设置帐篷的快捷键
+        setTentShortcut = self.viewer.SetTentSequenceEdit.keySequence()
+        # 帐篷修理武器的快捷键
+        tentRepairWeaponsShortcut = self.viewer.RepairWeaponskeySequenceEdit.keySequence()
+        # 回收帐篷的快捷键
+        recycleTentShortcut = self.viewer.RecycleTentkeySequenceEdit.keySequence()
+        # 打完球后是否回到交易所
+        backExchange = self.viewer.BackExchangeCheckBox.isChecked()
+        # 如果可以进入赫顿领域，是否要进入赫顿打球
+        intoHutton = self.viewer.IntoHuttonCheckBox.isChecked()
+
+        boss1CanBeHitCoolTimeStr = self.viewer.Boss1CanBeHitCoolTimeEdit.text()
+        boss2CanBeHitCoolTimeStr = self.viewer.Boss2CanBeHitCoolTimeEdit.text()
+        skillGroup1KillBoss1CostStr = self.viewer.SkillGroup1KillBoss1CostEdit.text()
+        backTradingHouseTimeStr = self.viewer.backTradingHouseTimeEdit.text()
+
+        to_checks = [
+            ("resetView", resetView, "", None),
+            ("startAtTradingWarehouse", startAtTradingWarehouse, "", None),
+            ("startAtCallPlace", startAtCallPlace, "", None),
+            ("useWarehouseMaid", useWarehouseMaid, "", None),
+            ("repairWeapons", repairWeapons, "", None),
+            ("backExchange", backExchange, "", None),
+            ("intoHutton", intoHutton, "", None),
+
+            ("boss1CanBeHitCoolTime", boss1CanBeHitCoolTimeStr, "召唤到玛格岚可以被打(s)必须为数字类型", "num"),
+            ("boss2CanBeHitCoolTime", boss2CanBeHitCoolTimeStr, "玛格岚死到柯尔特出现(s)必须为数字类型", "num"),
+            ("skillGroup1KillBoss1Cost", skillGroup1KillBoss1CostStr, "技能组1预计击杀耗时(s)必须为数字类型", "num"),
+            ("backTradingHouseTime", backTradingHouseTimeStr, "球点至交易所的耗时(s)必须为数字类型", "num"),
+        ]
+
+        # 如果开启仓库女仆放杂物的功能
+        if useWarehouseMaid:
+            to_checks.append(
+                ("useWarehouseMaidShortcut", useWarehouseMaidShortcut, "开启仓库女仆存放功能，但未设置仓库女仆快捷键",
+                 "shortcut")
+            )
+
+        # 如果打完后自动维修武器的功能
+        if repairWeapons:
+            to_checks.extend([
+                ("setTentShortcut", setTentShortcut, "开启维修武器功能，但未设置设置帐篷快捷键", "shortcut"),
+                ("tentRepairWeaponsShortcut", tentRepairWeaponsShortcut, "开启维修武器功能，但未设置帐篷维修武器快捷键",
+                 "shortcut"),
+                ("recycleTentShortcut", recycleTentShortcut, "开启维修武器功能，但未设置回收快捷键", "shortcut")
+            ])
+
+        for key, val, desc, check_type in to_checks:
+            try:
+                if check_type == "num":
+                    rst[key] = float(val)
+                elif check_type == "shortcut":
+                    _val = val.toString()
+                    if val == "":
+                        raise ValueError
+                    rst[key] = _val
+                else:
+                    rst[key] = val
+            except Exception:
+                available = False
+                reason += f"{desc}\n"
+
+        return available, rst, reason

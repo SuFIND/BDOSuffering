@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>609</width>
-    <height>344</height>
+    <width>574</width>
+    <height>391</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,173 +26,286 @@
        </property>
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="4" column="1">
-           <widget class="QCheckBox" name="UseWarehouseMaidCheckBox">
-            <property name="toolTip">
-             <string>需要至少有4个仓库女仆，存放：記憶的碎片、獵人勛章、以及兩種召喚怪物掉落的雜物</string>
-            </property>
-            <property name="text">
-             <string>女仆存放杂物</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>开始前</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="3">
-           <widget class="QKeySequenceEdit" name="WarehouseMaidkeySequenceEdit">
-            <property name="keySequence">
-             <string>1</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="1">
-           <widget class="QCheckBox" name="RepairWeaponsCheckBox">
-            <property name="toolTip">
-             <string>需要购买珍珠商品帐篷</string>
-            </property>
-            <property name="text">
-             <string>帐篷修理装备</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="3">
-           <widget class="QKeySequenceEdit" name="RepairWeaponskeySequenceEdit">
-            <property name="keySequence">
-             <string>4</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="3">
-           <widget class="QKeySequenceEdit" name="SetTentSequenceEdit">
-            <property name="keySequence">
-             <string>3</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="2">
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>帐篷修理 alt +</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="9" column="1">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>其他</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="3">
-           <widget class="QKeySequenceEdit" name="RecycleTentkeySequenceEdit">
-            <property name="keySequence">
-             <string>5</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="2">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>设置帐篷 alt +</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QCheckBox" name="ResetViewCheckBox">
-            <property name="text">
-             <string>重置到最大视野</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-            <property name="tristate">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="2">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>仓库女仆 alt +</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>结束后</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="2">
-           <widget class="QLabel" name="label_7">
-            <property name="text">
-             <string>回收帐篷 alt +</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="10" column="2">
-           <widget class="QPushButton" name="AuditionAlarmButton">
-            <property name="text">
-             <string>试听GM警报</string>
-            </property>
-           </widget>
-          </item>
-          <item row="10" column="1">
-           <widget class="QCheckBox" name="IntoHuttonCheckBox">
-            <property name="toolTip">
-             <string>需要确认所在线是否可以进入赫顿领域，赛季及新手线不支持</string>
-            </property>
-            <property name="text">
-             <string>进入赫顿领域</string>
-            </property>
-            <property name="tristate">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="1">
-           <widget class="QCheckBox" name="BackExchaneCheckBox">
-            <property name="text">
-             <string>回到交易所</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="10" column="3">
-           <widget class="QPushButton" name="MergeALButton">
-            <property name="text">
-             <string>合成古语 F9</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <widget class="QTabWidget" name="tabWidget">
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <widget class="QWidget" name="BasicTab">
+           <attribute name="title">
+            <string>基础设置</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_3">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout">
+              <item row="5" column="2">
+               <widget class="QLabel" name="label_5">
+                <property name="text">
+                 <string>设置帐篷 alt +</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="3">
+               <widget class="QKeySequenceEdit" name="RepairWeaponskeySequenceEdit">
+                <property name="keySequence">
+                 <string>4</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="3">
+               <widget class="QKeySequenceEdit" name="SetTentSequenceEdit">
+                <property name="keySequence">
+                 <string>3</string>
+                </property>
+               </widget>
+              </item>
+              <item row="10" column="2">
+               <widget class="QPushButton" name="AuditionAlarmButton">
+                <property name="text">
+                 <string>试听GM警报</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QCheckBox" name="ResetViewCheckBox">
+                <property name="text">
+                 <string>重置到最大视野</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+                <property name="tristate">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLabel" name="label">
+                <property name="text">
+                 <string>开始前</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="3">
+               <widget class="QKeySequenceEdit" name="WarehouseMaidkeySequenceEdit">
+                <property name="keySequence">
+                 <string>1</string>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="1">
+               <widget class="QCheckBox" name="BackExchangeCheckBox">
+                <property name="text">
+                 <string>回到交易所</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="2">
+               <widget class="QLabel" name="label_6">
+                <property name="text">
+                 <string>帐篷修理 alt +</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="1">
+               <widget class="QCheckBox" name="RepairWeaponsCheckBox">
+                <property name="toolTip">
+                 <string>需要购买珍珠商品帐篷</string>
+                </property>
+                <property name="text">
+                 <string>帐篷修理装备</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="3">
+               <widget class="QKeySequenceEdit" name="RecycleTentkeySequenceEdit">
+                <property name="keySequence">
+                 <string>5</string>
+                </property>
+               </widget>
+              </item>
+              <item row="9" column="1">
+               <widget class="QLabel" name="label_4">
+                <property name="text">
+                 <string>其他</string>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="2">
+               <widget class="QLabel" name="label_7">
+                <property name="text">
+                 <string>回收帐篷 alt +</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="10" column="1">
+               <widget class="QCheckBox" name="IntoHuttonCheckBox">
+                <property name="toolTip">
+                 <string>需要确认所在线是否可以进入赫顿领域，赛季及新手线不支持</string>
+                </property>
+                <property name="text">
+                 <string>进入赫顿领域</string>
+                </property>
+                <property name="tristate">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="2">
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>仓库女仆 alt +</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QLabel" name="label_3">
+                <property name="text">
+                 <string>结束后</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QCheckBox" name="UseWarehouseMaidCheckBox">
+                <property name="toolTip">
+                 <string>需要至少有4个仓库女仆，存放：記憶的碎片、獵人勛章、以及兩種召喚怪物掉落的雜物</string>
+                </property>
+                <property name="text">
+                 <string>女仆存放杂物</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QRadioButton" name="StartAtTradingWarehouseButton">
+                <property name="text">
+                 <string>从交易所开始</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="3">
+               <widget class="QRadioButton" name="StartAtCallPlaceButton">
+                <property name="text">
+                 <string>从球点开始</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="10" column="3">
+               <widget class="QPushButton" name="TestButton">
+                <property name="text">
+                 <string>TEST</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="TimeTab">
+           <attribute name="title">
+            <string>时间设置</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_5">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout_4">
+              <item row="1" column="3">
+               <widget class="QLineEdit" name="backTradingHouseTimeEdit">
+                <property name="text">
+                 <string>140</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="Boss1CanBeHitCoolTimeEdit">
+                <property name="text">
+                 <string>37.5</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_8">
+                <property name="text">
+                 <string>召唤到玛格岚可以被打(s)</string>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QLabel" name="label_10">
+                <property name="text">
+                 <string>球点至交易所的耗时(s)</string>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QLabel" name="label_9">
+                <property name="text">
+                 <string>玛格岚死到柯尔特出现(s)</string>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="SkillGroup1KillBoss1CostEdit">
+                <property name="text">
+                 <string>2.5</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="3">
+               <widget class="QLineEdit" name="Boss2CanBeHitCoolTimeEdit">
+                <property name="text">
+                 <string>12</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_12">
+                <property name="text">
+                 <string>技能组1预计击杀耗时(s)</string>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -219,6 +332,13 @@
            <widget class="QPushButton" name="EndButton">
             <property name="text">
              <string>结束 F11</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="MergeALButton">
+            <property name="text">
+             <string>合成古语 F9</string>
             </property>
            </widget>
           </item>

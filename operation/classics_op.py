@@ -9,7 +9,15 @@ from utils.simulate_utils import KeyboardSimulate as kb, MouseSimulate as ms
 from utils.win_utils import get_bdo_rect
 
 
-def skill_action():
+def skill_action(has_been_play_time: int):
+    has_been_play_time += 1
+    if has_been_play_time % 2 != 0:
+        skill_group_1()
+    else:
+        skill_group_2()
+
+
+def skill_group_1():
     # 强：蝶旋风
     kb.press("left shift")
     ms.click()
@@ -22,19 +30,21 @@ def skill_action():
     kb.release("space")
     time.sleep(0.5)
 
-def skill_action2():
+
+def skill_group_2():
+    # 左移动
     kb.press("left shift")
     kb.press_and_release("D")
     kb.release("left shift")
 
     time.sleep(1)
 
+    # 右移动
     kb.press("left shift")
     kb.press_and_release("A")
     kb.release("left shift")
 
     time.sleep(1)
-
 
     # 强：骤雨
     kb.press("left shift")
@@ -149,17 +159,18 @@ def get_repair_weapons_icon_pos(hwnd):
     return None
 
 
-def repair_weapons_by_tent(hwnd):
+def repair_weapons_by_tent(hwnd, setTentShortcut: str, tentRepairWeaponsShortcut: str,
+                           recycleTentShortcut: str) -> None:
     # 利用快捷键打开帐篷
     kb.press("alt")
-    kb.press_and_release("3")
+    kb.press_and_release(setTentShortcut)
     kb.release("alt")
 
     time.sleep(2)
 
     # 利用快捷键打开修理
     kb.press("alt")
-    kb.press_and_release("4")
+    kb.press_and_release(tentRepairWeaponsShortcut)
     kb.release("alt")
 
     time.sleep(1)
@@ -179,7 +190,7 @@ def repair_weapons_by_tent(hwnd):
 
     # 利用快捷键回收帐篷
     kb.press("alt")
-    kb.press_and_release("5")
+    kb.press_and_release(recycleTentShortcut)
     kb.release("alt")
     kb.press_and_release('return')
 
@@ -227,3 +238,19 @@ def into_action_state():
     :return:
     """
     ms.click()
+
+
+def calculate_the_elapsed_time_so_far(start: float):
+    """
+    计算从输入的开始时间为止到目前所消耗的时间
+    :param start:
+    :return:
+    """
+    now = time.perf_counter()
+    return now - start
+
+
+def set_timer_key_value(dic: dict, key: str, value: int = None) -> None:
+    if value is None:
+        value = time.perf_counter()
+    dic[key] = value
