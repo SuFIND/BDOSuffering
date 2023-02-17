@@ -23,8 +23,11 @@ class App(QMainWindow, Ui_MainWindow):
 
         self.hk_start_pause = SystemHotkey()
         self.hk_stop = SystemHotkey()
+        self.hk_test = SystemHotkey()
+
         self.hk_start_pause.register(('f10',), callback=lambda x: self.sendHotKeySig('f10'))
         self.hk_stop.register(('f11',), callback=lambda x: self.sendHotKeySig('f11'))
+        self.hk_test.register(('f9',), callback=lambda x: self.sendHotKeySig('f9'))
 
     def sendHotKeySig(self, i_str):
         self.sig_hotkey.emit(i_str)
@@ -36,6 +39,9 @@ class App(QMainWindow, Ui_MainWindow):
         if i_str == 'f11':
             # 停止
             self.OpCtrl.clicked_for_end_button()
+        if i_str == 'f9':
+            # 停止
+            self.OpCtrl.clicked_for_al_button()
 
     def showGMCheckDialog(self, i_str):
         # 启动警报音的播放线程

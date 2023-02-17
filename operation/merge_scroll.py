@@ -41,16 +41,17 @@ def use_merge_button(win_dc: WinDCApiCap, client_rect, limit_bbox=(-9999, -9999,
     # 识别是否有合成的小icon
     merge_button_poses = get_merge_button_by_temple(win_dc, client_rect)
 
-    # 如果有，则移动鼠标到小icon上，则直接点击合成
-    if len(merge_button_poses) > 0:
-        for icon_pos in merge_button_poses:
-            if not limit_bbox[0] < icon_pos[0] < limit_bbox[2] \
-                    or not limit_bbox[1] < icon_pos[1] < limit_bbox[3]:
-                continue
-            MouseSimulate.move(icon_pos[0], icon_pos[1], duration=0.1)
-            time.sleep(0.3)
-            MouseSimulate.click()
-            time.sleep(0.3)
+    while len(merge_button_poses) > 0:
+        icon_pos = merge_button_poses.pop()
+        if not limit_bbox[0] < icon_pos[0] < limit_bbox[2] \
+                or not limit_bbox[1] < icon_pos[1] < limit_bbox[3]:
+            continue
+        MouseSimulate.move(icon_pos[0], icon_pos[1], duration=0.1)
+        time.sleep(0.2)
+        MouseSimulate.click()
+        time.sleep(0.2)
+        _ = get_merge_button_by_temple(win_dc, client_rect)
+        merge_button_poses.extend(_)
 
 
 def get_bag_capacity_by_ocr(win_dc: WinDCApiCap, bag_bbox):
@@ -235,18 +236,24 @@ def get_scroll_written_in_ancient_language_pos_in_custom_bbox(win_dc: WinDCApiCa
     return rst
 
 
-def get_scroll_written_in_ancient_language_poses_in_custom_bbox(win_dc: WinDCApiCap,
+def get_scroll_written_in_ancient_language_poses_in_custom_bbox(detector,
+                                                                win_dc: WinDCApiCap,
                                                                 client_rect,
                                                                 bbox) -> list:
     """
     用过模版匹配找到位于交易所仓库的古语召唤卷轴的位置
+    :param detector:
     :param win_dc:
     :param client_rect:
     :param bbox: 指定的框框
     :return:
     """
     poses = []
-    item_poses = get_scroll_written_in_ancient_language_poses_by_temple(win_dc, client_rect)
+    # 优先使用AI
+    item_poses = get_scroll_written_in_ancient_language_poses_by_model(detector, win_dc, client_rect)
+    if len(item_poses) < 1:
+        item_poses = get_scroll_written_in_ancient_language_poses_by_temple(win_dc, client_rect)
+
     for pos in item_poses:
         # 如果不在交易仓库的UI范围内则舍弃
         if not bbox[0] < pos[0] < bbox[2] \
@@ -258,7 +265,7 @@ def get_scroll_written_in_ancient_language_poses_in_custom_bbox(win_dc: WinDCApi
 
 def get_scroll_written_in_ancient_language_avg_bbox_size(detector: Detector,
                                                          win_dc: WinDCApiCap,
-                                                         default=(42, 42)):
+                                                         default=(45, 45)):
     img = win_dc.get_hwnd_screenshot_to_numpy_array()
     infer_rst = detector.infer(img)
     if "item$Scroll Written in Ancient Language" not in infer_rst:
@@ -281,8 +288,8 @@ def get_scroll_written_in_ancient_language_avg_bbox_size(detector: Detector,
         total_ws += one
     for one in hs:
         total_hs += one
-    avg_ws = round(total_ws / cnt)
-    avg_hs = round(total_hs / cnt)
+    avg_ws = max(total_ws // cnt, default[0])
+    avg_hs = max(total_hs / cnt, default[1])
     return avg_ws, avg_hs
 
 
@@ -341,6 +348,7 @@ def auto_take_back_ancient_lang_scroll(detector,
     if target_pos is None:
         reason = "交易所卷轴不足，请及时补充卷轴"
         success = True
+        done = True
         return success, done, reason
 
     for _ in range(each_20_step):
@@ -364,7 +372,8 @@ def auto_take_back_ancient_lang_scroll(detector,
         KeyboardSimulate.press_and_release("5")
         KeyboardSimulate.press_and_release("return")
         time.sleep(0.5)
-
+    success = True
+    done = True
     return success, done, reason
 
 
@@ -375,6 +384,7 @@ def retrieve_the_scroll_from_the_trading_warehouse(sig_mutex, sig_dic, msg_queue
     """
     win_dc = WinDCApiCap(hwnd)
     bdo_rect = get_bdo_rect(hwnd)
+    detector.set_img_scale((576, 1024))
 
     q = [
         (KeyboardSimulate.press_and_release, ("R",), "按下R与鲁西比恩坤对胡"),
@@ -443,6 +453,8 @@ def merge_scroll(detector: Detector, hwnd, debug=False):
     time.sleep(1)
 
     bag_bbox = cv_op.get_bag_ui_bbox(detector, win_dc, bdo_rect, debug)
+    bag_bbox_no_abs = cv_op.get_bag_ui_bbox(detector, win_dc, [0,0,0,0], debug)
+
 
     if bag_bbox is None:
         to_continue = False
@@ -453,10 +465,6 @@ def merge_scroll(detector: Detector, hwnd, debug=False):
     into_bag_pos = round((bag_right + bag_left) / 2), round((bag_top + bag_bottom) / 2)
     out_to_bag_pos = bag_left - 30, bag_top - 30
 
-    # 先扫描背包中可以直接合成的卷轴
-    # # 先移动到UI外避免对古语卷轴识别的干扰
-    MouseSimulate.move(out_to_bag_pos[0], out_to_bag_pos[1])
-
     step = 3
     cur_step = 0
     max_step = 16
@@ -464,13 +472,16 @@ def merge_scroll(detector: Detector, hwnd, debug=False):
     col_space_width = None  # 背包列宽
     row_space_height = None  # 背包行高
     while cur_step <= max_step:
+        # 先移动到UI外避免对古语卷轴识别的干扰
+        MouseSimulate.move(out_to_bag_pos[0], out_to_bag_pos[1])
         # 使用合成按钮合成卷轴
         use_merge_button(win_dc, bdo_rect, bag_bbox)
 
         can_wheel_down = False
         while not can_wheel_down:
             # 识别目前截图，得到的所有古语卷轴的位置
-            item_poses = get_scroll_written_in_ancient_language_poses_in_custom_bbox(win_dc, bdo_rect, bag_bbox)
+            item_poses = get_scroll_written_in_ancient_language_poses_in_custom_bbox(detector, win_dc, bdo_rect,
+                                                                                     bag_bbox)
 
             work_area_bbox = cv_op.get_bag_work_area_ui_bbox(bag_bbox, bdo_rect, debug)
 
@@ -488,17 +499,17 @@ def merge_scroll(detector: Detector, hwnd, debug=False):
             # 如果古语的数量大于0，小于5的话，移动到可拖拽区域的最下方
             if 0 < len(item_poses) < 5:
                 # 计算出第一张古语卷轴该拖拽到那个位置
-                drag_to_pos_x = work_area_bbox[0] + col_space_width + ancient_lang_icon_size[0] // 2
+                drag_to_pos_x = work_area_bbox[0] + col_space_width*1. + ancient_lang_icon_size[0] // 2
                 drag_to_pos_y = work_area_bbox[3] - row_space_height - ancient_lang_icon_size[1] // 2
 
                 # 模拟拖拽
                 for item_pos in item_poses:
                     MouseSimulate.drag(item_pos[0], item_pos[1], drag_to_pos_x, drag_to_pos_y, duration=0.1)
+                    # time.sleep(0.2)
                     MouseSimulate.click()
 
                     # 下一个拖拽的目标位置为当前位置加上行或列的宽度高度加上古语卷轴的尺寸
                     drag_to_pos_x += col_space_width + ancient_lang_icon_size[0]
-                    drag_to_pos_y += row_space_height + ancient_lang_icon_size[1]
 
                 can_wheel_down = True
                 break
@@ -506,7 +517,7 @@ def merge_scroll(detector: Detector, hwnd, debug=False):
             # 如果剩余的古语卷轴的数量大于5张
             if len(item_poses) >= 5:
                 # 先计算出用于合成卷轴的5个点
-                pos_1_x = work_area_bbox[0] + col_space_width * 2 + 1.5 * ancient_lang_icon_size[0] // 2
+                pos_1_x = work_area_bbox[0] + col_space_width * 2 + round(1.5 * ancient_lang_icon_size[0])
                 pos_1_y = work_area_bbox[1] + row_space_height + ancient_lang_icon_size[1] // 2
 
                 pos_2_x = pos_1_x - col_space_width - ancient_lang_icon_size[0]
@@ -534,10 +545,12 @@ def merge_scroll(detector: Detector, hwnd, debug=False):
                                                (pos_4_x, pos_4_y), (pos_5_x, pos_5_y)])
                     for src_pos, target_pos in pos_tups:
                         MouseSimulate.drag(src_pos[0], src_pos[1], target_pos[0], target_pos[1], duration=0.1)
+                        # time.sleep(0.1)
+                        MouseSimulate.click()
 
+                    time.sleep(0.2)
                     # 合成卷轴
                     use_merge_button(win_dc, bdo_rect, bag_bbox)
-
                     prev += 5
                     cur += 5
 
@@ -549,7 +562,7 @@ def merge_scroll(detector: Detector, hwnd, debug=False):
         cur_step += step
 
     # ocr 一下当前背包的容量，判断是否需要进一步对话
-    cur_space, total_space = get_bag_capacity_by_tesseract_ocr(win_dc, bag_bbox)
+    cur_space, total_space = get_bag_capacity_by_tesseract_ocr(win_dc, bag_bbox_no_abs)
     if None in [cur_space, total_space]:
         reason = "ocr无法获取背包容量"
 

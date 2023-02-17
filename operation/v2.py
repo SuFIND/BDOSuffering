@@ -143,7 +143,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
 
                 # TODO 下方操作是否执行应该配置化
                 # 杂物主动利用仓库女仆提交仓库
-                q.append((cv_op.clear_bag, (detector, hwnd, True), "杂物主动利用仓库女仆提交仓库"))
+                q.append((cv_op.clear_bag, (detector, hwnd, debug), "杂物主动利用仓库女仆提交仓库"))
 
                 # 打开帐篷修理武器，后回收帐篷
                 q.append((classics_op.repair_weapons_by_tent, (hwnd,), "打开帐篷修理武器，后回收帐篷"))
@@ -168,7 +168,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 # 睡眠0.5s 让UI完成一部分动画
                 q.append((time.sleep, (1,), "睡眠0.5s 让UI完成一部分动画"))
                 # 判断是否出现远方目的地 TODO 数据收集结束后记得关闭debug模式
-                q.append((cv_op.found_ui_process_bar, (detector, hwnd, 2, debug), "判断是否出现进度条UI"))
+                q.append((cv_op.found_ui_process_bar, (detector, hwnd, 2, True or debug), "判断是否出现进度条UI"))
 
         elif func.__name__ == "found_ui_process_bar":
             # 如果没有出现进度条UI，并且重试次数还没有大于上线次数，则再次重试进行召唤
@@ -220,7 +220,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 # 等待BOSS玛格岚倒地动画完成
                 q.append((time.sleep, (boss1_dead_action_time,), "等待BOSS玛格岚倒地动画完成"))
                 # 目标检测-BOSS玛格岚是否还没死
-                q.append((cv_op.found_boss_Magram_dead_or_Khalk_appear, (detector, hwnd, 0, debug),
+                q.append((cv_op.found_boss_Magram_dead_or_Khalk_appear, (detector, hwnd, 3, debug),
                           "检测-BOSS玛格岚是否死亡或柯尔克是否出现"))
 
         #
@@ -261,7 +261,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
                 # 等待BOSS玛格岚倒地动画完成
                 q.append((time.sleep, (boss1_dead_action_time,), "等待BOSS玛格岚倒地动画完成"))
                 # 检测-BOSS玛格岚是否死亡或柯尔克是否出现
-                q.append((cv_op.found_boss_Magram_dead_or_Khalk_appear, (detector, hwnd, 0, debug), "检测-BOSS玛格岚是否死亡或柯尔克是否出现"))
+                q.append((cv_op.found_boss_Magram_dead_or_Khalk_appear, (detector, hwnd, 3, debug), "检测-BOSS玛格岚是否死亡或柯尔克是否出现"))
 
         elif func.__name__ == "found_task_over":
             if rst:
@@ -294,6 +294,8 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=False):
 
 def start_merge(sig_dic, sig_mutex, msg_queue, window_title: str, window_class: str, title_height: int, onnx_path: str,
                 label_dic_path: str, debug: bool):
+    from utils.log_utils import Logger
+
     Logger.set_log_name("action_simulate.log")
 
     # # 确认是否有程序句柄

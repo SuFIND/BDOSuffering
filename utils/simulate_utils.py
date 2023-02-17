@@ -71,8 +71,13 @@ class MouseSimulate(HumanSimulate):
         return True
 
     @classmethod
-    def drag(cls, start_x, start_y, end_x, end_y, absolute=True, duration=0):
-        mouse.drag(start_x, start_y, end_x, end_y, absolute=absolute, duration=duration)
+    def drag(cls, start_x, start_y, end_x, end_y, button=LEFT, duration=0):
+        if mouse.is_pressed(button):
+            mouse.release(button)
+        cls.move(start_x, start_y, duration=duration)
+        cls.press(button)
+        cls.move(end_x, end_y, duration=duration)
+        cls.release(button)
         cls.human_delay()
 
 

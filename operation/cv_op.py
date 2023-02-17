@@ -61,7 +61,7 @@ def get_bag_ui_bbox(detector, win_dc: WinDCApiCap, bdo_rect: list[int], debug=Fa
     return bbox_tup[0] + c_left, bbox_tup[1] + c_top, bbox_tup[2] + c_left, bbox_tup[3] + c_top
 
 
-def get_bag_work_area_ui_bbox(bag_bbox,  bdo_rect: list[int], debug=False) -> [tuple, None]:
+def get_bag_work_area_ui_bbox(bag_bbox, bdo_rect: list[int], debug=False) -> [tuple, None]:
     c_left, c_top, _, _ = bdo_rect
 
     bag_bbox_w = bag_bbox[2] - bag_bbox[0]
@@ -70,10 +70,9 @@ def get_bag_work_area_ui_bbox(bag_bbox,  bdo_rect: list[int], debug=False) -> [t
     exp_work_area_left = bag_bbox[0]
     exp_work_area_right = bag_bbox[0] + round(bag_bbox_w * 0.995)
     exp_work_area_top = bag_bbox[1] + round(bag_bbox_h * 0.178)
-    exp_work_area_bottom = bag_bbox[1] + round(bag_bbox_h * 0.735)
+    exp_work_area_bottom = bag_bbox[1] + round(bag_bbox_h * 0.74)
 
-    return exp_work_area_left + c_left, exp_work_area_top + c_top, exp_work_area_right + c_left, \
-           exp_work_area_bottom + c_top
+    return exp_work_area_left, exp_work_area_top, exp_work_area_right, exp_work_area_bottom
 
 
 def get_Pila_Fe_scroll_pos_by_model(detector, win_dc: WinDCApiCap, bdo_rect: list[int], debug=False) -> list:
@@ -350,6 +349,6 @@ def found_ui_process_bar(detector, hwnd, retry: int, debug: bool = False) -> boo
         rst = rst or found_target(detector, hwnd, "ui$Process Bar", debug=debug, save_dir="logs/img/Process Bar")
         if rst:
             break
-        time.sleep(0.1)
+        time.sleep(0.5)
 
     return rst

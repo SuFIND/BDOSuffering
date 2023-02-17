@@ -153,8 +153,8 @@ def get_bag_capacity_by_tesseract_ocr(win_dc: WinDCApiCap, bag_bbox):
 
         bg_sc_h, bg_sc_w = bg_sc.shape[:2]
         capacity_left = round(bg_sc_w * 0.8125)
-        capacity_top = round(bg_sc_h * 0.15)
-        capacity_bottom = round(bg_sc_h * 0.2)
+        capacity_top = round(bg_sc_h * 0.14)
+        capacity_bottom = round(bg_sc_h * 0.19)
         capacity_sc = bg_sc[capacity_top:capacity_bottom, capacity_left:]
 
         img_name = f"{math.floor(time.time())}.jpg"

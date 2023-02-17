@@ -21,6 +21,7 @@ class OpCtrl(QtWidgets.QWidget):
         self.viewer.StartPauseButton.clicked.connect(self.clicked_for_start_pause_button)
         self.viewer.EndButton.clicked.connect(self.clicked_for_end_button)
         self.viewer.AuditionAlarmButton.clicked.connect(self.handle_audition_alarm)
+        self.viewer.MergeALButton.clicked.connect(self.clicked_for_al_button)
 
         self.button_sig.connect(self.handel_button_logic)
 
@@ -33,6 +34,9 @@ class OpCtrl(QtWidgets.QWidget):
 
     def clicked_for_end_button(self):
         self.button_sig.emit("stop")
+
+    def clicked_for_al_button(self):
+        self.button_sig.emit("test")
 
     def handel_button_logic(self, sig):
         sig_dic = global_var["process_sig"]
@@ -105,7 +109,6 @@ class OpCtrl(QtWidgets.QWidget):
             onnx_file_path = global_var["onnx_file_path"]
             classes_id_file_path = global_var["classes_id_file_path"]
 
-            # 启动打三角进程
             process_pool.submit(start_merge, sig_dic, sig_mutex, msg_queue, window_title, window_class,
                                 window_title_bar_height, onnx_file_path, classes_id_file_path, debug)
 
