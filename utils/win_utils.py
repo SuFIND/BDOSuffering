@@ -3,6 +3,10 @@ import ctypes.wintypes
 import win32gui, win32api, win32con
 from app.init_resource import global_var
 
+from ctypes import cast, POINTER
+from comtypes import CLSCTX_ALL
+from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+
 
 def get_bdo_rect(hwnd):
     try:
@@ -40,3 +44,18 @@ def is_borderless(hwnd):
     """
     style = win32gui.GetWindowLong(hwnd, win32con.GWL_STYLE)
     return style & win32con.WS_POPUP == win32con.WS_POPUP
+
+
+def set_unmuted():
+    """
+    设置不禁音
+    :return:
+    """
+    devices = AudioUtilities.GetSpeakers()
+    interface = devices.Activate(
+        IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+    volume = cast(interface, POINTER(IAudioEndpointVolume))
+
+    # 如果当前设备被静音了
+    if volume.GetMute():
+        volume.SetMute(0, None)

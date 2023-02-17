@@ -2,6 +2,7 @@ import time
 from winsound import PlaySound, SND_FILENAME
 
 from utils.muti_utils import CanStopThread
+from utils.win_utils import set_unmuted
 from app.init_resource import global_var
 
 
@@ -49,6 +50,7 @@ class GMAlarmThread(CanStopThread):
                 with sig_mutex:
                     if sig_dic["stop"]:
                         break
+                set_unmuted()
                 PlaySound("data/sound/alarm.wav", SND_FILENAME)
             except Exception:
                 break
