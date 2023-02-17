@@ -101,6 +101,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
     exec_count = 0
     msg_queue.put(fmmsg.to_str("开始运行"))
     start_at = time.perf_counter()
+    in_hutton = False
 
     # # 运行时的计数变量
     retry_back_to_call_place = 0    # 重试回到卷轴召唤地点的次数
@@ -119,6 +120,10 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
     if gui_params["resetView"]:
         q.append((classics_op.reset_viewer, (), "重置到最大视角"))
         q.append((time.sleep, (0.5,), "等待0.5s"))
+
+    # 如果需要进入赫顿
+    if gui_params["intoHutton"]:
+        q.append((cv_op.go_into_or_out_hutton, (detector, hwnd), "进入赫顿"))
     # # TODO 确认宠物是否开启
 
     time.sleep(1)
@@ -148,6 +153,12 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
         func, args, intention = tup
         msg_queue.put(fmmsg.to_str(intention, level="debug"))
         rst = func(*args)
+
+        if func.__name__ == "go_into_or_out_hutton":
+            if intention == "进入赫顿":
+                in_hutton = True
+            elif intention == "离开赫顿":
+                in_hutton = False
 
         if func.__name__ == "use_Pila_Fe_scroll" :
             find_it, scroll_pos, reason = rst
@@ -180,9 +191,10 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                         q.append((cv_op.back_to_market, (detector, hwnd, debug), "打开寻找NPC的UI回到交易所"))
                         # 睡眠160s，让人物移动到交易所
                         q.append((time.sleep, (back_trading_house_time,), "等待人物回交易所的时间"))
-                        # # #对话鲁西比恩坤并打开交易所仓库
-                        q.append(
-                            (classics_op.chat_with_LucyBenKun_to_show_market_ui, (hwnd,), "对话鲁西比恩坤并打开交易所仓库"))
+
+                    # 如果启用进入赫顿的功能，且人正在赫顿
+                    if gui_params["intoHutton"] and in_hutton:
+                        q.append((cv_op.go_into_or_out_hutton, (detector, hwnd), "离开赫顿"))
                 else:
                     # 鼠标移动到卷轴图标
                     q.append((MouseSimulate.move, (scroll_pos[0], scroll_pos[1], True, 0.1), "鼠标移动到卷轴图标"))

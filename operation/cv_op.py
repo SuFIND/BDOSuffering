@@ -407,29 +407,7 @@ def get_target_bbox_center_poses(detector, win_dc, client_rect, label, filter_bb
     return rst
 
 
-def go_into_hutton(detector, hwnd):
-    """
-    进入赫顿领域
-    :param detector:
-    :param hwnd:
-    :return:
-    """
-    success = False
-    win_dc = WinDCApiCap(hwnd)
-    bdo_rect = get_bdo_rect(hwnd)
-    poses = get_target_bbox_center_poses(detector, win_dc, bdo_rect, "icron$Hutton", [-9999, -9999, 9999, 9990], True)
-    if len(poses) > 0:
-        pos = poses.pop()
-        ms.move(pos[0], pos[1], duration=0.1)
-        ms.click(ms.LEFT)
-        time.sleep(0.5)
-        kb.press_and_release("return")
-        success = True
-        time.sleep(20)
-    return success
-
-
-def go_out_hutton(detector, hwnd):
+def go_into_or_out_hutton(detector, hwnd):
     """
     进入赫顿领域
     :param detector:
