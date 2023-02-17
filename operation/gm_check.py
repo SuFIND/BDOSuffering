@@ -78,7 +78,7 @@ def GM_check_loop(sig_dic, sig_mutex, msg_queue,
             start_col = 0
             end_col = round(or_w / 4)
             cropped = sc_np[start_row:end_row, start_col:end_col, :3]
-            count = static_color_pix_count_by_hsv(cropped, gm_chat_color[0], gm_chat_color[1])
+            count = static_color_pix_count(cropped, gm_chat_color, threshold=0.6)
 
             # 如果计算出的相近颜色像素值大于阀值，且距离上一次警报已经超出冷却时间
             now_at = time.perf_counter()
