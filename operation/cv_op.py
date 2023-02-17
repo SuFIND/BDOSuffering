@@ -353,3 +353,55 @@ def found_ui_process_bar(detector, hwnd, retry: int, debug: bool = False) -> boo
         time.sleep(0.5)
 
     return rst
+
+
+def get_target_bboxes(detector, hwnd, client_rect, label, filter_bbox, absolute) -> list:
+    """
+    获取指定标签目标的bbox
+    :param detector:
+    :param hwnd:
+    :param client_rect: absolute为真时，需要偏移的位置
+    :param label: 指定的标签
+    :param filter_bbox: 过滤区域
+    :param absolute:
+    :return:
+    """
+    c_left, c_top, _, _ = client_rect
+    rst = []
+    img = WinDCApiCap(hwnd).get_hwnd_screenshot_to_numpy_array()
+    infer_rst = detector.infer(img)
+    if label not in infer_rst:
+        return rst
+    for obj in infer_rst[label]:
+        bbox = obj["bbox"]
+        if not filter_bbox[0] < bbox[0] or not bbox[2] < filter_bbox[2] \
+                or not filter_bbox[1] < bbox[1] or not bbox[3] < filter_bbox[3]:
+            continue
+        if absolute:
+            bbox[0] += c_left
+            bbox[1] += c_top
+            bbox[2] += c_left
+            bbox[3] += c_top
+            rst.append(bbox)
+        else:
+            rst.append(bbox)
+    return rst
+
+
+def get_target_bbox_center_poses(detector, hwnd, client_rect, label, filter_bbox, absolute) -> list:
+    """
+    获取指定标签目标的bbox中心点位置
+    :param detector:
+    :param hwnd:
+    :param client_rect: absolute为真时，需要偏移的位置
+    :param label: 指定的标签
+    :param filter_bbox: 过滤区域
+    :param absolute:
+    :return:
+    """
+    bboxes = get_target_bboxes(detector, hwnd, client_rect, label, filter_bbox, absolute)
+    rst = []
+    for bbox in bboxes:
+        center_pos = (bbox[0] + bbox[2]) // 2, (bbox[1] + bbox[3]) // 2
+        rst.append(center_pos)
+    return rst
