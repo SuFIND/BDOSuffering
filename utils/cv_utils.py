@@ -97,7 +97,7 @@ def to_numpy(tensor: torch.Tensor):
 
 
 class Detector:
-    img_scale = (640, 640)
+    img_scale = (576, 1024)
 
     def __init__(self, onnx_file_path: str, labels_map: dict, providers=None) -> None:
         if providers is None:

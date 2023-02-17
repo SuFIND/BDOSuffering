@@ -384,7 +384,6 @@ def retrieve_the_scroll_from_the_trading_warehouse(sig_mutex, sig_dic, msg_queue
     """
     win_dc = WinDCApiCap(hwnd)
     bdo_rect = get_bdo_rect(hwnd)
-    detector.set_img_scale((576, 1024))
 
     q = [
         (KeyboardSimulate.press_and_release, ("R",), "按下R与鲁西比恩坤对胡"),
@@ -464,7 +463,11 @@ def merge_scroll(detector: Detector, hwnd, debug=False):
     into_bag_pos = round((bag_right + bag_left) / 2), round((bag_top + bag_bottom) / 2)
     out_to_bag_pos = bag_left - 30, bag_top - 30
 
-    step = 3
+    # 超参数
+    step = 3    # 滚轮往下探索的步数
+    duration = 0.05     # 鼠标仿真移动的速度
+
+    # 自有变量
     cur_step = 0
     max_step = 16
     ancient_lang_icon_size = None
@@ -476,6 +479,7 @@ def merge_scroll(detector: Detector, hwnd, debug=False):
         # 使用合成按钮合成卷轴
         use_merge_button(win_dc, bdo_rect, bag_bbox)
 
+        # 初始化设置滚轮还不能向下滑动
         can_wheel_down = False
         while not can_wheel_down:
             # 识别目前截图，得到的所有古语卷轴的位置
@@ -533,7 +537,7 @@ def merge_scroll(detector: Detector, hwnd, debug=False):
 
                 # 模拟拖拽
                 for src_pos, tgt_pos in real_need_to_drag_poses_group:
-                    MouseSimulate.drag(src_pos[0], src_pos[1], tgt_pos[0], tgt_pos[1], duration=0.1)
+                    MouseSimulate.drag(src_pos[0], src_pos[1], tgt_pos[0], tgt_pos[1], duration=duration)
                     MouseSimulate.click()
 
                 can_wheel_down = True
@@ -590,7 +594,7 @@ def merge_scroll(detector: Detector, hwnd, debug=False):
                         real_need_to_drag_poses_group.append((item_pos, tgt_poses.pop()))
 
                     for src_pos, tgt_pos in real_need_to_drag_poses_group:
-                        MouseSimulate.drag(src_pos[0], src_pos[1], tgt_pos[0], tgt_pos[1], duration=0.1)
+                        MouseSimulate.drag(src_pos[0], src_pos[1], tgt_pos[0], tgt_pos[1], duration=duration)
                         MouseSimulate.click()
 
                     time.sleep(0.2)
@@ -600,7 +604,7 @@ def merge_scroll(detector: Detector, hwnd, debug=False):
                     cur += 5
 
         # 否则鼠标移动回背包内，滚轮往下滑动看看是否有其他合成图标
-        MouseSimulate.move(into_bag_pos[0], into_bag_pos[1], duration=0.1)
+        MouseSimulate.move(into_bag_pos[0], into_bag_pos[1], duration=duration)
         for i in range(step):
             MouseSimulate.wheel(-100)
         MouseSimulate.move(out_to_bag_pos[0], out_to_bag_pos[1])

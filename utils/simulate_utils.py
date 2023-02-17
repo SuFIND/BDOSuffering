@@ -78,7 +78,6 @@ class MouseSimulate(HumanSimulate):
         cls.press(button)
         cls.move(end_x, end_y, duration=duration)
         cls.release(button)
-        cls.human_delay()
 
 
 class KeyboardSimulate(HumanSimulate):
