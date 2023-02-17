@@ -198,3 +198,19 @@ class Detector:
         :return:
         """
         self.img_scale = img_scale
+
+
+def is_pos_can_be_considered_the_same(pos1: [tuple, list], pos2: [tuple, list], rangeBox: [tuple, list]) -> bool:
+    """
+    坐标是否可以视为相同
+    :param pos1: [x, y]
+    :param pos2: [x, y]
+    :param rangeBox: [x range, y range]
+    :return:
+    """
+    rst = False
+    x_diff = abs(pos2[0] - pos1[0])
+    y_diff = abs(pos2[1] - pos1[1])
+    if 0 < x_diff < rangeBox[0] and 0 < y_diff < rangeBox[1]:
+        rst = True
+    return rst

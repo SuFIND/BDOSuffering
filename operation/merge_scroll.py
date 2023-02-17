@@ -10,7 +10,7 @@ import operation.classics_op as classics_op
 from utils.capture_utils import WinDCApiCap
 from utils.simulate_utils import MouseSimulate, KeyboardSimulate
 from utils.win_utils import get_bdo_rect
-from utils.cv_utils import Detector
+from utils.cv_utils import Detector, is_pos_can_be_considered_the_same
 from utils.muti_utils import FormatMsg
 from utils.ocr_utils import recognize_numpy
 from utils.log_utils import Logger
@@ -453,8 +453,7 @@ def merge_scroll(detector: Detector, hwnd, debug=False):
     time.sleep(1)
 
     bag_bbox = cv_op.get_bag_ui_bbox(detector, win_dc, bdo_rect, debug)
-    bag_bbox_no_abs = cv_op.get_bag_ui_bbox(detector, win_dc, [0,0,0,0], debug)
-
+    bag_bbox_no_abs = cv_op.get_bag_ui_bbox(detector, win_dc, [0, 0, 0, 0], debug)
 
     if bag_bbox is None:
         to_continue = False
@@ -483,6 +482,7 @@ def merge_scroll(detector: Detector, hwnd, debug=False):
             item_poses = get_scroll_written_in_ancient_language_poses_in_custom_bbox(detector, win_dc, bdo_rect,
                                                                                      bag_bbox)
 
+            # 等比例计算出可拖拽区域的位置
             work_area_bbox = cv_op.get_bag_work_area_ui_bbox(bag_bbox, bdo_rect, debug)
 
             # 如果视野内找不到古语卷轴，则允许鼠标执行向下的滚轮
@@ -502,14 +502,39 @@ def merge_scroll(detector: Detector, hwnd, debug=False):
                 drag_to_pos_x = work_area_bbox[0] + col_space_width*1. + ancient_lang_icon_size[0] // 2
                 drag_to_pos_y = work_area_bbox[3] - row_space_height - ancient_lang_icon_size[1] // 2
 
-                # 模拟拖拽
-                for item_pos in item_poses:
-                    MouseSimulate.drag(item_pos[0], item_pos[1], drag_to_pos_x, drag_to_pos_y, duration=0.1)
-                    # time.sleep(0.2)
-                    MouseSimulate.click()
+                # 先推断出所有多出来的古语可能放置的位置
+                tgt_poses = []
+                for i in range(len(item_poses)):
+                    tgt_poses.append([
+                        drag_to_pos_x + i * (col_space_width + ancient_lang_icon_size[0]),
+                        drag_to_pos_y
+                    ])
 
-                    # 下一个拖拽的目标位置为当前位置加上行或列的宽度高度加上古语卷轴的尺寸
-                    drag_to_pos_x += col_space_width + ancient_lang_icon_size[0]
+                # 相似相容处理，避免出现古语在目标位置上，但仍然需要替换的情况
+                real_need_to_drag_poses_group = []
+                while len(item_poses) > 0:
+                    item_pos = item_poses.pop()
+                    to_pop_idx = None
+                    for tgt_idx, tgt_pos in enumerate(tgt_poses):
+                        if not is_pos_can_be_considered_the_same(item_pos, tgt_pos,
+                                                                 [ancient_lang_icon_size[0] // 2,
+                                                                  ancient_lang_icon_size[1] // 2]):
+                            continue
+                        to_pop_idx = tgt_idx
+                        break
+
+                    # 抛出不需要移动目的地的坐标
+                    if to_pop_idx is not None:
+                        tgt_poses.pop(to_pop_idx)
+                        continue
+
+                    # 否则把该点进行记录，为其分配一个目标坐标，稍后进行移动
+                    real_need_to_drag_poses_group.append((item_pos, tgt_poses.pop()))
+
+                # 模拟拖拽
+                for src_pos, tgt_pos in real_need_to_drag_poses_group:
+                    MouseSimulate.drag(src_pos[0], src_pos[1], tgt_pos[0], tgt_pos[1], duration=0.1)
+                    MouseSimulate.click()
 
                 can_wheel_down = True
                 break
@@ -540,12 +565,32 @@ def merge_scroll(detector: Detector, hwnd, debug=False):
                         break
 
                     cur_poses = [item_poses.pop(0) for _ in range(5)]
+                    tgt_poses = [(pos_1_x, pos_1_y), (pos_2_x, pos_2_y), (pos_3_x, pos_3_y), (pos_4_x, pos_4_y),
+                                 (pos_5_x, pos_5_y)]
 
-                    pos_tups = zip(cur_poses, [(pos_1_x, pos_1_y), (pos_2_x, pos_2_y), (pos_3_x, pos_3_y),
-                                               (pos_4_x, pos_4_y), (pos_5_x, pos_5_y)])
-                    for src_pos, target_pos in pos_tups:
-                        MouseSimulate.drag(src_pos[0], src_pos[1], target_pos[0], target_pos[1], duration=0.1)
-                        # time.sleep(0.1)
+                    # 相似相容处理，避免出现古语在目标位置上，但仍然需要替换的情况
+                    real_need_to_drag_poses_group = []
+                    while len(cur_poses) > 0:
+                        item_pos = cur_poses.pop()
+                        to_pop_idx = None
+                        for tgt_idx, tgt_pos in enumerate(tgt_poses):
+                            if not is_pos_can_be_considered_the_same(item_pos, tgt_pos,
+                                                                     [ancient_lang_icon_size[0] // 2,
+                                                                      ancient_lang_icon_size[1] // 2]):
+                                continue
+                            to_pop_idx = tgt_idx
+                            break
+
+                        # 抛出不需要移动目的地的坐标
+                        if to_pop_idx is not None:
+                            tgt_poses.pop(to_pop_idx)
+                            continue
+
+                        # 否则把该点进行记录，为其分配一个目标坐标，稍后进行移动
+                        real_need_to_drag_poses_group.append((item_pos, tgt_poses.pop()))
+
+                    for src_pos, tgt_pos in real_need_to_drag_poses_group:
+                        MouseSimulate.drag(src_pos[0], src_pos[1], tgt_pos[0], tgt_pos[1], duration=0.1)
                         MouseSimulate.click()
 
                     time.sleep(0.2)
