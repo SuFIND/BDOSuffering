@@ -1,4 +1,6 @@
 import time
+import traceback
+import pythoncom
 from winsound import PlaySound, SND_FILENAME
 
 from utils.muti_utils import CanStopThread
@@ -45,6 +47,8 @@ class GMAlarmThread(CanStopThread):
         sig_dic = global_var["process_sig"]
         sig_mutex = global_var["process_sig_lock"]
 
+        pythoncom.CoInitialize()
+
         while self._running:
             try:
                 with sig_mutex:
@@ -52,5 +56,8 @@ class GMAlarmThread(CanStopThread):
                         break
                 set_unmuted()
                 PlaySound("data/sound/alarm.wav", SND_FILENAME)
-            except Exception:
+            except Exception as e:
+                err = traceback.format_exc()
                 break
+
+        pythoncom.CoUninitialize()

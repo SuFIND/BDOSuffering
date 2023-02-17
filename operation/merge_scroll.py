@@ -46,10 +46,9 @@ def use_merge_button(win_dc: WinDCApiCap, client_rect, limit_bbox=(-9999, -9999,
         if not limit_bbox[0] < icon_pos[0] < limit_bbox[2] \
                 or not limit_bbox[1] < icon_pos[1] < limit_bbox[3]:
             continue
-        MouseSimulate.move(icon_pos[0], icon_pos[1], duration=0.1)
-        time.sleep(0.2)
+        MouseSimulate.move(icon_pos[0], icon_pos[1])
         MouseSimulate.click()
-        time.sleep(0.2)
+        time.sleep(0.1)
         _ = get_merge_button_by_temple(win_dc, client_rect)
         merge_button_poses.extend(_)
 
@@ -465,7 +464,7 @@ def merge_scroll(detector: Detector, hwnd, debug=False):
 
     # 超参数
     step = 3    # 滚轮往下探索的步数
-    duration = 0.05     # 鼠标仿真移动的速度
+    duration = 0.01     # 鼠标仿真移动的速度
 
     # 自有变量
     cur_step = 0
