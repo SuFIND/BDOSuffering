@@ -49,6 +49,7 @@ class OpCtrl(QtWidgets.QWidget):
                 msgBox = QtWidgets.QMessageBox(self)
                 msgBox.setText(reason)
                 msgBox.show()
+                return
 
             # 初始化信号量
             with sig_mutex:
@@ -102,6 +103,14 @@ class OpCtrl(QtWidgets.QWidget):
         elif sig == "refresh_display:start":
             self.viewer.StartPauseButton.setText("开始 F10")
         elif sig == "mergeAL":
+            # 来自GUI可视化配置的资源
+            available, gui_params, reason = self.collect()
+            if not available:
+                msgBox = QtWidgets.QMessageBox(self)
+                msgBox.setText(reason)
+                msgBox.show()
+                return
+
             with sig_mutex:
                 sig_dic.update({"start": True, "pause": False, "stop": False})
             # 从全局变量中获取进程所需资源
@@ -119,7 +128,7 @@ class OpCtrl(QtWidgets.QWidget):
             classes_id_file_path = global_var["classes_id_file_path"]
 
             process_pool.submit(start_merge, sig_dic, sig_mutex, msg_queue, window_title, window_class,
-                                window_title_bar_height, onnx_file_path, classes_id_file_path, debug)
+                                window_title_bar_height, onnx_file_path, classes_id_file_path, debug, gui_params)
 
     def handle_audition_alarm(self):
         q = global_var["process_msg_queue"]

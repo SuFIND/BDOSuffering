@@ -54,12 +54,37 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
     # # 全局变量的加载
     global_var["BDO_window_title_bar_height"] = title_height
 
-    try:
-        action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=debug)
-    except Exception as e:
-        err = traceback.format_exc()
-        Logger.error(err)
-        msg_queue.put(fmmsg.to_str("意外退出!请查看日志文件定位错误。", level="error"))
+    task_queue = [
+        (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug)),
+        (merge_action, (sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debug)),
+    ]
+
+    while len(task_queue) > 0:
+        # 是否有来自GUI或者GM检测进程或者前置步骤的中断或者暂停信号
+        with sig_mutex:
+            if sig_dic["pause"]:
+                time.sleep(1)
+                continue
+            if sig_dic["stop"]:
+                msg_queue.put(fmmsg.to_str("接受到停止请求，停止模拟!", level="info"))
+                break
+
+        func, args = task_queue.pop(0)
+        try:
+            func(*args)
+
+            if func.__name__ == "merge_action":
+                gui_params["startAtCallPlace"] = False
+                gui_params["startAtTradingWarehouse"] = True
+                task_queue.extend([
+                    (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug)),
+                    (merge_action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug)),
+                ])
+
+        except Exception as e:
+            err = traceback.format_exc()
+            Logger.error(err)
+            msg_queue.put(fmmsg.to_str("意外退出!请查看日志文件定位错误。", level="error"))
 
     # over
     msg_queue.put(fmmsg.to_str("完成了所有操作！", level="info"))
@@ -104,8 +129,8 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
     in_hutton = False
 
     # # 运行时的计数变量
-    retry_back_to_call_place = 0    # 重试回到卷轴召唤地点的次数
-    max_retry_back_to_call_place = 1    # 不采用ADS干预下，允许的自动回到卷轴召唤地点的最大次数
+    retry_back_to_call_place = 0  # 重试回到卷轴召唤地点的次数
+    max_retry_back_to_call_place = 1  # 不采用ADS干预下，允许的自动回到卷轴召唤地点的最大次数
     skil_play_time = 0  # 当前技能播放次数
 
     my_timer = {
@@ -132,11 +157,13 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
     # 从卷轴召唤地点开始
     if gui_params["startAtCallPlace"]:
         q.append((classics_op.open_bag, (), "打开背包"))
+        q.append((cv_op.bag_auto_sort_on, (hwnd,), "打开背包自动排列功能"))
         q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug), "找到召唤书并召唤"))
 
     # 从交易所长鲁西比恩跟前开始
     if gui_params["startAtTradingWarehouse"]:
         q.append((classics_op.open_bag, (), "打开背包"))
+        q.append((cv_op.bag_auto_sort_on, (hwnd,), "打开背包自动排列功能"))
         q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug), "找到召唤书并激活卷轴导航"))
 
     while len(q) > 0:
@@ -160,7 +187,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
             elif intention == "离开赫顿":
                 in_hutton = False
 
-        if func.__name__ == "use_Pila_Fe_scroll" :
+        if func.__name__ == "use_Pila_Fe_scroll":
             find_it, scroll_pos, reason = rst
             # 常规打球流程中
             if intention in {"找到召唤书并召唤", "再次找到召唤书并尝试召唤"}:
@@ -174,7 +201,8 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                     # 启用仓库女仆提交杂物的功能
                     if gui_params["useWarehouseMaid"]:
                         # 杂物主动利用仓库女仆提交仓库
-                        q.append((cv_op.clear_bag, (detector, hwnd, useWarehouseMaidShortcut, debug), "杂物主动利用仓库女仆提交仓库"))
+                        q.append((cv_op.clear_bag, (detector, hwnd, useWarehouseMaidShortcut, debug),
+                                  "杂物主动利用仓库女仆提交仓库"))
 
                     # 启用维修装备的功能
                     if gui_params["repairWeapons"]:
@@ -191,6 +219,12 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                         q.append((cv_op.back_to_market, (detector, hwnd, debug), "打开寻找NPC的UI回到交易所"))
                         # 睡眠160s，让人物移动到交易所
                         q.append((time.sleep, (back_trading_house_time,), "等待人物回交易所的时间"))
+                        # 往前走一步，可以和鲁西比恩坤对话
+                        q.append((KeyboardSimulate.press, ("w",), "往前走"))
+                        q.append((time.sleep, (0.5,), "等待人物回交易所的时间"))
+                        q.append((KeyboardSimulate.release, ("w",), "往前走"))
+                        q.append((time.sleep, (1,), "等待人物停稳定可以和鲁西比恩坤进行对话交互"))
+
 
                     # 如果启用进入赫顿的功能，且人正在赫顿
                     if gui_params["intoHutton"] and in_hutton:
@@ -203,7 +237,8 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                     # 按下回城确认召唤
                     q.append((KeyboardSimulate.press_and_release, ("return",), "按下回城确认召唤"))
                     # 记录使用卷轴的时间
-                    q.append((classics_op.set_timer_key_value, (my_timer, "usePilaFeScoreAt"), "记录使用卷轴召唤的时间"))
+                    q.append(
+                        (classics_op.set_timer_key_value, (my_timer, "usePilaFeScoreAt"), "记录使用卷轴召唤的时间"))
                     # 关闭背包
                     q.append((classics_op.close_bag, (), "关闭背包UI"))
                     # 睡眠0.5s 让UI完成一部分动画
@@ -289,7 +324,8 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
             # 后撤位移后等待boss1变成可击杀状态
             q.append((time.sleep, (after_back_action_wait_time,), "后撤位移后等待boss1变成可击杀状态"))
             # 记录准备对boss1释放技能的时间
-            q.append((classics_op.set_timer_key_value, (my_timer, "readyHitBossMagram"), "记录准备对boss1释放技能的时间"))
+            q.append(
+                (classics_op.set_timer_key_value, (my_timer, "readyHitBossMagram"), "记录准备对boss1释放技能的时间"))
             # 播放自定义技能动作  TODO 未来配置化
             q.append((classics_op.skill_action, (skil_play_time,), "播放自定义技能动作"))
 
@@ -312,7 +348,8 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                                        classics_op.calculate_the_elapsed_time_so_far(my_timer["readyHitBossMagram"])
 
                 # 等待Boss2变成可被击杀的状态
-                q.append((time.sleep, (boss2_real_wait_time,), "检测到玛格岚死亡或柯尔克出现了, 等待BOSS柯尔特变成可击杀状态"))
+                q.append((time.sleep, (boss2_real_wait_time,),
+                          "检测到玛格岚死亡或柯尔克出现了, 等待BOSS柯尔特变成可击杀状态"))
 
                 q.append((classics_op.skill_action, (skil_play_time,), "播放自定义技能动作"))
 
@@ -328,12 +365,13 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                 # 等待BOSS玛格岚倒地动画完成
                 q.append((time.sleep, (boss1_dead_action_time,), "等待BOSS玛格岚倒地动画完成"))
                 # 检测-BOSS玛格岚是否死亡或柯尔克是否出现
-                q.append((cv_op.found_boss_Magram_dead_or_Khalk_appear, (detector, hwnd, 3, debug), "检测-BOSS玛格岚是否死亡或柯尔克是否出现"))
+                q.append((cv_op.found_boss_Magram_dead_or_Khalk_appear, (detector, hwnd, 3, debug),
+                          "检测-BOSS玛格岚是否死亡或柯尔克是否出现"))
 
         elif func.__name__ == "found_task_over":
             if rst:
                 # 等待任务变成可以呼出小黑的状态
-                q.append((time.sleep, (3,), "等待任务变成可以呼出小黑的状态"))
+                q.append((time.sleep, (4,), "等待任务变成可以呼出小黑的状态"))
                 # 呼出小精灵完成任务
                 q.append((classics_op.call_black_wizard_to_finish_task, (), "呼出小精灵完成任务"))
                 # 按T回到召唤地点
@@ -362,7 +400,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
 
 
 def start_merge(sig_dic, sig_mutex, msg_queue, window_title: str, window_class: str, title_height: int, onnx_path: str,
-                label_dic_path: str, debug: bool):
+                label_dic_path: str, debug: bool, gui_params):
     from utils.log_utils import Logger
 
     Logger.set_log_name("action_simulate.log")
@@ -382,20 +420,59 @@ def start_merge(sig_dic, sig_mutex, msg_queue, window_title: str, window_class: 
 
     # # 全局变量的加载
     global_var["BDO_window_title_bar_height"] = title_height
-    success, to_continue, reason = True, True, ""
-    try:
-        while to_continue and success:
-            merge_scroll.retrieve_the_scroll_from_the_trading_warehouse(sig_mutex, sig_dic, msg_queue, detector, hwnd, debug=debug)
-            success, to_continue, reason = merge_scroll.merge_scroll(detector, hwnd, debug=debug)
 
-        if not success:
-            msg_queue.put(fmmsg.to_str(reason, level="error"))
+    try:
+        merge_action(sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debug)
     except Exception as e:
         err = traceback.format_exc()
         Logger.error(err)
         msg_queue.put(fmmsg.to_str("意外退出!请查看日志文件定位错误。", level="error"))
 
-    # over
-    msg_queue.put(fmmsg.to_str("完成了所有操作！", level="info"))
     with sig_mutex:
         sig_dic.update({"stop": True, "start": False, "pause": False})
+
+
+def merge_action(sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debug: bool):
+    msg_queue.put(fmmsg.to_str("开始合球！", level="info"))
+    success, to_continue, reason = True, True, ""
+
+    task_queue = [
+        (classics_op.open_bag, ()),
+        (cv_op.bag_auto_sort_off, (hwnd,)),
+        (classics_op.close_bag, ()),
+        (merge_scroll.retrieve_the_scroll_from_the_trading_warehouse,
+         (sig_mutex, sig_dic, msg_queue, detector, hwnd, debug)),
+        (time.sleep, (0.4,)),
+        (merge_scroll.merge_scroll, (detector, hwnd, debug)),
+    ]
+
+    while to_continue and success:
+        with sig_mutex:
+            if sig_dic["pause"]:
+                time.sleep(1)
+                continue
+            if sig_dic["stop"]:
+                msg_queue.put(fmmsg.to_str("接受到停止请求，停止模拟!", level="info"))
+                break
+
+        func, args = task_queue.pop(0)
+        rst = func(*args)
+
+        if func.__name__ == "merge_scroll":
+            success, to_continue, reason = rst
+
+            gui_params["startAtCallPlace"] = False
+            gui_params["startAtTradingWarehouse"] = True
+            task_queue.extend([
+                (merge_scroll.retrieve_the_scroll_from_the_trading_warehouse,
+                 (sig_mutex, sig_dic, msg_queue, detector, hwnd, debug)),
+                (time.sleep, (0.5,)),
+                (merge_scroll.merge_scroll, (detector, hwnd, debug)),
+            ])
+
+
+    if not success:
+        msg_queue.put(fmmsg.to_str(reason, level="error"))
+
+    # over
+    msg_queue.put(fmmsg.to_str("完成合球！", level="info"))

@@ -350,7 +350,7 @@ def found_ui_process_bar(detector, hwnd, retry: int, debug: bool = False) -> boo
         rst = rst or found_target(detector, hwnd, "ui$Process Bar", debug=debug, save_dir="logs/img/Process Bar")
         if rst:
             break
-        time.sleep(0.5)
+        time.sleep(1)
 
     return rst
 
@@ -417,8 +417,10 @@ def go_into_or_out_hutton(detector, hwnd):
     success = False
     win_dc = WinDCApiCap(hwnd)
     bdo_rect = get_bdo_rect(hwnd)
-    poses = get_target_bbox_center_poses(detector, win_dc, bdo_rect, "icron$Hutton", [-9999, -9999, 9999, 9990], True)
+    # poses = get_target_bbox_center_poses(detector, win_dc, bdo_rect, "icron$Hutton", [-9999, -9999, 9999, 9990], True)
+    poses = []
     if len(poses) > 0:
+        kb.press_and_release("left ctrl")
         pos = poses.pop()
         ms.move(pos[0], pos[1], duration=0.1)
         ms.click(ms.LEFT)
@@ -426,4 +428,78 @@ def go_into_or_out_hutton(detector, hwnd):
         kb.press_and_release("return")
         success = True
         time.sleep(20)
+        kb.press_and_release("left ctrl")
+    else:
+        kb.press_and_release("left ctrl")
+        ms.move(bdo_rect[2] - 590, bdo_rect[1] + 15, duration=0.1)
+        ms.click(ms.LEFT)
+        time.sleep(0.5)
+        kb.press_and_release("return")
+        success = True
+        time.sleep(20)
+        kb.press_and_release("left ctrl")
+
     return success
+
+
+def get_auto_sort_on_poses_by_temple(win_dc: WinDCApiCap, client_rect) -> list:
+    """
+    用过模版匹配找到开启自动排列的坐标位置
+    :param win_dc:
+    :param client_rect:
+    :return:
+    """
+    poses = []
+    if not win_dc.is_available():
+        return poses
+    cur_windows_left, cur_windows_top, _, _ = client_rect
+    sc_hots = win_dc.get_hwnd_screenshot_to_numpy_array()
+    trans_hots = cv2.cvtColor(sc_hots, cv2.COLOR_RGBA2RGB)
+    template = cv2.imread("data/temple/autoSortOn.bmp")
+    template_h, template_w = template.shape[:2]
+    res = cv2.matchTemplate(trans_hots, template, cv2.TM_CCOEFF_NORMED)
+    threshold = 0.7
+    loc = np.where(res >= threshold)
+    for pt_left, pt_top in zip(*loc[::-1]):
+        poses.append([cur_windows_left + pt_left + template_w / 2, cur_windows_top + pt_top + template_h / 2])
+    return poses
+
+
+def get_auto_sort_off_poses_by_temple(win_dc: WinDCApiCap, client_rect) -> list:
+    """
+    用过模版匹配找到关闭自动排列的坐标位置
+    :param win_dc:
+    :param client_rect:
+    :return:
+    """
+    poses = []
+    if not win_dc.is_available():
+        return poses
+    cur_windows_left, cur_windows_top, _, _ = client_rect
+    sc_hots = win_dc.get_hwnd_screenshot_to_numpy_array()
+    trans_hots = cv2.cvtColor(sc_hots, cv2.COLOR_RGBA2RGB)
+    template = cv2.imread("data/temple/autoSortOff.bmp")
+    template_h, template_w = template.shape[:2]
+    res = cv2.matchTemplate(trans_hots, template, cv2.TM_CCOEFF_NORMED)
+    threshold = 0.7
+    loc = np.where(res >= threshold)
+    for pt_left, pt_top in zip(*loc[::-1]):
+        poses.append([cur_windows_left + pt_left + template_w / 2, cur_windows_top + pt_top + template_h / 2])
+    return poses
+
+
+def bag_auto_sort_on(hwnd):
+    win_dc = WinDCApiCap(hwnd)
+    client_rect = get_bdo_rect(hwnd)
+    poses = get_auto_sort_off_poses_by_temple(win_dc, client_rect)
+    for pos in poses:
+        ms.move(pos[0], pos[1], duration=0.1)
+        ms.click()
+
+def bag_auto_sort_off(hwnd):
+    win_dc = WinDCApiCap(hwnd)
+    client_rect = get_bdo_rect(hwnd)
+    poses = get_auto_sort_on_poses_by_temple(win_dc, client_rect)
+    for pos in poses:
+        ms.move(pos[0], pos[1], duration=0.1)
+        ms.click()

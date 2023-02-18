@@ -433,7 +433,11 @@ def retrieve_the_scroll_from_the_trading_warehouse(sig_mutex, sig_dic, msg_queue
             success_str = "成功" if success else "失败"
             suffix = f"，{reason}" if reason else ""
             info_str = f"从交易所取得古语卷轴{success_str}" + suffix
-            msg_queue.put(fmmsg.to_str(info_str))
+            msg_queue.put(fmmsg.to_str(info_str, level="debug"))
+
+            if reason == "交易所卷轴不足，请及时补充卷轴":
+                with sig_mutex:
+                    sig_dic.update({"stop": True, "start": False, "pause": False})
 
 
 def merge_scroll(detector: Detector, hwnd, debug=False):
@@ -456,6 +460,7 @@ def merge_scroll(detector: Detector, hwnd, debug=False):
     if bag_bbox is None:
         to_continue = False
         reason = "无法识别背包UI"
+        classics_op.close_bag()
         return success, to_continue, reason
 
     bag_left, bag_top, bag_right, bag_bottom = bag_bbox
