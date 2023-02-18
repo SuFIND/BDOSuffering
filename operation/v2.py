@@ -131,7 +131,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
     # # 运行时的计数变量
     retry_back_to_call_place = 0  # 重试回到卷轴召唤地点的次数
     max_retry_back_to_call_place = 1  # 不采用ADS干预下，允许的自动回到卷轴召唤地点的最大次数
-    skil_play_time = 0  # 当前技能播放次数
+    skill_play_time = 0  # 当前技能播放次数
 
     my_timer = {
         "usePilaFeScoreAt": None,
@@ -244,7 +244,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                     # 睡眠0.5s 让UI完成一部分动画
                     q.append((time.sleep, (1,), "睡眠0.5s 让UI完成一部分动画"))
                     # 判断是否出现远方目的地
-                    q.append((cv_op.found_ui_process_bar, (detector, hwnd, 2, debug), "判断是否出现进度条UI"))
+                    q.append((cv_op.found_ui_process_bar, (detector, hwnd, 5, 0.75, debug), "判断是否出现进度条UI"))
 
             # 如果橘色从交易所开始启动脚本
             elif intention in {"找到召唤书并激活卷轴导航"}:
@@ -327,7 +327,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
             q.append(
                 (classics_op.set_timer_key_value, (my_timer, "readyHitBossMagram"), "记录准备对boss1释放技能的时间"))
             # 播放自定义技能动作  TODO 未来配置化
-            q.append((classics_op.skill_action, (skil_play_time,), "播放自定义技能动作"))
+            q.append((classics_op.skill_action, (skill_play_time,), "播放自定义技能动作"))
 
             # 等待BOSS玛格岚倒地动画完成
             q.append((time.sleep, (boss1_dead_action_time,), "等待BOSS玛格岚倒地动画完成"))
@@ -336,13 +336,13 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                       "检测-BOSS玛格岚是否死亡或柯尔克是否出现"))
 
         elif func.__name__ == "skill_action":
-            skil_play_time += 1
+            skill_play_time += 1
 
         elif func.__name__ == "found_boss_Magram_dead_or_Khalk_appear":
             # 如果没有发现玛格岚或看到了柯尔克
             if rst:
                 # 重置重试技能次数为0
-                skil_play_time = 0
+                skill_play_time = 0
 
                 boss2_real_wait_time = boss2_can_be_hit_cool_time + estimated_kill_boss1_time - \
                                        classics_op.calculate_the_elapsed_time_so_far(my_timer["readyHitBossMagram"])
@@ -351,16 +351,15 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                 q.append((time.sleep, (boss2_real_wait_time,),
                           "检测到玛格岚死亡或柯尔克出现了, 等待BOSS柯尔特变成可击杀状态"))
 
-                q.append((classics_op.skill_action, (skil_play_time,), "播放自定义技能动作"))
+                q.append((classics_op.skill_action, (skill_play_time,), "播放自定义技能动作"))
 
                 # 检测是否完成任务
-                q.append((cv_op.found_task_over, (detector, hwnd, 2, debug), "检测-任务是否完成"))
+                q.append((cv_op.found_task_over, (detector, hwnd, 2, 0.5, debug), "检测-任务是否完成"))
 
             # 还是发现boss玛格岚
             else:
-                # skil_play_time += 1
                 # 如果重试次数小于max_retry_skill_using_skill_2
-                q.append((classics_op.skill_action, (skil_play_time,), "播放自定义技能动作"))
+                q.append((classics_op.skill_action, (skill_play_time,), "播放自定义技能动作"))
 
                 # 等待BOSS玛格岚倒地动画完成
                 q.append((time.sleep, (boss1_dead_action_time,), "等待BOSS玛格岚倒地动画完成"))
@@ -368,35 +367,55 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                 q.append((cv_op.found_boss_Magram_dead_or_Khalk_appear, (detector, hwnd, 3, debug),
                           "检测-BOSS玛格岚是否死亡或柯尔克是否出现"))
 
-        elif func.__name__ == "found_task_over":
+        elif func.__name__ == "found_task_over" and intention == "检测-任务是否完成":
             if rst:
                 # 等待任务变成可以呼出小黑的状态
-                q.append((time.sleep, (4,), "等待任务变成可以呼出小黑的状态"))
+                q.append((time.sleep, (1,), "等待任务变成可以呼出小黑的状态"))
                 # 呼出小精灵完成任务
                 q.append((classics_op.call_black_wizard_to_finish_task, (), "呼出小精灵完成任务"))
+                # 等待一下动画
+                q.append((time.sleep, (0.5,), "等待一下动画"))
+                # 检测-呼出小精灵完成任务后任务是否真的完成
+                q.append((cv_op.found_task_over, (detector, hwnd, 1, 0.5, debug), "检测-呼出小精灵完成任务后任务是否真的完成"))
+
+            else:
+                # 播放自定义技能动作  TODO 未来配置化
+                q.append((classics_op.skill_action, (skill_play_time,), "播放自定义技能动作"))
+                # 检测-任务是否完成
+                q.append((cv_op.found_task_over, (detector, hwnd, 1, 0.5, debug), "检测-任务是否完成"))
+
+
+        elif func.__name__ == "found_task_over" and intention == "检测-呼出小精灵完成任务后任务是否真的完成":
+            # 如果发现完成任务的标识
+            if rst:
+                # 先关闭被错误呼出的菜单
+                q.append((KeyboardSimulate.press_and_release, ("esc",), "关闭因为错误呼出小黑异常导致打开的菜单"))
+                # 等待任务变成可以呼出小黑的状态
+                q.append((time.sleep, (1,), "等待任务变成可以呼出小黑的状态"))
+                # 呼出小精灵完成任务
+                q.append((classics_op.call_black_wizard_to_finish_task, (), "呼出小精灵完成任务"))
+                # 检测-呼出小精灵完成任务后任务是否真的完成
+                q.append(
+                    (cv_op.found_task_over, (detector, hwnd, 1, 0.5, debug), "检测-呼出小精灵完成任务后任务是否真的完成"))
+
+            # 如果没有发现说明任务正常提交了
+            else:
+                # 统计性能指标
+                exec_count += 1
+                now_at = time.perf_counter()
+                cur_cost_min = round((now_at - start_at) / 60)
+                efficiency = round(exec_count / ((now_at - start_at) / 3600), 2)
+                msg_queue.put(fmmsg.to_str(f"执行 {exec_count} 次，花费 {cur_cost_min} 分钟，平均 {efficiency} 个/小时。"))
+
+                # 重置重试技能次数为0
+                skill_play_time = 0
+
                 # 按T回到召唤地点
                 q.append((classics_op.reposition_before_call, (), "按T回到召唤地点"))
                 # 打开背包
                 q.append((classics_op.open_bag, (), "打开背包"))
                 # 找到召唤书并召唤
                 q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug), "找到召唤书并召唤"))
-
-            else:
-                # 播放自定义技能动作  TODO 未来配置化
-                q.append((classics_op.skill_action, (skil_play_time,), "播放自定义技能动作"))
-                # 检测是否完成任务
-                q.append((cv_op.found_task_over, (detector, hwnd, 2, debug), "检测是否完成任务"))
-
-        elif func.__name__ == "call_black_wizard_to_finish_task":
-            # 统计性能指标
-            exec_count += 1
-            now_at = time.perf_counter()
-            cur_cost_min = round((now_at - start_at) / 60)
-            efficiency = round(exec_count / ((now_at - start_at) / 3600), 2)
-            msg_queue.put(fmmsg.to_str(f"执行 {exec_count} 次，花费 {cur_cost_min} 分钟，平均 {efficiency} 个/小时。"))
-
-            # 重置重试技能次数为0
-            skil_play_time = 0
 
 
 def start_merge(sig_dic, sig_mutex, msg_queue, window_title: str, window_class: str, title_height: int, onnx_path: str,

@@ -220,7 +220,7 @@ def found_boss_Magram_dead_or_Khalk_appear(detector, hwnd, retry: int, debug: bo
     return rst
 
 
-def found_task_over(detector, hwnd, retry: int, debug: bool = False) -> bool:
+def found_task_over(detector, hwnd, retry: int, interval_delay: float, debug: bool = False) -> bool:
     """
     发现目标提示“任务结束的标志”
     :param detector:
@@ -234,6 +234,7 @@ def found_task_over(detector, hwnd, retry: int, debug: bool = False) -> bool:
         rst = rst or found_target(detector, hwnd, "flag$Task Over", debug=debug, save_dir="logs/img/TaskOver")
         if rst:
             break
+        time.sleep(interval_delay)
     return rst
 
 
@@ -336,7 +337,7 @@ def clear_bag(detector, hwnd, useWarehouseMaidShortcut, debug=False):
     kb.press_and_release("esc")
 
 
-def found_ui_process_bar(detector, hwnd, retry: int, debug: bool = False) -> bool:
+def found_ui_process_bar(detector, hwnd, retry: int, interval_delay: float, debug: bool = False) -> bool:
     """
     发现目标"进度条"
     :param detector:
@@ -350,7 +351,7 @@ def found_ui_process_bar(detector, hwnd, retry: int, debug: bool = False) -> boo
         rst = rst or found_target(detector, hwnd, "ui$Process Bar", debug=debug, save_dir="logs/img/Process Bar")
         if rst:
             break
-        time.sleep(1)
+        time.sleep(interval_delay)
 
     return rst
 
@@ -417,8 +418,7 @@ def go_into_or_out_hutton(detector, hwnd):
     success = False
     win_dc = WinDCApiCap(hwnd)
     bdo_rect = get_bdo_rect(hwnd)
-    # poses = get_target_bbox_center_poses(detector, win_dc, bdo_rect, "icron$Hutton", [-9999, -9999, 9999, 9990], True)
-    poses = []
+    poses = get_target_bbox_center_poses(detector, win_dc, bdo_rect, "icron$Hutton", [-9999, -9999, 9999, 9990], True)
     if len(poses) > 0:
         kb.press_and_release("left ctrl")
         pos = poses.pop()

@@ -18,6 +18,10 @@ def skill_action(has_been_play_time: int):
 
 
 def skill_group_1():
+    # 角色施展这套动作的游戏内硬直耗时
+    expect_cost = 3.5
+
+    start_at = time.process_time()
     # 强：蝶旋风
     kb.press("left shift")
     ms.click()
@@ -30,8 +34,20 @@ def skill_group_1():
     kb.release("space")
     time.sleep(0.5)
 
+    # 程序仿真这套动作的耗时
+    end_at = time.process_time()
+    exec_cost = end_at - start_at
+
+    # 需要额外补充等待的睡眠时长
+    wait = expect_cost - exec_cost
+    time.sleep(wait)
+
 
 def skill_group_2():
+    # 角色施展这套动作的游戏内硬直耗时
+    expect_cost = 8
+
+    start_at = time.process_time()
     # 左移动
     kb.press("left shift")
     kb.press_and_release("D")
@@ -50,6 +66,14 @@ def skill_group_2():
     kb.press("left shift")
     kb.press_and_release("Q")
     kb.release("left shift")
+
+    # 程序仿真这套动作的耗时
+    end_at = time.process_time()
+    exec_cost = end_at - start_at
+
+    # 需要额外补充等待的睡眠时长
+    wait = expect_cost - exec_cost
+    time.sleep(wait)
 
 
 def call_black_wizard_to_finish_task():
