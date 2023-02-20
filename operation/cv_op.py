@@ -340,6 +340,7 @@ def clear_bag(detector, hwnd, useWarehouseMaidShortcut, debug=False):
 def found_ui_process_bar(detector, hwnd, retry: int, interval_delay: float, debug: bool = False) -> bool:
     """
     发现目标"进度条"
+    :param interval_delay:
     :param detector:
     :param hwnd:
     :param retry:
