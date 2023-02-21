@@ -233,7 +233,6 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                         q.append((KeyboardSimulate.release, ("w",), "往前走"))
                         q.append((time.sleep, (1,), "等待人物停稳定可以和鲁西比恩坤进行对话交互"))
 
-
                     # 如果启用进入赫顿的功能，且人正在赫顿
                     if gui_params["intoHutton"] and in_hutton:
                         q.append((cv_op.go_into_or_out_hutton, (detector, hwnd), "离开赫顿"))
@@ -254,7 +253,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                     # 判断是否出现远方目的地
                     q.append((cv_op.found_ui_process_bar, (detector, hwnd, 5, 0.75, collect_img_processBar), "判断是否出现进度条UI"))
 
-            # 如果橘色从交易所开始启动脚本
+            # 如果角色从交易所开始启动脚本
             elif intention in {"找到召唤书并激活卷轴导航"}:
                 # 如果没有找到则结束，也不需要回到交易所
                 if not find_it:
@@ -362,11 +361,13 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                 q.append((classics_op.skill_action, (skill_play_time,), "播放自定义技能动作"))
 
                 # 检测是否完成任务
-                q.append((cv_op.found_task_over, (detector, hwnd, 2, 0.5, collect_img_task_over), "检测-任务是否完成"))
+                q.append((cv_op.found_task_over, (detector, hwnd, 3, 0.75, collect_img_task_over), "检测-任务是否完成"))
 
             # 还是发现boss玛格岚
             else:
-                # 如果重试次数小于max_retry_skill_using_skill_2
+                # 重新记录准备对boss1释放技能的时间
+                q.append((classics_op.set_timer_key_value, (my_timer, "readyHitBossMagram"), "记录准备对boss1释放技能的时间"))
+                # 根据技能使用次数播放
                 q.append((classics_op.skill_action, (skill_play_time,), "播放自定义技能动作"))
 
                 # 等待BOSS玛格岚倒地动画完成
@@ -376,6 +377,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                           "检测-BOSS玛格岚是否死亡或柯尔克是否出现"))
 
         elif func.__name__ == "found_task_over" and intention == "检测-任务是否完成":
+            # 如果首次检测到任务完成的标志
             if rst:
                 # 等待任务变成可以呼出小黑的状态
                 q.append((time.sleep, (1,), "等待任务变成可以呼出小黑的状态"))
@@ -386,6 +388,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                 # 检测-呼出小精灵完成任务后任务是否真的完成
                 q.append((cv_op.found_task_over, (detector, hwnd, 1, 0.5, debug), "检测-呼出小精灵完成任务后任务是否真的完成"))
 
+            # 如果没有首次检测到任务完成的标志
             else:
                 # 播放自定义技能动作  TODO 未来配置化
                 q.append((classics_op.skill_action, (skill_play_time,), "播放自定义技能动作"))
