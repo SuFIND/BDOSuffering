@@ -70,7 +70,7 @@ class WinDCApiCap:
         # 如果
         if collection:
             if not os.path.exists(save_dir):
-                os.mkdir(save_dir)
+                os.makedirs(save_dir)
             img_name = f"{round(time.time())}.jpg"
             cv2.imwrite(os.path.join(save_dir, img_name), img, [int(cv2.IMWRITE_JPEG_QUALITY), 50])
 
