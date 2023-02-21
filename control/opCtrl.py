@@ -178,6 +178,8 @@ class OpCtrl(QtWidgets.QWidget):
         backExchange = self.viewer.BackExchangeCheckBox.isChecked()
         # 如果可以进入赫顿领域，是否要进入赫顿打球
         intoHutton = self.viewer.IntoHuttonCheckBox.isChecked()
+        # 启用邮件报警
+        enableEmailAlarm = self.viewer.EmailAlarmCheckBox.isChecked()
 
         boss1CanBeHitCoolTimeStr = self.viewer.Boss1CanBeHitCoolTimeEdit.text()
         boss2CanBeHitCoolTimeStr = self.viewer.Boss2CanBeHitCoolTimeEdit.text()
@@ -185,6 +187,7 @@ class OpCtrl(QtWidgets.QWidget):
         backTradingHouseTimeStr = self.viewer.backTradingHouseTimeEdit.text()
 
         to_checks = [
+            # BasicTab
             ("resetView", resetView, "", None),
             ("startAtTradingWarehouse", startAtTradingWarehouse, "", None),
             ("startAtCallPlace", startAtCallPlace, "", None),
@@ -192,11 +195,23 @@ class OpCtrl(QtWidgets.QWidget):
             ("repairWeapons", repairWeapons, "", None),
             ("backExchange", backExchange, "", None),
             ("intoHutton", intoHutton, "", None),
+            ("enableEmailAlarm", self.viewer.EmailAlarmCheckBox.isChecked(), "", None),
+            ("email", self.viewer.EmailEdit.text(), "", None),
 
+            # TimeTab
             ("boss1CanBeHitCoolTime", boss1CanBeHitCoolTimeStr, "召唤到玛格岚可以被打(s)必须为数字类型", "num"),
             ("boss2CanBeHitCoolTime", boss2CanBeHitCoolTimeStr, "玛格岚死到柯尔特出现(s)必须为数字类型", "num"),
             ("skillGroup1KillBoss1Cost", skillGroup1KillBoss1CostStr, "技能组1预计击杀耗时(s)必须为数字类型", "num"),
             ("backTradingHouseTime", backTradingHouseTimeStr, "球点至交易所的耗时(s)必须为数字类型", "num"),
+
+            # DataCollectionTab
+            ("collectImgTaskOver", self.viewer.CollectTaskOverCheckBox.isChecked(), "", None),
+            ("collectImgBagUI", self.viewer.CollectBagUiCheckBox.isChecked(), "", None),
+            ("collectImgProcessBar", self.viewer.CollectProcessBarCheckBox.isChecked(), "", None),
+            ("collectImgMargramOrKhalk", self.viewer.CollectMagramOrKhalkCheckBox.isChecked(), "", None),
+            ("collectImgUseWarehouseMaid", self.viewer.CollectUseWarehouseMaidCheckBox.isChecked(), "", None),
+            ("collectImgFindNPC", self.viewer.CollectFindNPCCheckBox.isChecked(), "", None),
+            ("collectImgGMCheck", self.viewer.CollectGMCheck.isChecked(), "", None),
         ]
 
         # 如果开启仓库女仆放杂物的功能

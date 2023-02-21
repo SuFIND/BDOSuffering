@@ -7,6 +7,7 @@ import qdarkstyle
 
 from PyQt6 import QtWidgets
 from app.app import App
+import app.resource
 from utils.log_utils import Logger
 from utils.win_utils import is_admin, apply_admin_runtime
 from app.init_resource import init_config, init_resource, global_var
@@ -21,7 +22,7 @@ def main():
     Logger.info("app start ...")
 
     # 初始化配置模块
-    config_path = os.environ.get("CFG_PATH", os.path.join(os.getcwd(), "config", "my_config.toml"))
+    config_path = os.environ.get("CFG_PATH", os.path.join(os.getcwd(), "config", "basic.toml"))
     config = init_config(config_path)
 
     # 初始化必要资源

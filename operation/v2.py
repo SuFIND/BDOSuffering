@@ -42,7 +42,7 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
     hwnd = FindWindow(window_class, window_title)
     if hwnd == 0:
         msg_queue.put(fmmsg.to_str(
-            "无法检测到黑色沙漠窗口句柄！请先打开游戏或检查 config/my_config.toml 中的 BDO.window_class 是否与游戏窗口名一致",
+            "无法检测到黑色沙漠窗口句柄！请先打开游戏或检查 config/basic.toml 中的 BDO.window_class 是否与游戏窗口名一致",
             level="error"))
         Logger.error("No Found hwnd: BlackDesert!")
         return
@@ -54,10 +54,18 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
     # # 全局变量的加载
     global_var["BDO_window_title_bar_height"] = title_height
 
-    task_queue = [
-        (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug)),
-        (merge_action, (sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debug)),
-    ]
+    # 判断是否开启了回到交易所，选择性初始化任务队列
+    if gui_params["backExchange"]:
+        # 如果启动了回到交易所的功能，那么初始化时回到交易所后将会自动合球并回到球场继续打球
+        task_queue = [
+            (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug)),
+            (merge_action, (sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debug)),
+        ]
+    else:
+        # 如果没有启动回到交易所功能，那么初始化仅会初始化打球的部分，结束后将会站在球场将控制权交还玩家
+        task_queue = [
+            (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug)),
+        ]
 
     while len(task_queue) > 0:
         # 是否有来自GUI或者GM检测进程或者前置步骤的中断或者暂停信号
@@ -71,15 +79,25 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
 
         func, args = task_queue.pop(0)
         try:
-            func(*args)
+            rst = func(*args)
 
             if func.__name__ == "merge_action":
+                success, to_continue, reason = rst
+
+                # 如果回到了交易所并且完成了合球，那么需要对初始化配置进行修改，因为此时人物角色位于交易所，相当于从交易所开始
                 gui_params["startAtCallPlace"] = False
                 gui_params["startAtTradingWarehouse"] = True
-                task_queue.extend([
-                    (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug)),
-                    (merge_action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug)),
-                ])
+
+                # 如果合球成功
+                if success:
+                    task_queue.extend([
+                        (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug)),
+                        (merge_action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug)),
+                    ])
+                else:
+                    task_queue.extend([
+                        (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug)),
+                    ])
 
         except Exception as e:
             err = traceback.format_exc()
@@ -209,8 +227,9 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                     # 启用仓库女仆提交杂物的功能
                     if gui_params["useWarehouseMaid"]:
                         # 杂物主动利用仓库女仆提交仓库
-                        q.append((cv_op.clear_bag, (detector, hwnd, useWarehouseMaidShortcut, collect_img_useWarehouseMaid),
-                                  "杂物主动利用仓库女仆提交仓库"))
+                        q.append(
+                            (cv_op.clear_bag, (detector, hwnd, useWarehouseMaidShortcut, collect_img_useWarehouseMaid),
+                             "杂物主动利用仓库女仆提交仓库"))
 
                     # 启用维修装备的功能
                     if gui_params["repairWeapons"]:
@@ -224,7 +243,8 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                     # 启用回到交易所的功能，如果启动自动合球该功能将无法关闭
                     if gui_params["backExchange"]:
                         # 打开寻找NPC的UI回到交易所
-                        q.append((cv_op.back_to_market, (detector, hwnd, collect_img_FindNPC), "打开寻找NPC的UI回到交易所"))
+                        q.append(
+                            (cv_op.back_to_market, (detector, hwnd, collect_img_FindNPC), "打开寻找NPC的UI回到交易所"))
                         # 睡眠160s，让人物移动到交易所
                         q.append((time.sleep, (back_trading_house_time,), "等待人物回交易所的时间"))
                         # 往前走一步，可以和鲁西比恩坤对话
@@ -241,17 +261,18 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                     q.append((MouseSimulate.move, (scroll_pos[0], scroll_pos[1], True, 0.1), "鼠标移动到卷轴图标"))
                     # 鼠标右键使用
                     q.append((MouseSimulate.click, (MouseSimulate.RIGHT,), "鼠标右键使用"))
-                    # 按下回城确认召唤
+                    # 按下回车确认召唤
                     q.append((KeyboardSimulate.press_and_release, ("return",), "按下回城确认召唤"))
                     # 记录使用卷轴的时间
                     q.append(
                         (classics_op.set_timer_key_value, (my_timer, "usePilaFeScoreAt"), "记录使用卷轴召唤的时间"))
                     # 关闭背包
                     q.append((classics_op.close_bag, (), "关闭背包UI"))
-                    # 睡眠0.5s 让UI完成一部分动画
+                    # 睡眠1s 让UI完成一部分动画
                     q.append((time.sleep, (1,), "睡眠0.5s 让UI完成一部分动画"))
-                    # 判断是否出现远方目的地
-                    q.append((cv_op.found_ui_process_bar, (detector, hwnd, 5, 0.75, collect_img_processBar), "判断是否出现进度条UI"))
+                    # 判断是否出现进度条UI
+                    q.append((cv_op.found_ui_process_bar, (detector, hwnd, 5, 0.75, collect_img_processBar),
+                              "判断是否出现进度条UI"))
 
             # 如果角色从交易所开始启动脚本
             elif intention in {"找到召唤书并激活卷轴导航"}:
@@ -366,7 +387,8 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
             # 还是发现boss玛格岚
             else:
                 # 重新记录准备对boss1释放技能的时间
-                q.append((classics_op.set_timer_key_value, (my_timer, "readyHitBossMagram"), "记录准备对boss1释放技能的时间"))
+                q.append((classics_op.set_timer_key_value, (my_timer, "readyHitBossMagram"),
+                          "记录准备对boss1释放技能的时间"))
                 # 根据技能使用次数播放
                 q.append((classics_op.skill_action, (skill_play_time,), "播放自定义技能动作"))
 
@@ -386,15 +408,15 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                 # 等待一下动画
                 q.append((time.sleep, (0.5,), "等待一下动画"))
                 # 检测-呼出小精灵完成任务后任务是否真的完成
-                q.append((cv_op.found_task_over, (detector, hwnd, 1, 0.5, debug), "检测-呼出小精灵完成任务后任务是否真的完成"))
+                q.append((cv_op.found_task_over, (detector, hwnd, 1, 0.5, collect_img_task_over),
+                          "检测-呼出小精灵完成任务后任务是否真的完成"))
 
             # 如果没有首次检测到任务完成的标志
             else:
                 # 播放自定义技能动作  TODO 未来配置化
                 q.append((classics_op.skill_action, (skill_play_time,), "播放自定义技能动作"))
                 # 检测-任务是否完成
-                q.append((cv_op.found_task_over, (detector, hwnd, 1, 0.5, debug), "检测-任务是否完成"))
-
+                q.append((cv_op.found_task_over, (detector, hwnd, 1, 0.5, collect_img_task_over), "检测-任务是否完成"))
 
         elif func.__name__ == "found_task_over" and intention == "检测-呼出小精灵完成任务后任务是否真的完成":
             # 如果发现完成任务的标识
@@ -407,7 +429,8 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                 q.append((classics_op.call_black_wizard_to_finish_task, (), "呼出小精灵完成任务"))
                 # 检测-呼出小精灵完成任务后任务是否真的完成
                 q.append(
-                    (cv_op.found_task_over, (detector, hwnd, 1, 0.5, debug), "检测-呼出小精灵完成任务后任务是否真的完成"))
+                    (cv_op.found_task_over, (detector, hwnd, 1, 0.5, collect_img_task_over),
+                     "检测-呼出小精灵完成任务后任务是否真的完成"))
 
             # 如果没有发现说明任务正常提交了
             else:
@@ -428,12 +451,6 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                 # 找到召唤书并召唤
                 q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, collect_img_bas_ui), "找到召唤书并召唤"))
 
-            else:
-                # 播放自定义技能动作  TODO 未来配置化
-                q.append((classics_op.skill_action, (skil_play_time,), "播放自定义技能动作"))
-                # 检测是否完成任务
-                q.append((cv_op.found_task_over, (detector, hwnd, 2, collect_img_task_over), "检测是否完成任务"))
-
         elif func.__name__ == "call_black_wizard_to_finish_task":
             # 统计性能指标
             exec_count += 1
@@ -443,7 +460,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
             msg_queue.put(fmmsg.to_str(f"执行 {exec_count} 次，花费 {cur_cost_min} 分钟，平均 {efficiency} 个/小时。"))
 
             # 重置重试技能次数为0
-            skil_play_time = 0
+            skill_play_time = 0
 
 
 def start_merge(sig_dic, sig_mutex, msg_queue, window_title: str, window_class: str, title_height: int, onnx_path: str,
@@ -456,7 +473,7 @@ def start_merge(sig_dic, sig_mutex, msg_queue, window_title: str, window_class: 
     hwnd = FindWindow(window_class, window_title)
     if hwnd == 0:
         msg_queue.put(fmmsg.to_str(
-            "无法检测到黑色沙漠窗口句柄！请先打开游戏或检查 config/my_config.toml 中的 BDO.window_class 是否与游戏窗口名一致",
+            "无法检测到黑色沙漠窗口句柄！请先打开游戏或检查 config/basic.toml 中的 BDO.window_class 是否与游戏窗口名一致",
             level="error"))
         Logger.error("No Found hwnd: BlackDesert!")
         return
@@ -484,9 +501,12 @@ def merge_action(sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debu
     success, to_continue, reason = True, True, ""
 
     task_queue = [
+        # 打开背包，关闭自动排列
         (classics_op.open_bag, ()),
         (cv_op.bag_auto_sort_off, (hwnd,)),
         (classics_op.close_bag, ()),
+
+        # 从交易所仓库中获取古语进行合成
         (merge_scroll.retrieve_the_scroll_from_the_trading_warehouse,
          (sig_mutex, sig_dic, msg_queue, detector, hwnd, debug)),
         (time.sleep, (0.4,)),
@@ -517,9 +537,9 @@ def merge_action(sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debu
                 (merge_scroll.merge_scroll, (detector, hwnd, debug)),
             ])
 
-
     if not success:
         msg_queue.put(fmmsg.to_str(reason, level="error"))
 
     # over
     msg_queue.put(fmmsg.to_str("完成合球！", level="info"))
+    return success, to_continue, reason
