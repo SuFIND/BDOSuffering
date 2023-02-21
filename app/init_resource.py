@@ -1,5 +1,5 @@
 import sys
-import traceback
+from traceback import format_exc
 from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import Manager
 
@@ -21,7 +21,7 @@ def init_app_config(cfg: dict):
     try:
         global_var["debug"] = cfg["app"]["debug"]
     except Exception as e:
-        err = traceback.format_exc()
+        err = format_exc()
         Logger.error(err)
         ok = False
     return ok
@@ -39,7 +39,7 @@ def init_bod_config(cfg: dict):
         global_var['BDO_window_class'] = cfg["BDO"]["window_class"]
         global_var['BDO_window_title_bar_height'] = cfg["BDO"]["window_title_bar_height"]
     except Exception:
-        err = traceback.format_exc()
+        err = format_exc()
         Logger.error(err)
         ok = False
     return ok
@@ -81,7 +81,7 @@ def init_gm_check_config(cfg: dict):
         global_var["gm_find_pix_max_count"] = cfg["GM"]["find_pix_max_count"]
     except Exception as e:
         ok = False
-        err = traceback.format_exc()
+        err = format_exc()
         Logger.error(err)
     return ok
 
@@ -98,7 +98,7 @@ def init_model_config(cfg: dict):
         global_var["classes_id_file_path"] = cfg["model"]["classes_id_file_path"]
     except Exception as e:
         ok = False
-        err = traceback.format_exc()
+        err = format_exc()
         Logger.error(err)
     return ok
 

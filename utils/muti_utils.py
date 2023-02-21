@@ -1,7 +1,3 @@
-import time
-from threading import Thread
-
-
 class FormatMsg:
     def __init__(self, source):
         self.source = source

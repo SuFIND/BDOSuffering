@@ -2,7 +2,7 @@ import time
 
 import cv2
 import numpy as np
-import win32gui
+from win32gui import IsWindowEnabled
 
 from utils.capture_utils import WinDCApiCap
 from utils.simulate_utils import KeyboardSimulate as kb, MouseSimulate as ms
@@ -124,7 +124,7 @@ def reposition_before_call():
 
 
 def get_bag_ui_pos(hwnd):
-    assert win32gui.IsWindowEnabled(hwnd), True
+    assert IsWindowEnabled(hwnd), True
     cur_windows_left, cur_windows_top, _, _ = get_bdo_rect(hwnd)
     cap = WinDCApiCap(hwnd)
     sc_hots = cap.get_hwnd_screenshot_to_numpy_array()

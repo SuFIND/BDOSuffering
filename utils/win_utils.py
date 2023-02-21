@@ -1,4 +1,5 @@
-import ctypes.wintypes
+import sys
+from ctypes import wintypes, windll, byref, sizeof
 
 import win32gui, win32api, win32con
 from app.init_resource import global_var
@@ -10,18 +11,18 @@ from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 
 def get_bdo_rect(hwnd):
     try:
-        f = ctypes.windll.dwmapi.DwmGetWindowAttribute
+        f = windll.dwmapi.DwmGetWindowAttribute
     except WindowsError:
         f = None
     title_height = global_var["BDO_window_title_bar_height"]
     have_borderless = is_borderless(hwnd)
     if f:
-        rect = ctypes.wintypes.RECT()
+        rect = wintypes.RECT()
         DWMWA_EXTENDED_FRAME_BOUNDS = 9
-        f(ctypes.wintypes.HWND(hwnd),
-          ctypes.wintypes.DWORD(DWMWA_EXTENDED_FRAME_BOUNDS),
-          ctypes.byref(rect),
-          ctypes.sizeof(rect)
+        f(wintypes.HWND(hwnd),
+          wintypes.DWORD(DWMWA_EXTENDED_FRAME_BOUNDS),
+          byref(rect),
+          sizeof(rect)
           )
         if have_borderless:
             return rect.left, rect.top + title_height, rect.right, rect.bottom
@@ -59,3 +60,22 @@ def set_unmuted():
     # 如果当前设备被静音了
     if volume.GetMute():
         volume.SetMute(0, None)
+
+
+def is_admin():
+    """
+    是否是管理员权限
+    :return:
+    """
+    try:
+        return windll.shell32.IsUserAnAdmin()
+    except:
+        return False
+
+
+def apply_admin_runtime():
+    """
+    申请管理员权限运行
+    :return:
+    """
+    windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)

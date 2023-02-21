@@ -121,6 +121,14 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
     # # 回收帐篷快捷键
     recycleTentShortcut = gui_params["recycleTentShortcut"]
 
+    # # 收集任务完成标志
+    collect_img_task_over = False
+    collect_img_bas_ui = False
+    collect_img_processBar = False
+    collect_img_MagramOrKhalk = False
+    collect_img_useWarehouseMaid = False
+    collect_img_FindNPC = False
+
     # 自有变量
     # # 统计指标
     exec_count = 0
@@ -158,13 +166,13 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
     if gui_params["startAtCallPlace"]:
         q.append((classics_op.open_bag, (), "打开背包"))
         q.append((cv_op.bag_auto_sort_on, (hwnd,), "打开背包自动排列功能"))
-        q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug), "找到召唤书并召唤"))
+        q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, collect_img_bas_ui), "找到召唤书并召唤"))
 
     # 从交易所长鲁西比恩跟前开始
     if gui_params["startAtTradingWarehouse"]:
         q.append((classics_op.open_bag, (), "打开背包"))
         q.append((cv_op.bag_auto_sort_on, (hwnd,), "打开背包自动排列功能"))
-        q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug), "找到召唤书并激活卷轴导航"))
+        q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, collect_img_bas_ui), "找到召唤书并激活卷轴导航"))
 
     while len(q) > 0:
         # 是否有来自GUI或者GM检测进程或者前置步骤的中断或者暂停信号
@@ -201,7 +209,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                     # 启用仓库女仆提交杂物的功能
                     if gui_params["useWarehouseMaid"]:
                         # 杂物主动利用仓库女仆提交仓库
-                        q.append((cv_op.clear_bag, (detector, hwnd, useWarehouseMaidShortcut, debug),
+                        q.append((cv_op.clear_bag, (detector, hwnd, useWarehouseMaidShortcut, collect_img_useWarehouseMaid),
                                   "杂物主动利用仓库女仆提交仓库"))
 
                     # 启用维修装备的功能
@@ -216,7 +224,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                     # 启用回到交易所的功能，如果启动自动合球该功能将无法关闭
                     if gui_params["backExchange"]:
                         # 打开寻找NPC的UI回到交易所
-                        q.append((cv_op.back_to_market, (detector, hwnd, debug), "打开寻找NPC的UI回到交易所"))
+                        q.append((cv_op.back_to_market, (detector, hwnd, collect_img_FindNPC), "打开寻找NPC的UI回到交易所"))
                         # 睡眠160s，让人物移动到交易所
                         q.append((time.sleep, (back_trading_house_time,), "等待人物回交易所的时间"))
                         # 往前走一步，可以和鲁西比恩坤对话
@@ -244,7 +252,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                     # 睡眠0.5s 让UI完成一部分动画
                     q.append((time.sleep, (1,), "睡眠0.5s 让UI完成一部分动画"))
                     # 判断是否出现远方目的地
-                    q.append((cv_op.found_ui_process_bar, (detector, hwnd, 5, 0.75, debug), "判断是否出现进度条UI"))
+                    q.append((cv_op.found_ui_process_bar, (detector, hwnd, 5, 0.75, collect_img_processBar), "判断是否出现进度条UI"))
 
             # 如果橘色从交易所开始启动脚本
             elif intention in {"找到召唤书并激活卷轴导航"}:
@@ -269,7 +277,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                     # 打开背包
                     q.append((classics_op.open_bag, (), "打开背包"))
                     # 尝试召唤卷轴
-                    q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug), "找到召唤书并召唤"))
+                    q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, collect_img_bas_ui), "找到召唤书并召唤"))
 
         elif func.__name__ == "found_ui_process_bar":
             # 如果没有出现进度条UI，并且重试次数还没有大于上线次数，则再次重试进行召唤
@@ -280,7 +288,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                 # 打开背包
                 q.append((classics_op.open_bag, (), "打开背包"))
                 # 找到召唤书并召唤
-                q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug), "再次找到召唤书并尝试召唤"))
+                q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, collect_img_bas_ui), "再次找到召唤书并尝试召唤"))
 
             # 如果没有出现进度条UI，并且重试次数大于上线次数，则尝试左平移或右平移或后撤，脱离卡死
             elif not rst and retry_back_to_call_place > max_retry_back_to_call_place:
@@ -302,7 +310,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                 # 打开背包
                 q.append((classics_op.open_bag, (), "打开背包"))
                 # 找到召唤书并召唤
-                q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug), "再次找到召唤书并尝试召唤"))
+                q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, collect_img_bas_ui), "再次找到召唤书并尝试召唤"))
 
             # 如果出现了进度条UI，此时的卷轴正在被正常召唤
             else:
@@ -332,7 +340,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
             # 等待BOSS玛格岚倒地动画完成
             q.append((time.sleep, (boss1_dead_action_time,), "等待BOSS玛格岚倒地动画完成"))
             # 目标检测-BOSS玛格岚是否还没死
-            q.append((cv_op.found_boss_Magram_dead_or_Khalk_appear, (detector, hwnd, 3, debug),
+            q.append((cv_op.found_boss_Magram_dead_or_Khalk_appear, (detector, hwnd, 3, collect_img_MagramOrKhalk),
                       "检测-BOSS玛格岚是否死亡或柯尔克是否出现"))
 
         elif func.__name__ == "skill_action":
@@ -354,7 +362,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                 q.append((classics_op.skill_action, (skill_play_time,), "播放自定义技能动作"))
 
                 # 检测是否完成任务
-                q.append((cv_op.found_task_over, (detector, hwnd, 2, 0.5, debug), "检测-任务是否完成"))
+                q.append((cv_op.found_task_over, (detector, hwnd, 2, 0.5, collect_img_task_over), "检测-任务是否完成"))
 
             # 还是发现boss玛格岚
             else:
@@ -364,7 +372,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                 # 等待BOSS玛格岚倒地动画完成
                 q.append((time.sleep, (boss1_dead_action_time,), "等待BOSS玛格岚倒地动画完成"))
                 # 检测-BOSS玛格岚是否死亡或柯尔克是否出现
-                q.append((cv_op.found_boss_Magram_dead_or_Khalk_appear, (detector, hwnd, 3, debug),
+                q.append((cv_op.found_boss_Magram_dead_or_Khalk_appear, (detector, hwnd, 3, collect_img_MagramOrKhalk),
                           "检测-BOSS玛格岚是否死亡或柯尔克是否出现"))
 
         elif func.__name__ == "found_task_over" and intention == "检测-任务是否完成":
@@ -415,7 +423,24 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
                 # 打开背包
                 q.append((classics_op.open_bag, (), "打开背包"))
                 # 找到召唤书并召唤
-                q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, debug), "找到召唤书并召唤"))
+                q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, collect_img_bas_ui), "找到召唤书并召唤"))
+
+            else:
+                # 播放自定义技能动作  TODO 未来配置化
+                q.append((classics_op.skill_action, (skil_play_time,), "播放自定义技能动作"))
+                # 检测是否完成任务
+                q.append((cv_op.found_task_over, (detector, hwnd, 2, collect_img_task_over), "检测是否完成任务"))
+
+        elif func.__name__ == "call_black_wizard_to_finish_task":
+            # 统计性能指标
+            exec_count += 1
+            now_at = time.perf_counter()
+            cur_cost_min = round((now_at - start_at) / 60)
+            efficiency = round(exec_count / ((now_at - start_at) / 3600), 2)
+            msg_queue.put(fmmsg.to_str(f"执行 {exec_count} 次，花费 {cur_cost_min} 分钟，平均 {efficiency} 个/小时。"))
+
+            # 重置重试技能次数为0
+            skil_play_time = 0
 
 
 def start_merge(sig_dic, sig_mutex, msg_queue, window_title: str, window_class: str, title_height: int, onnx_path: str,

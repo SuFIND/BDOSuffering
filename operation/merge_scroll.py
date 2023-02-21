@@ -12,8 +12,6 @@ from utils.simulate_utils import MouseSimulate, KeyboardSimulate
 from utils.win_utils import get_bdo_rect
 from utils.cv_utils import Detector, is_pos_can_be_considered_the_same
 from utils.muti_utils import FormatMsg
-from utils.ocr_utils import recognize_numpy
-from utils.log_utils import Logger
 import operation.cv_op as cv_op
 from utils.ocr_utils import get_bag_capacity_by_tesseract_ocr
 
@@ -51,51 +49,6 @@ def use_merge_button(win_dc: WinDCApiCap, client_rect, limit_bbox=(-9999, -9999,
         time.sleep(0.1)
         _ = get_merge_button_by_temple(win_dc, client_rect)
         merge_button_poses.extend(_)
-
-
-def get_bag_capacity_by_ocr(win_dc: WinDCApiCap, bag_bbox):
-    """
-    OCR获取当前背包容积
-    :param win_dc: 
-    :param bag_bbox: 
-    :return: 
-    """
-    rst = None, None
-    if not win_dc.is_available():
-        return rst
-
-    try:
-        sc = win_dc.get_hwnd_screenshot_to_numpy_array()
-        bg_sc = sc[bag_bbox[1]:bag_bbox[3], bag_bbox[0]:bag_bbox[2]]
-
-        bg_sc_h, bg_sc_w = bg_sc.shape[:2]
-        # 利用超参数比例获取背包空间相关的图片，减少ocr获取的信息
-        capacity_left = round(bg_sc_w * 0.8125)
-        capacity_top = round(bg_sc_h * 0.1)
-        capacity_bottom = round(bg_sc_h * 0.2)
-        capacity_sc = bg_sc[capacity_top:capacity_bottom, capacity_left:]
-
-        # 使用英语减少错误识别数字的可能
-        ocr_rst = recognize_numpy(capacity_sc, lang="en-US")
-        text = ocr_rst["text"]
-        clear_text = ""
-        for char in text:
-            if char not in {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "/"}:
-                continue
-            clear_text += char
-
-        # 利用正则便于cur和total都能获取
-        r = re.match(r"(?P<cur>\d+)/(?P<total>\d+)", clear_text)
-        if r is not None:
-            _ = r.groupdict()
-            cur, total = _["cur"], _["total"]
-            cur = int(cur)
-            total = int(total)
-            rst = cur, total
-    except Exception as e:
-        err = traceback.format_exc()
-        Logger.error(err)
-    return rst
 
 
 def get_trading_warehouse_button_pos(win_dc: WinDCApiCap, bdo_rect):
