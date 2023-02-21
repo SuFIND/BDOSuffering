@@ -434,13 +434,6 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
 
             # 如果没有发现说明任务正常提交了
             else:
-                # 统计性能指标
-                exec_count += 1
-                now_at = time.perf_counter()
-                cur_cost_min = round((now_at - start_at) / 60)
-                efficiency = round(exec_count / ((now_at - start_at) / 3600), 2)
-                msg_queue.put(fmmsg.to_str(f"执行 {exec_count} 次，花费 {cur_cost_min} 分钟，平均 {efficiency} 个/小时。"))
-
                 # 重置重试技能次数为0
                 skill_play_time = 0
 
@@ -459,8 +452,6 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
             efficiency = round(exec_count / ((now_at - start_at) / 3600), 2)
             msg_queue.put(fmmsg.to_str(f"执行 {exec_count} 次，花费 {cur_cost_min} 分钟，平均 {efficiency} 个/小时。"))
 
-            # 重置重试技能次数为0
-            skill_play_time = 0
 
 
 def start_merge(sig_dic, sig_mutex, msg_queue, window_title: str, window_class: str, title_height: int, onnx_path: str,
