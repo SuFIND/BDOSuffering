@@ -1,10 +1,12 @@
 import datetime
+import traceback
 
 from PyQt6 import QtWidgets, QtCore
 from ui.ui_op_ctrl import Ui_OpCtrl
 from app.init_resource import global_var
 from operation.v2 import start_action, start_merge
 from operation.gm_check import GM_check_loop
+from utils.log_utils import Logger
 
 
 class OpCtrl(QtWidgets.QWidget):
@@ -246,3 +248,40 @@ class OpCtrl(QtWidgets.QWidget):
                 reason += f"{desc}\n"
 
         return available, rst, reason
+
+    def load_config(self, config):
+        try:
+            # BasicTab
+            self.viewer.ResetViewCheckBox.setChecked(config["resetView"])
+            self.viewer.StartAtTradingWarehouseButton.setChecked(config["startAtTradingWarehouse"])
+            self.viewer.StartAtCallPlaceButton.setChecked(config["startAtCallPlace"])
+            self.viewer.UseWarehouseMaidCheckBox.setChecked(config["useWarehouseMaid"])
+            self.viewer.RepairWeaponsCheckBox.setChecked(config["repairWeapons"])
+            self.viewer.BackExchangeCheckBox.setChecked(config["backExchange"])
+            self.viewer.IntoHuttonCheckBox.setChecked(config["intoHutton"])
+            self.viewer.EmailAlarmCheckBox.setChecked(config["enableEmailAlarm"])
+            self.viewer.EmailEdit.setText(config["email"])
+
+            # TimeTab
+            self.viewer.Boss1CanBeHitCoolTimeEdit.setText(config["boss1CanBeHitCoolTime"])
+            self.viewer.Boss2CanBeHitCoolTimeEdit.setText(config["boss2CanBeHitCoolTime"])
+            self.viewer.SkillGroup1KillBoss1CostEdit.setText(config["skillGroup1KillBoss1Cost"])
+            self.viewer.backTradingHouseTimeEdit.setText(config["backTradingHouseTime"])
+
+            # DataCollectionTab
+            self.viewer.CollectTaskOverCheckBox.setChecked(config['collectImgTaskOver'])
+            self.viewer.CollectBagUiCheckBox.setChecked(config['collectImgBagUI'])
+            self.viewer.CollectProcessBarCheckBox.setChecked(config['collectImgProcessBar'])
+            self.viewer.CollectMagramOrKhalkCheckBox.setChecked(config['collectImgMargramOrKhalk'])
+            self.viewer.CollectUseWarehouseMaidCheckBox.setChecked(config['collectImgUseWarehouseMaid'])
+            self.viewer.CollectFindNPCCheckBox.setChecked(config['collectImgFindNPC'])
+            self.viewer.CollectGMCheck.setChecked(config['collectImgGMCheck'])
+
+        except Exception as e:
+            err = traceback.format_exc()
+            Logger.error(err)
+
+            # 弹窗提醒
+            msgBox = QtWidgets.QMessageBox(self)
+            msgBox.setText("加载配置文件失败，该文件可能与当前程序版本不匹配，请在日志文件中确认报错！")
+            msgBox.show()
