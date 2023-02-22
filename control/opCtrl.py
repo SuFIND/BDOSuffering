@@ -263,10 +263,10 @@ class OpCtrl(QtWidgets.QWidget):
             self.viewer.EmailEdit.setText(config["email"])
 
             # TimeTab
-            self.viewer.Boss1CanBeHitCoolTimeEdit.setText(config["boss1CanBeHitCoolTime"])
-            self.viewer.Boss2CanBeHitCoolTimeEdit.setText(config["boss2CanBeHitCoolTime"])
-            self.viewer.SkillGroup1KillBoss1CostEdit.setText(config["skillGroup1KillBoss1Cost"])
-            self.viewer.backTradingHouseTimeEdit.setText(config["backTradingHouseTime"])
+            self.viewer.Boss1CanBeHitCoolTimeEdit.setText(str(config["boss1CanBeHitCoolTime"]))
+            self.viewer.Boss2CanBeHitCoolTimeEdit.setText(str(config["boss2CanBeHitCoolTime"]))
+            self.viewer.SkillGroup1KillBoss1CostEdit.setText(str(config["skillGroup1KillBoss1Cost"]))
+            self.viewer.backTradingHouseTimeEdit.setText(str(config["backTradingHouseTime"]))
 
             # DataCollectionTab
             self.viewer.CollectTaskOverCheckBox.setChecked(config['collectImgTaskOver'])

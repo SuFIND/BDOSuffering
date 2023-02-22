@@ -140,12 +140,12 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params):
     recycleTentShortcut = gui_params["recycleTentShortcut"]
 
     # # 收集任务完成标志
-    collect_img_task_over = False
-    collect_img_bas_ui = False
-    collect_img_processBar = False
-    collect_img_MagramOrKhalk = False
-    collect_img_useWarehouseMaid = False
-    collect_img_FindNPC = False
+    collect_img_task_over = gui_params["collectImgTaskOver"]
+    collect_img_bas_ui = gui_params["collectImgBagUI"]
+    collect_img_processBar = gui_params["collectImgProcessBar"]
+    collect_img_MagramOrKhalk = gui_params["collectImgMargramOrKhalk"]
+    collect_img_useWarehouseMaid = gui_params["collectImgUseWarehouseMaid"]
+    collect_img_FindNPC = gui_params["collectImgFindNPC"]
 
     # 自有变量
     # # 统计指标

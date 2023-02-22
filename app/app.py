@@ -66,7 +66,7 @@ class App(QMainWindow, Ui_MainWindow):
             toml_content = toml.dumps(rst)
 
             fileName_choose, filetype = QFileDialog.getSaveFileName(self,
-                                                                    caption="配置文件",
+                                                                    caption="保存配置文件",
                                                                     directory=os.path.join(os.getcwd(), "config"),  # 起始路径
                                                                     filter="Toml Files (*.toml);;All Files (*)",
                                                                     initialFilter="Toml Files (*.toml)")
@@ -79,8 +79,8 @@ class App(QMainWindow, Ui_MainWindow):
 
     def load_config(self):
         """加载保存的配置逻辑"""
-        fileName_choose, filetype = QFileDialog.getSaveFileName(self,
-                                                                caption="配置文件",
+        fileName_choose, filetype = QFileDialog.getOpenFileName(self,
+                                                                caption="加载配置文件",
                                                                 directory=os.path.join(os.getcwd(), "config"),  # 起始路径
                                                                 filter="Toml Files (*.toml)",
                                                                 initialFilter="Toml Files (*.toml)")
