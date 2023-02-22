@@ -58,13 +58,13 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
     if gui_params["backExchange"]:
         # 如果启动了回到交易所的功能，那么初始化时回到交易所后将会自动合球并回到球场继续打球
         task_queue = [
-            (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug)),
+            (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params)),
             (merge_action, (sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debug)),
         ]
     else:
         # 如果没有启动回到交易所功能，那么初始化仅会初始化打球的部分，结束后将会站在球场将控制权交还玩家
         task_queue = [
-            (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug)),
+            (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params)),
         ]
 
     while len(task_queue) > 0:
@@ -91,12 +91,12 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
                 # 如果合球成功
                 if success:
                     task_queue.extend([
-                        (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug)),
+                        (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params)),
                         (merge_action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug)),
                     ])
                 else:
                     task_queue.extend([
-                        (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug)),
+                        (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params)),
                     ])
 
         except Exception as e:
@@ -110,7 +110,7 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
         sig_dic.update({"stop": True, "start": False, "pause": False})
 
 
-def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=False):
+def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params):
     # 超参数
     # # 复位的耗时
     reset_place_wait_time = 15
@@ -434,13 +434,6 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
 
             # 如果没有发现说明任务正常提交了
             else:
-                # 统计性能指标
-                exec_count += 1
-                now_at = time.perf_counter()
-                cur_cost_min = round((now_at - start_at) / 60)
-                efficiency = round(exec_count / ((now_at - start_at) / 3600), 2)
-                msg_queue.put(fmmsg.to_str(f"执行 {exec_count} 次，花费 {cur_cost_min} 分钟，平均 {efficiency} 个/小时。"))
-
                 # 重置重试技能次数为0
                 skill_play_time = 0
 
@@ -458,9 +451,6 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug=Fals
             cur_cost_min = round((now_at - start_at) / 60)
             efficiency = round(exec_count / ((now_at - start_at) / 3600), 2)
             msg_queue.put(fmmsg.to_str(f"执行 {exec_count} 次，花费 {cur_cost_min} 分钟，平均 {efficiency} 个/小时。"))
-
-            # 重置重试技能次数为0
-            skill_play_time = 0
 
 
 def start_merge(sig_dic, sig_mutex, msg_queue, window_title: str, window_class: str, title_height: int, onnx_path: str,
