@@ -13,9 +13,15 @@ python3.9 + **windows only**
     pip install -r requirements.txt
     pip install -r requirements-gpu.txt
     ```
-    cuda or other tools version u can ref [this page](https://onnxruntime.ai/docs/execution-providers/). cuda 11.4 has been test can work it</br>
+    cuda or other tools version u can ref [this page](https://onnxruntime.ai/docs/execution-providers/). cuda 11.4 has been tested can work it</br>
 
 ## QuickStart
 ```shell
 python start.py
 ```
+
+## Changelog
+- 2023/02/23 
+   - Add save or load your config. 
+   - You can customize game screen collection in the TimeTab now.
+   - Add email alarm when GM check. 😁

@@ -249,7 +249,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params):
                         q.append((time.sleep, (back_trading_house_time,), "等待人物回交易所的时间"))
                         # 往前走一步，可以和鲁西比恩坤对话
                         q.append((KeyboardSimulate.press, ("w",), "往前走"))
-                        q.append((time.sleep, (0.5,), "等待人物回交易所的时间"))
+                        q.append((time.sleep, (0.3,), "等待人物回交易所的时间"))
                         q.append((KeyboardSimulate.release, ("w",), "往前走"))
                         q.append((time.sleep, (1,), "等待人物停稳定可以和鲁西比恩坤进行对话交互"))
 
@@ -490,6 +490,9 @@ def merge_action(sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debu
     msg_queue.put(fmmsg.to_str("开始合球！", level="info"))
     success, to_continue, reason = True, True, ""
 
+    to_continue_merge_al_scroll = True
+    to_continue_get_al_scroll = True
+
     task_queue = [
         # 打开背包，关闭自动排列
         (classics_op.open_bag, ()),
@@ -503,7 +506,7 @@ def merge_action(sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debu
         (merge_scroll.merge_scroll, (detector, hwnd, debug)),
     ]
 
-    while to_continue and success:
+    while len(task_queue) > 0 and success:
         with sig_mutex:
             if sig_dic["pause"]:
                 time.sleep(1)
@@ -515,17 +518,27 @@ def merge_action(sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debu
         func, args = task_queue.pop(0)
         rst = func(*args)
 
+        if func.__name__ == "retrieve_the_scroll_from_the_trading_warehouse":
+            success, to_continue_merge_al_scroll, _to_continue_get_al_scroll, reason = rst
+            to_continue_get_al_scroll = to_continue_get_al_scroll and _to_continue_get_al_scroll
+
+            # 如果需要继续合成古语卷轴
+            if to_continue_merge_al_scroll:
+                task_queue.append((merge_scroll.merge_scroll, (detector, hwnd, debug)),)
+
         if func.__name__ == "merge_scroll":
             success, to_continue, reason = rst
 
             gui_params["startAtCallPlace"] = False
             gui_params["startAtTradingWarehouse"] = True
-            task_queue.extend([
-                (merge_scroll.retrieve_the_scroll_from_the_trading_warehouse,
-                 (sig_mutex, sig_dic, msg_queue, detector, hwnd, debug)),
-                (time.sleep, (0.5,)),
-                (merge_scroll.merge_scroll, (detector, hwnd, debug)),
-            ])
+
+            to_continue_get_al_scroll = to_continue_get_al_scroll and to_continue
+            if to_continue_get_al_scroll:
+                task_queue.extend([
+                    (merge_scroll.retrieve_the_scroll_from_the_trading_warehouse,
+                     (sig_mutex, sig_dic, msg_queue, detector, hwnd, debug)),
+                    (time.sleep, (0.4,)),
+                ])
 
     if not success:
         msg_queue.put(fmmsg.to_str(reason, level="error"))

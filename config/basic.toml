@@ -15,3 +15,10 @@ find_pix_max_count = 500    # 检测超过该阈值则触发GM督查警报
 [model]
 onnx_file_path = "data/onnx/20230215.onnx"  # 模型文件
 classes_id_file_path = "data/onnx/class_20230215.txt"   # 标签文件
+
+[email]
+enable = true
+smtp_server = "smtp.office365.com"   # smtp 邮件服务器地址，这里选择微软作为示例，你也可以换成任意支持smtp的邮箱，详情请见不同运营商的说明
+smtp_port = 587 # smtp邮件服务器端口
+from_email = ""  # 发送主体邮箱
+password = "" # 发送主体邮箱的密码

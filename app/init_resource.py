@@ -1,4 +1,5 @@
 import sys
+import traceback
 from traceback import format_exc
 from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import Manager
@@ -103,6 +104,21 @@ def init_model_config(cfg: dict):
     return ok
 
 
+def init_email_config(cfg: dict):
+    ok = True
+    try:
+        global_var["enable_email"] = cfg["email"]["enable"]
+        global_var["smtp_server"] = cfg["email"]["smtp_server"]
+        global_var["smtp_port"] = cfg["email"]["smtp_port"]
+        global_var["from_email"] = cfg["email"]["from_email"]
+        global_var["from_email_password"] = cfg["email"]["password"]
+    except Exception as e:
+        err = traceback.format_exc()
+        Logger.error(err)
+        ok = False
+    return ok
+
+
 def init_resource(cfg: dict):
     funcs = [
         init_app_config,
@@ -110,6 +126,7 @@ def init_resource(cfg: dict):
         init_bod_config,
         init_gm_check_config,
         init_model_config,
+        init_email_config,
     ]
     for func in funcs:
         ok = func(cfg)
