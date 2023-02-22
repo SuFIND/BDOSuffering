@@ -1,23 +1,23 @@
 import random
 import time
+from ctypes import windll
 
 import keyboard
 import mouse
-import win32api, win32con
-from ctypes import windll
-from app.init_resource import global_var
 
 # 定义使用keyboard库仿真但是未能达到预期的按键
 VK_CODE = {
     '/': 191,
     "left shift": 16,
     "right shift": 16,
+    "d": 68,
 }
 
 SCAN_CODE = {
     '/': 53,
     "left shift": 42,
     "right shift": 54,
+    "d": 32,
 }
 
 keybd_event = windll.user32.keybd_event
@@ -85,7 +85,8 @@ class KeyboardSimulate(HumanSimulate):
     MaxOpDelay = 80
 
     @classmethod
-    def press_and_release(cls, key) -> bool:
+    def press_and_release(cls, key: str) -> bool:
+        key = key.lower()
         if key in VK_CODE and key in SCAN_CODE:
             hex_vk_code = VK_CODE[key]
             scan_code = SCAN_CODE[key]
