@@ -32,6 +32,7 @@ class App(QMainWindow, Ui_MainWindow):
         self.hk_test.register(('f9',), callback=lambda x: self.sendHotKeySig('f9'))
 
         self.actionSaveConfig.triggered.connect(self.save_config)
+        self.actionLoadConfig.triggered.connect(self.load_config)
 
     def sendHotKeySig(self, i_str):
         self.sig_hotkey.emit(i_str)
@@ -75,3 +76,19 @@ class App(QMainWindow, Ui_MainWindow):
 
             with open(fileName_choose, 'w', encoding="utf-8") as fp:
                 fp.write(toml_content)
+
+    def load_config(self):
+        """加载保存的配置逻辑"""
+        fileName_choose, filetype = QFileDialog.getSaveFileName(self,
+                                                                caption="配置文件",
+                                                                directory=os.path.join(os.getcwd(), "config"),  # 起始路径
+                                                                filter="Toml Files (*.toml)",
+                                                                initialFilter="Toml Files (*.toml)")
+        if fileName_choose == "":
+            # 取消选择
+            return
+
+        with open(fileName_choose, encoding="utf-8") as fp:
+            custom_config = toml.load(fp)
+
+        self.OpCtrl.load_config(custom_config)
