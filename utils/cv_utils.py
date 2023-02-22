@@ -124,7 +124,9 @@ class Detector:
     def infer(self, or_img: np.ndarray, min_score=0.6) -> dict:
         """
         进行推理
-        :return:
+        :param or_img: 原始图片，通道为BGR
+        :param min_score: 最小置信度，低于这个值的推理结果将会被过滤
+        :return: dict -> {label: [{"score": float, "bbox": [left: int, top: int, right: int, bottom: int]}]}
         """
         rst = {}
 
@@ -169,7 +171,12 @@ class Detector:
         return rst
 
     def test(self, img: np.ndarray, min_score=0.6) -> np.ndarray:
-        """可视化测试"""
+        """
+        可视化测试
+        :param img: BGR图片
+        :param min_score: 最小置信度
+        :return BGR img
+        """
 
         rst = self.infer(img, min_score)
 
@@ -193,7 +200,7 @@ class Detector:
 
     def set_img_scale(self, img_scale: tuple) -> None:
         """
-
+        setting img scale
         :param img_scale: (height, width)
         :return:
         """
