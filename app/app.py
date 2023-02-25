@@ -7,7 +7,7 @@ from PyQt6.QtCore import pyqtSignal
 from ui.ui_app import Ui_MainWindow
 from system_hotkey import SystemHotkey
 
-from app.app_thread import GMAlarmThread
+from app.app_thread import GMAlarmThread, EmailThread
 from app.init_resource import global_var
 from control.GMCheckDialog import GMCheckDialog
 
@@ -51,9 +51,20 @@ class App(QMainWindow, Ui_MainWindow):
     def showGMCheckDialog(self, i_str):
         # 启动警报音的播放线程
         alarm_thread = GMAlarmThread()
-        t = Thread(target=alarm_thread.run, args=())
-        t.start()
-        global_var["threads"].append((t, alarm_thread))
+        t1 = Thread(target=alarm_thread.run, args=())
+        t1.start()
+        global_var["threads"].append((t1, alarm_thread))
+
+        # 启动邮件线程，发送报警邮件
+        enable_email_alarm = self.OpCtrl.viewer.EmailAlarmCheckBox.isChecked()
+        if enable_email_alarm and global_var["enable_email"]:
+            to_addr = self.OpCtrl.viewer.EmailEdit.text()
+            email_thread = EmailThread()
+            t2 = Thread(target=email_thread.run,
+                        args=("GM督查警报", "警报！检测到GM督查，请立即人工介入！", global_var["from_email"], to_addr,
+                              global_var["from_email_password"], global_var["smtp_server"], global_var["smtp_port"]))
+            t2.start()
+            global_var["threads"].append((t2, email_thread))
 
         # 展示弹窗信息
         dialog = GMCheckDialog(self)

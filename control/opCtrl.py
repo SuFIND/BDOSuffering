@@ -19,6 +19,7 @@ class OpCtrl(QtWidgets.QWidget):
 
         self.viewer = Ui_OpCtrl()
         self.viewer.setupUi(self)
+        self.other_init()
 
         self.viewer.StartPauseButton.clicked.connect(self.clicked_for_start_pause_button)
         self.viewer.EndButton.clicked.connect(self.clicked_for_end_button)
@@ -27,6 +28,12 @@ class OpCtrl(QtWidgets.QWidget):
         self.viewer.TestButton.clicked.connect(self.handel_test_button)
 
         self.button_sig.connect(self.handel_button_logic)
+
+    def other_init(self):
+        # 根据 global_var 中标志变量的情况设置GUI控件的可编辑情况
+        if not global_var["enable_email"]:
+            self.viewer.EmailEdit.setDisabled(True)
+            self.viewer.EmailAlarmCheckBox.setDisabled(True)
 
     def clicked_for_start_pause_button(self):
         button_flag = self.viewer.StartPauseButton.text()
@@ -259,8 +266,9 @@ class OpCtrl(QtWidgets.QWidget):
             self.viewer.RepairWeaponsCheckBox.setChecked(config["repairWeapons"])
             self.viewer.BackExchangeCheckBox.setChecked(config["backExchange"])
             self.viewer.IntoHuttonCheckBox.setChecked(config["intoHutton"])
-            self.viewer.EmailAlarmCheckBox.setChecked(config["enableEmailAlarm"])
-            self.viewer.EmailEdit.setText(config["email"])
+            if global_var["enable_email"]:
+                self.viewer.EmailAlarmCheckBox.setChecked(config["enableEmailAlarm"])
+                self.viewer.EmailEdit.setText(config["email"])
 
             # TimeTab
             self.viewer.Boss1CanBeHitCoolTimeEdit.setText(str(config["boss1CanBeHitCoolTime"]))

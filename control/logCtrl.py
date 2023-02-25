@@ -55,6 +55,22 @@ class LogCtrl(QtWidgets.QWidget):
         """
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.logLines.append((now, level, msg))
+
+        # 如果当前的self.logLines超过了1000行，那么将会自动裁剪缓存中的debug数据
+        cur_logLines_len = len(self.logLines)
+        limit = 1000
+        if cur_logLines_len > limit:
+            new_log_lines = []
+            # 获得需要裁减的数量
+            to_cut_off_logs_cnt = cur_logLines_len - limit
+            has_been_cut_cnt = 0
+            for idx, (now, level, msg) in self.logLines:
+                if level == "debug" and has_been_cut_cnt <= to_cut_off_logs_cnt:
+                    has_been_cut_cnt += 1
+                    continue
+                new_log_lines.append((now, level, msg))
+            self.logLines = new_log_lines
+
         self.refresh_sig.emit("refresh")
 
     def clear_log(self):
