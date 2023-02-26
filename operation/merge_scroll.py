@@ -249,9 +249,8 @@ def auto_take_back_ancient_lang_scroll(detector,
                                        win_dc: WinDCApiCap,
                                        client_rect,
                                        debug=False):
-    success = False
-    done = False
     reason = ""
+    cnt = 0
 
     # 每次滚轮向下移动四个格子
     wheel_step = 4
@@ -269,10 +268,12 @@ def auto_take_back_ancient_lang_scroll(detector,
 
     # step 3 ocr出背包的容量
     cur_space, total_space = get_bag_capacity_by_tesseract_ocr(win_dc, bag_bbox)
+    # # 如果ocr 识别失败
     if None in [cur_space, total_space]:
+        success = False
+        to_continue = True  # 虽然失败了但是可以继续，也许下次识别时是正常的
         reason = "ocr无法获取背包容量"
-        # ocr 识别失败
-        return success, done, reason
+        return success, to_continue, reason, cnt
 
     # step 4 计算20个20个的获取需要取多少次，10个10个的取需要取多少次
     real_can_use_space = total_space - cur_space - 5
@@ -298,10 +299,10 @@ def auto_take_back_ancient_lang_scroll(detector,
 
     # 如果此时古语卷轴还是找不到，说明交易仓库中已经没有卷轴，需要提醒补充
     if target_pos is None:
-        reason = "交易所卷轴不足，请及时补充卷轴"
+        reason = "交易所卷轴不足，请及时补充卷轴！"
         success = True
-        done = True
-        return success, done, reason
+        to_continue = False
+        return success, to_continue, reason, cnt
 
     for _ in range(each_20_step):
         MouseSimulate.move(target_pos[0], target_pos[1], duration=0.1)
@@ -324,13 +325,15 @@ def auto_take_back_ancient_lang_scroll(detector,
         KeyboardSimulate.press_and_release("5")
         KeyboardSimulate.press_and_release("return")
         time.sleep(0.5)
+
     success = True
-    done = True
-    return success, done, reason
+    to_continue = True
+    cnt = 20 * each_20_step + 10 * each_10_step + 5 * each_5_step
+    return success, to_continue, reason, cnt
 
 
 def retrieve_the_scroll_from_the_trading_warehouse(sig_mutex, sig_dic, msg_queue, detector: Detector, hwnd,
-                                                   debug=False):
+                                                   debug=False) -> tuple[bool, bool, bool, str]:
     """
     从交易所取回当前背包下可容纳的最大安全数量的古语卷轴
     """
@@ -387,16 +390,20 @@ def retrieve_the_scroll_from_the_trading_warehouse(sig_mutex, sig_dic, msg_queue
                 ])
         if func.__name__ == "auto_take_back_ancient_lang_scroll":
             success, to_continue, reason, cnt = rst
-            # 如果获取的古语数量大于等于5张
+            # 如果获取的古语数量小于5张，即使拿到背包里也不需要合成球了
             if cnt < 5:
                 to_continue_merge_al_scroll = False
             # 如果出现了交易所古语数量不足
             if reason == "交易所卷轴不足，请及时补充卷轴！":
                 to_continue_get_al_scroll = False
 
-            if reason == "交易所卷轴不足，请及时补充卷轴":
-                with sig_mutex:
-                    sig_dic.update({"stop": True, "start": False, "pause": False})
+            success_str = "成功" if success else "无法"
+            suffix = f"，{reason}。" if reason else "。"
+            time_cost = round(time.perf_counter() - start_at, 2)
+            info_str = f"耗时{time_cost}秒，{success_str}从交易所取得古语卷轴，取得数量{cnt}张" + suffix
+            msg_queue.put(fmmsg.to_str(info_str, level="info"))
+
+    return success, to_continue_merge_al_scroll, to_continue_get_al_scroll, reason
 
 
 def merge_scroll(detector: Detector, hwnd, debug=False):
@@ -427,8 +434,8 @@ def merge_scroll(detector: Detector, hwnd, debug=False):
     out_to_bag_pos = bag_left - 30, bag_top - 30
 
     # 超参数
-    step = 3    # 滚轮往下探索的步数
-    duration = 0.01     # 鼠标仿真移动的速度
+    step = 3  # 滚轮往下探索的步数
+    duration = 0.01  # 鼠标仿真移动的速度
 
     # 自有变量
     cur_step = 0
@@ -466,7 +473,7 @@ def merge_scroll(detector: Detector, hwnd, debug=False):
             # 如果古语的数量大于0，小于5的话，移动到可拖拽区域的最下方
             if 0 < len(item_poses) < 5:
                 # 计算出第一张古语卷轴该拖拽到那个位置
-                drag_to_pos_x = work_area_bbox[0] + col_space_width*1. + ancient_lang_icon_size[0] // 2
+                drag_to_pos_x = work_area_bbox[0] + col_space_width * 1. + ancient_lang_icon_size[0] // 2
                 drag_to_pos_y = work_area_bbox[3] - row_space_height - ancient_lang_icon_size[1] // 2
 
                 # 先推断出所有多出来的古语可能放置的位置
