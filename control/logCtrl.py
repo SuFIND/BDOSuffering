@@ -64,7 +64,7 @@ class LogCtrl(QtWidgets.QWidget):
             # 获得需要裁减的数量
             to_cut_off_logs_cnt = cur_logLines_len - limit
             has_been_cut_cnt = 0
-            for idx, (now, level, msg) in self.logLines:
+            for idx, (now, level, msg) in enumerate(self.logLines):
                 if level == "debug" and has_been_cut_cnt <= to_cut_off_logs_cnt:
                     has_been_cut_cnt += 1
                     continue

@@ -15,9 +15,8 @@ from utils.capture_utils import WinDCApiCap
 from utils.cv_utils import Detector, color_threshold
 from utils.simulate_utils import MouseSimulate as ms, KeyboardSimulate as kb
 from utils.win_utils import get_bdo_rect
-from utils.ocr_utils import recognize_numpy
 from operation.cv_op import get_bag_ui_bbox
-from operation.merge_scroll import retrieve_the_scroll_from_the_trading_warehouse
+from operation.v2 import start_merge
 
 from app.init_resource import global_var
 
@@ -30,14 +29,29 @@ if __name__ == '__main__':
     # 资源
     # labels_dic = init_labels_dic("data/onnx/class_20230206.txt")
     # detector = Detector("data/onnx/20230206.onnx", labels_dic)
-    # window_class = "BlackDesertWindowClass"
-    # window_title = "黑色沙漠 - 435839"
+    window_class = "BlackDesertWindowClass"
+    window_title = "黑色沙漠 - 436751"
     # hwnd = win32gui.FindWindow(window_class, window_title)
     # win_dc = WinDCApiCap(hwnd)
 
     start_at = time.perf_counter()
 
-    classics_op.skill_action()
+    sig_dic = {"start": True, "stop": False, "pause": False}
+    l = Lock()
+    msg_queue=queue.Queue()
+
+    start_merge(
+        sig_dic=sig_dic,
+        sig_mutex=l,
+        msg_queue=msg_queue,
+        window_title=window_title,
+        window_class=window_class,
+        title_height=30,
+        onnx_path="data/onnx/20230215.onnx",
+        label_dic_path="data/onnx/class_20230215.txt",
+        debug=False,
+        gui_params={}
+    )
 
     end_at = time.perf_counter()
     print("cost", round(end_at - start_at, 2))

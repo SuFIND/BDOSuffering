@@ -334,6 +334,10 @@ def retrieve_the_scroll_from_the_trading_warehouse(sig_mutex, sig_dic, msg_queue
     """
     从交易所取回当前背包下可容纳的最大安全数量的古语卷轴
     """
+    start_at = time.perf_counter()
+    # 拿取古语是否成功，是否需要继续合球的步骤，是否还支持从交易所中获取古语，是否有什么异常愿意
+    success, to_continue_merge_al_scroll,\
+        to_continue_get_al_scroll, reason = False, True, True, ""
     win_dc = WinDCApiCap(hwnd)
     bdo_rect = get_bdo_rect(hwnd)
 
@@ -382,11 +386,13 @@ def retrieve_the_scroll_from_the_trading_warehouse(sig_mutex, sig_dic, msg_queue
                     (KeyboardSimulate.press_and_release, ("esc",), "退出与鲁西比恩坤的对话UI"),
                 ])
         if func.__name__ == "auto_take_back_ancient_lang_scroll":
-            success, done, reason = rst
-            success_str = "成功" if success else "失败"
-            suffix = f"，{reason}" if reason else ""
-            info_str = f"从交易所取得古语卷轴{success_str}" + suffix
-            msg_queue.put(fmmsg.to_str(info_str, level="debug"))
+            success, to_continue, reason, cnt = rst
+            # 如果获取的古语数量大于等于5张
+            if cnt < 5:
+                to_continue_merge_al_scroll = False
+            # 如果出现了交易所古语数量不足
+            if reason == "交易所卷轴不足，请及时补充卷轴！":
+                to_continue_get_al_scroll = False
 
             if reason == "交易所卷轴不足，请及时补充卷轴":
                 with sig_mutex:
