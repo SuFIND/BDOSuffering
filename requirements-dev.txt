@@ -1,2 +1,4 @@
 pyinstaller==5.7.0
-qt6-tools
+qt6-tools>=6.1.0.1.2
+pycryptodome>=3.17
+nuitka>=1.4.0
