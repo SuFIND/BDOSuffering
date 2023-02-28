@@ -256,8 +256,13 @@ def found_flag_deviate_from_destination(detector, hwnd, retry: int, debug: bool 
     return rst
 
 
-def collect_client_img(hwnd, save_dir):
-    win_dc = WinDCApiCap(hwnd)
+def collect_client_img(win_dc: WinDCApiCap, save_dir):
+    """
+    保存指定程序的窗口截图
+    :param win_dc:
+    :param save_dir:
+    :return:
+    """
     win_dc.get_hwnd_screenshot_to_numpy_array(collection=True, save_dir=save_dir)
 
 

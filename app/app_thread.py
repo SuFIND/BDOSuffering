@@ -7,6 +7,7 @@ from email.mime.text import MIMEText
 
 from utils.muti_utils import CanStopThread
 from utils.win_utils import set_unmuted
+from utils.log_utils import Logger
 from app.init_resource import global_var
 
 
@@ -60,6 +61,7 @@ class GMAlarmThread(CanStopThread):
                 PlaySound("data/sound/alarm.wav", SND_FILENAME)
             except Exception as e:
                 err = traceback.format_exc()
+                Logger.error(err)
                 break
 
         pythoncom.CoUninitialize()
@@ -78,21 +80,25 @@ class EmailThread(CanStopThread):
         :param smtp_port: smtp邮件服务器端口
         :return:
         """
-        # 创建一个MIMEText对象，该对象包含您要发送的消息
-        msg = MIMEText(message)
-        msg['Subject'] = subject
-        msg['From'] = from_addr
-        msg['To'] = to_addr
+        try:
+            # 创建一个MIMEText对象，该对象包含您要发送的消息
+            msg = MIMEText(message)
+            msg['Subject'] = subject
+            msg['From'] = from_addr
+            msg['To'] = to_addr
 
-        # 创建SMTP对象并连接到您的邮件服务器
-        smtp = smtplib.SMTP(smtp_server, smtp_port)
-        smtp.starttls()
-        smtp.login(from_addr, password)
+            # 创建SMTP对象并连接到您的邮件服务器
+            smtp = smtplib.SMTP(smtp_server, smtp_port)
+            smtp.starttls()
+            smtp.login(from_addr, password)
 
-        # 发送电子邮件
-        smtp.sendmail(from_addr, [to_addr], msg.as_string())
+            # 发送电子邮件
+            smtp.sendmail(from_addr, [to_addr], msg.as_string())
 
-        # 断开与邮件服务器的连接
-        smtp.quit()
+            # 断开与邮件服务器的连接
+            smtp.quit()
+        except Exception as e:
+            err = traceback.format_exc()
+            Logger.error(err)
 
 

@@ -3,7 +3,7 @@ from threading import Thread
 
 import toml
 from PyQt6.QtWidgets import QMainWindow, QFileDialog
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal as Signal
 from ui.ui_app import Ui_MainWindow
 from system_hotkey import SystemHotkey
 
@@ -13,8 +13,8 @@ from control.GMCheckDialog import GMCheckDialog
 
 
 class App(QMainWindow, Ui_MainWindow):
-    sig_hotkey = pyqtSignal(str)
-    sig_gm_check = pyqtSignal(str)
+    sig_hotkey = Signal(str)
+    sig_gm_check = Signal(str)
 
     def __init__(self, parent=None):
         super(App, self).__init__(parent)

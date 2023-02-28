@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 import time
 import traceback
+from concurrent.futures import ThreadPoolExecutor
 
 from win32gui import FindWindow
 
 import operation.classics_op as classics_op
 import operation.cv_op as cv_op
 import operation.merge_scroll as merge_scroll
+import operation.thread_op as thread_op
 from app.init_resource import global_var
 from app.init_func import init_labels_dic
 from utils.cv_utils import Detector
@@ -54,6 +56,9 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
     # # 全局变量的加载
     global_var["BDO_window_title_bar_height"] = title_height
 
+    # # 初始化线程池，数量为0，用于收集怪物截图
+    executor = ThreadPoolExecutor(max_workers=2)
+
     # 判断是否开启了回到交易所，选择性初始化任务队列
     if gui_params["backExchange"]:
         # 如果启动了回到交易所的功能，那么初始化时回到交易所后将会自动合球并回到球场继续打球
@@ -64,7 +69,7 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
     else:
         # 如果没有启动回到交易所功能，那么初始化仅会初始化打球的部分，结束后将会站在球场将控制权交还玩家
         task_queue = [
-            (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params)),
+            (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor)),
         ]
 
     while len(task_queue) > 0:
@@ -91,12 +96,12 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
                 # 如果合球成功
                 if success:
                     task_queue.extend([
-                        (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params)),
+                        (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor)),
                         (merge_action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug)),
                     ])
                 else:
                     task_queue.extend([
-                        (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params)),
+                        (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor)),
                     ])
 
         except Exception as e:
@@ -110,7 +115,7 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
         sig_dic.update({"stop": True, "start": False, "pause": False})
 
 
-def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params):
+def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
     # 超参数
     # # 复位的耗时
     reset_place_wait_time = 15
@@ -143,9 +148,10 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params):
     collect_img_task_over = gui_params["collectImgTaskOver"]
     collect_img_bas_ui = gui_params["collectImgBagUI"]
     collect_img_processBar = gui_params["collectImgProcessBar"]
-    collect_img_MagramOrKhalk = gui_params["collectImgMargramOrKhalk"]
     collect_img_useWarehouseMaid = gui_params["collectImgUseWarehouseMaid"]
     collect_img_FindNPC = gui_params["collectImgFindNPC"]
+    collect_img_Magram = gui_params["collectImgMargram"]
+    collect_img_Khalk = gui_params["collectImgKhalk"]
 
     # 自有变量
     # # 统计指标
@@ -354,13 +360,19 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params):
             # 记录准备对boss1释放技能的时间
             q.append(
                 (classics_op.set_timer_key_value, (my_timer, "readyHitBossMagram"), "记录准备对boss1释放技能的时间"))
+            # 启动采集玛格岚图片的线程
+            if collect_img_Magram:
+                q.append((thread_op.run_thread_op, (executor,
+                                                    "CollectImgThread",
+                                                    (hwnd, "logs/img/Magram", estimated_kill_boss1_time, 0.1),
+                                                    "启动采集玛格岚图片的线程")))
             # 播放自定义技能动作  TODO 未来配置化
             q.append((classics_op.skill_action, (skill_play_time,), "播放自定义技能动作"))
 
             # 等待BOSS玛格岚倒地动画完成
             q.append((time.sleep, (boss1_dead_action_time,), "等待BOSS玛格岚倒地动画完成"))
             # 目标检测-BOSS玛格岚是否还没死
-            q.append((cv_op.found_boss_Magram_dead_or_Khalk_appear, (detector, hwnd, 3, collect_img_MagramOrKhalk),
+            q.append((cv_op.found_boss_Magram_dead_or_Khalk_appear, (detector, hwnd, 3),
                       "检测-BOSS玛格岚是否死亡或柯尔克是否出现"))
 
         elif func.__name__ == "skill_action":
@@ -379,6 +391,13 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params):
                 q.append((time.sleep, (boss2_real_wait_time,),
                           "检测到玛格岚死亡或柯尔克出现了, 等待BOSS柯尔特变成可击杀状态"))
 
+                # 启动采集柯尔克图片的线程
+                if collect_img_Khalk:
+                    q.append((thread_op.run_thread_op, (executor,
+                                                        "CollectImgThread",
+                                                        (hwnd, "logs/img/Khalk", estimated_kill_boss1_time, 0.1),
+                                                        "启动采集柯尔克图片的线程")))
+
                 q.append((classics_op.skill_action, (skill_play_time,), "播放自定义技能动作"))
 
                 # 检测是否完成任务
@@ -389,13 +408,19 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params):
                 # 重新记录准备对boss1释放技能的时间
                 q.append((classics_op.set_timer_key_value, (my_timer, "readyHitBossMagram"),
                           "记录准备对boss1释放技能的时间"))
+                # 启动采集玛格岚图片的线程
+                if collect_img_Magram:
+                    q.append((thread_op.run_thread_op, (executor,
+                                                        "CollectImgThread",
+                                                        (hwnd, "logs/img/Magram", estimated_kill_boss1_time, 0.1),
+                                                        "启动采集玛格岚图片的线程")))
                 # 根据技能使用次数播放
                 q.append((classics_op.skill_action, (skill_play_time,), "播放自定义技能动作"))
 
                 # 等待BOSS玛格岚倒地动画完成
                 q.append((time.sleep, (boss1_dead_action_time,), "等待BOSS玛格岚倒地动画完成"))
                 # 检测-BOSS玛格岚是否死亡或柯尔克是否出现
-                q.append((cv_op.found_boss_Magram_dead_or_Khalk_appear, (detector, hwnd, 3, collect_img_MagramOrKhalk),
+                q.append((cv_op.found_boss_Magram_dead_or_Khalk_appear, (detector, hwnd, 3),
                           "检测-BOSS玛格岚是否死亡或柯尔克是否出现"))
 
         elif func.__name__ == "found_task_over" and intention == "检测-任务是否完成":
@@ -413,6 +438,12 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params):
 
             # 如果没有首次检测到任务完成的标志
             else:
+                # 启动采集柯尔克图片的线程
+                if collect_img_Khalk:
+                    q.append((thread_op.run_thread_op, (executor,
+                                                        "CollectImgThread",
+                                                        (hwnd, "logs/img/Khalk", estimated_kill_boss1_time, 0.1),
+                                                        "启动采集柯尔克图片的线程")))
                 # 播放自定义技能动作  TODO 未来配置化
                 q.append((classics_op.skill_action, (skill_play_time,), "播放自定义技能动作"))
                 # 检测-任务是否完成
@@ -490,7 +521,6 @@ def merge_action(sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debu
     msg_queue.put(fmmsg.to_str("开始合球！", level="info"))
     success, to_continue, reason = True, True, ""
 
-    to_continue_merge_al_scroll = True
     to_continue_get_al_scroll = True
 
     task_queue = [
@@ -503,7 +533,6 @@ def merge_action(sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debu
         (merge_scroll.retrieve_the_scroll_from_the_trading_warehouse,
          (sig_mutex, sig_dic, msg_queue, detector, hwnd, debug)),
         (time.sleep, (0.4,)),
-        (merge_scroll.merge_scroll, (detector, hwnd, debug)),
     ]
 
     while len(task_queue) > 0 and success:
@@ -527,12 +556,12 @@ def merge_action(sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debu
                 task_queue.append((merge_scroll.merge_scroll, (detector, hwnd, debug)),)
 
         if func.__name__ == "merge_scroll":
-            success, to_continue, reason = rst
+            success, _to_continue_get_al_scroll, reason = rst
 
             gui_params["startAtCallPlace"] = False
             gui_params["startAtTradingWarehouse"] = True
 
-            to_continue_get_al_scroll = to_continue_get_al_scroll and to_continue
+            to_continue_get_al_scroll = to_continue_get_al_scroll and _to_continue_get_al_scroll
             if to_continue_get_al_scroll:
                 task_queue.extend([
                     (merge_scroll.retrieve_the_scroll_from_the_trading_warehouse,
