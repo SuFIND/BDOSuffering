@@ -187,8 +187,6 @@ class OpCtrl(QtWidgets.QWidget):
         backExchange = self.viewer.BackExchangeCheckBox.isChecked()
         # 如果可以进入赫顿领域，是否要进入赫顿打球
         intoHutton = self.viewer.IntoHuttonCheckBox.isChecked()
-        # 启用邮件报警
-        enableEmailAlarm = self.viewer.EmailAlarmCheckBox.isChecked()
 
         boss1CanBeHitCoolTimeStr = self.viewer.Boss1CanBeHitCoolTimeEdit.text()
         boss2CanBeHitCoolTimeStr = self.viewer.Boss2CanBeHitCoolTimeEdit.text()
@@ -217,7 +215,8 @@ class OpCtrl(QtWidgets.QWidget):
             ("collectImgTaskOver", self.viewer.CollectTaskOverCheckBox.isChecked(), "", None),
             ("collectImgBagUI", self.viewer.CollectBagUiCheckBox.isChecked(), "", None),
             ("collectImgProcessBar", self.viewer.CollectProcessBarCheckBox.isChecked(), "", None),
-            ("collectImgMargramOrKhalk", self.viewer.CollectMagramOrKhalkCheckBox.isChecked(), "", None),
+            ("collectImgMargram", self.viewer.CollectMagramCheckBox.isChecked(), "", None),
+            ("collectImgKhalk", self.viewer.CollectKhalkCheckBox.isChecked(), "", None),
             ("collectImgUseWarehouseMaid", self.viewer.CollectUseWarehouseMaidCheckBox.isChecked(), "", None),
             ("collectImgFindNPC", self.viewer.CollectFindNPCCheckBox.isChecked(), "", None),
             ("collectImgGMCheck", self.viewer.CollectGMCheck.isChecked(), "", None),
@@ -280,7 +279,8 @@ class OpCtrl(QtWidgets.QWidget):
             self.viewer.CollectTaskOverCheckBox.setChecked(config['collectImgTaskOver'])
             self.viewer.CollectBagUiCheckBox.setChecked(config['collectImgBagUI'])
             self.viewer.CollectProcessBarCheckBox.setChecked(config['collectImgProcessBar'])
-            self.viewer.CollectMagramOrKhalkCheckBox.setChecked(config['collectImgMargramOrKhalk'])
+            self.viewer.CollectMagramCheckBox.setChecked(config['collectImgMargram'])
+            self.viewer.CollectKhalkCheckBox.setChecked(config['collectImgKhalk'])
             self.viewer.CollectUseWarehouseMaidCheckBox.setChecked(config['collectImgUseWarehouseMaid'])
             self.viewer.CollectFindNPCCheckBox.setChecked(config['collectImgFindNPC'])
             self.viewer.CollectGMCheck.setChecked(config['collectImgGMCheck'])

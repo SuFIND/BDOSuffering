@@ -568,6 +568,8 @@ def merge_scroll(detector: Detector, hwnd, debug=False):
                         MouseSimulate.click()
 
                     time.sleep(0.2)
+                    # 先移动到UI外避免对古语卷轴识别的干扰
+                    MouseSimulate.move(out_to_bag_pos[0], out_to_bag_pos[1])
                     # 合成卷轴
                     use_merge_button(win_dc, bdo_rect, bag_bbox)
                     prev += 5

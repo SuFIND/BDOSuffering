@@ -9,7 +9,7 @@ from PyQt6 import QtWidgets
 from app.app import App
 import app.resource
 from utils.log_utils import Logger
-from utils.win_utils import is_admin, apply_admin_runtime
+from utils.win_utils import is_admin
 from app.init_resource import init_config, init_resource, global_var
 from app.app_thread import MsgHandleThread
 from app.del_resource import release_resource
