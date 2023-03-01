@@ -32,11 +32,12 @@ def get_bag_capacity_by_tesseract_ocr(win_dc: WinDCApiCap, bag_bbox):
         capacity_top = round(bg_sc_h * 0.14)
         capacity_bottom = round(bg_sc_h * 0.19)
         capacity_sc = bg_sc[capacity_top:capacity_bottom, capacity_left:]
+        capacity_sc_gray = cv2.cvtColor(capacity_sc, cv2.COLOR_BGR2GRAY)
 
         img_name = f"{floor(time.time())}.jpg"
-        cv2.imwrite(f"logs/img/bagCapacity/{img_name}", capacity_sc)
+        cv2.imwrite(f"logs/img/bagCapacity/{img_name}", capacity_sc_gray)
 
-        color_coverted = cv2.cvtColor(capacity_sc, cv2.COLOR_BGR2RGB)
+        color_coverted = cv2.cvtColor(capacity_sc_gray, cv2.COLOR_GRAY2RGB)
 
         pil_image = Image.fromarray(color_coverted)
         string = pytesseract.image_to_string(pil_image, lang="eng",
