@@ -35,5 +35,6 @@ class CollectImgThread(CanStopThread):
 def run_thread_op(executor, op_name, args):
     op_model = importlib.import_module("operation.thread_op")
     op = getattr(op_model, op_name)
-    executor.submit(op.run, *args)
+    op_obj = op()
+    executor.submit(op_obj.run, *args)
 

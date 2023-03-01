@@ -12,7 +12,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_OpCtrl(object):
     def setupUi(self, OpCtrl):
         OpCtrl.setObjectName("OpCtrl")
-        OpCtrl.resize(561, 410)
+        OpCtrl.resize(561, 466)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(OpCtrl)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.verticalLayout = QtWidgets.QVBoxLayout()
@@ -209,7 +209,7 @@ class Ui_OpCtrl(object):
         self.horizontalLayout_2.addLayout(self.verticalLayout)
 
         self.retranslateUi(OpCtrl)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(OpCtrl)
 
     def retranslateUi(self, OpCtrl):
@@ -258,7 +258,7 @@ class Ui_OpCtrl(object):
         self.CollectGMCheck.setText(_translate("OpCtrl", "采集GM督查截图"))
         self.CollectMagramCheckBox.setText(_translate("OpCtrl", "采集玛格岚截图"))
         self.CollectBagUiCheckBox.setText(_translate("OpCtrl", "采集收集背包UI截图"))
-        self.CollectFindNPCCheckBox.setText(_translate("OpCtrl", "采集寻找NLP的UI截图"))
+        self.CollectFindNPCCheckBox.setText(_translate("OpCtrl", "采集寻找NPC的UI截图"))
         self.CollectUseWarehouseMaidCheckBox.setText(_translate("OpCtrl", "采集仓库女仆清理背包截图"))
         self.CollectKhalkCheckBox.setText(_translate("OpCtrl", "采集柯尔克截图"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.DataCollectionTab), _translate("OpCtrl", "数据采集"))

@@ -57,13 +57,13 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
     global_var["BDO_window_title_bar_height"] = title_height
 
     # # 初始化线程池，数量为0，用于收集怪物截图
-    executor = ThreadPoolExecutor(max_workers=2)
+    executor = ThreadPoolExecutor(max_workers=1)
 
     # 判断是否开启了回到交易所，选择性初始化任务队列
     if gui_params["backExchange"]:
         # 如果启动了回到交易所的功能，那么初始化时回到交易所后将会自动合球并回到球场继续打球
         task_queue = [
-            (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params)),
+            (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor)),
             (merge_action, (sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debug)),
         ]
     else:
@@ -364,8 +364,8 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
             if collect_img_Magram:
                 q.append((thread_op.run_thread_op, (executor,
                                                     "CollectImgThread",
-                                                    (hwnd, "logs/img/Magram", estimated_kill_boss1_time, 0.1),
-                                                    "启动采集玛格岚图片的线程")))
+                                                    (hwnd, "logs/img/Magram", estimated_kill_boss1_time, 0.1)),
+                          "启动采集玛格岚图片的线程"))
             # 播放自定义技能动作  TODO 未来配置化
             q.append((classics_op.skill_action, (skill_play_time,), "播放自定义技能动作"))
 
@@ -395,8 +395,8 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
                 if collect_img_Khalk:
                     q.append((thread_op.run_thread_op, (executor,
                                                         "CollectImgThread",
-                                                        (hwnd, "logs/img/Khalk", estimated_kill_boss1_time, 0.1),
-                                                        "启动采集柯尔克图片的线程")))
+                                                        (hwnd, "logs/img/Khalk", estimated_kill_boss1_time, 0.1)),
+                              "启动采集柯尔克图片的线程"))
 
                 q.append((classics_op.skill_action, (skill_play_time,), "播放自定义技能动作"))
 
@@ -412,8 +412,8 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
                 if collect_img_Magram:
                     q.append((thread_op.run_thread_op, (executor,
                                                         "CollectImgThread",
-                                                        (hwnd, "logs/img/Magram", estimated_kill_boss1_time, 0.1),
-                                                        "启动采集玛格岚图片的线程")))
+                                                        (hwnd, "logs/img/Magram", estimated_kill_boss1_time, 0.1)),
+                              "启动采集玛格岚图片的线程"))
                 # 根据技能使用次数播放
                 q.append((classics_op.skill_action, (skill_play_time,), "播放自定义技能动作"))
 
@@ -442,8 +442,8 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
                 if collect_img_Khalk:
                     q.append((thread_op.run_thread_op, (executor,
                                                         "CollectImgThread",
-                                                        (hwnd, "logs/img/Khalk", estimated_kill_boss1_time, 0.1),
-                                                        "启动采集柯尔克图片的线程")))
+                                                        (hwnd, "logs/img/Khalk", estimated_kill_boss1_time, 0.1)),
+                              "启动采集柯尔克图片的线程"))
                 # 播放自定义技能动作  TODO 未来配置化
                 q.append((classics_op.skill_action, (skill_play_time,), "播放自定义技能动作"))
                 # 检测-任务是否完成
@@ -553,7 +553,7 @@ def merge_action(sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debu
 
             # 如果需要继续合成古语卷轴
             if to_continue_merge_al_scroll:
-                task_queue.append((merge_scroll.merge_scroll, (detector, hwnd, debug)),)
+                task_queue.append((merge_scroll.merge_scroll, (detector, hwnd, debug)), )
 
         if func.__name__ == "merge_scroll":
             success, _to_continue_get_al_scroll, reason = rst
