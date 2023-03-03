@@ -5,9 +5,12 @@ from winsound import PlaySound, SND_FILENAME
 import smtplib
 from email.mime.text import MIMEText
 
+import cv2
+
 from utils.muti_utils import CanStopThread
 from utils.win_utils import set_unmuted
 from utils.log_utils import Logger
+from utils.capture_utils import WinDCApiCap
 from app.init_resource import global_var
 
 
@@ -101,4 +104,31 @@ class EmailThread(CanStopThread):
             err = traceback.format_exc()
             Logger.error(err)
 
+
+class ShowImgThread(CanStopThread):
+    def run(self, hwnd):
+        try:
+            # 获取截图
+            win_dc = WinDCApiCap(hwnd)
+            src = win_dc.get_hwnd_screenshot_to_numpy_array()
+
+            # 获取截图的长宽高
+            or_h, or_w = src.shape[:2]
+
+            # 切割获取右下角的玩家聊天框小图减少干扰
+            start_row = round(or_h / 4 * 3)
+            end_row = or_h
+            start_col = 0
+            end_col = round(or_w / 4)
+            cropped = src[start_row:end_row, start_col:end_col, :]
+            cv2.imshow("demo viewer", cropped)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+        except Exception as e:
+            err = traceback.format_exc()
+            Logger.error(err)
+            cv2.destroyAllWindows()
+
+    def terminate(self):
+        cv2.destroyAllWindows()
 

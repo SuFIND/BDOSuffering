@@ -97,6 +97,8 @@
     <property name="title">
      <string>关于</string>
     </property>
+    <addaction name="actionGameSetting"/>
+    <addaction name="actionAbout"/>
    </widget>
    <addaction name="configMenu"/>
    <addaction name="aboutMenu"/>
@@ -110,6 +112,16 @@
   <action name="actionSaveConfig">
    <property name="text">
     <string>保存当前配置</string>
+   </property>
+  </action>
+  <action name="actionGameSetting">
+   <property name="text">
+    <string>游戏内设置</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>本软件</string>
    </property>
   </action>
  </widget>

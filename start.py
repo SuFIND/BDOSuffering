@@ -3,9 +3,9 @@ import sys
 from threading import Thread
 from multiprocessing import freeze_support
 
-import qdarkstyle
-
 from PyQt6 import QtWidgets
+import qdarktheme
+
 from app.app import App
 import app.resource
 from utils.log_utils import Logger
@@ -29,8 +29,10 @@ def main():
     init_resource(config)
 
     app = QtWidgets.QApplication(sys.argv)
+    qdarktheme.enable_hi_dpi()
+    qdarktheme.setup_theme(custom_colors={"primary": "#fa8c16"})
+
     main_app = App()
-    app.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt6'))
 
     # 启动一个消息处理线程，处理子进程与主进程的消息
     msg_thread = MsgHandleThread()

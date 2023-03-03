@@ -7,6 +7,6 @@ pywin32>=305
 system_hotkey>=1.0.3
 Pillow~=9.4.0
 numpy~=1.24.1
-qdarkstyle>=3.1
+pyqtdarktheme==2.1.0
 pytesseract~=0.3.10
 pycaw>=20220416

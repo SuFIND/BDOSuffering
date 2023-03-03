@@ -56,8 +56,14 @@ class Ui_MainWindow(object):
         self.actionLoadConfig.setObjectName("actionLoadConfig")
         self.actionSaveConfig = QtGui.QAction(parent=MainWindow)
         self.actionSaveConfig.setObjectName("actionSaveConfig")
+        self.actionGameSetting = QtGui.QAction(parent=MainWindow)
+        self.actionGameSetting.setObjectName("actionGameSetting")
+        self.actionAbout = QtGui.QAction(parent=MainWindow)
+        self.actionAbout.setObjectName("actionAbout")
         self.configMenu.addAction(self.actionLoadConfig)
         self.configMenu.addAction(self.actionSaveConfig)
+        self.aboutMenu.addAction(self.actionGameSetting)
+        self.aboutMenu.addAction(self.actionAbout)
         self.menubar.addAction(self.configMenu.menuAction())
         self.menubar.addAction(self.aboutMenu.menuAction())
 
@@ -71,6 +77,8 @@ class Ui_MainWindow(object):
         self.aboutMenu.setTitle(_translate("MainWindow", "关于"))
         self.actionLoadConfig.setText(_translate("MainWindow", "加载配置"))
         self.actionSaveConfig.setText(_translate("MainWindow", "保存当前配置"))
+        self.actionGameSetting.setText(_translate("MainWindow", "游戏内设置"))
+        self.actionAbout.setText(_translate("MainWindow", "本软件"))
 
     def init_op_ctrl(self):
         self.OpCtrl = OpCtrl(self.centralwidget, logCtrl=self.LogCtrl)

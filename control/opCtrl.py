@@ -25,7 +25,6 @@ class OpCtrl(QtWidgets.QWidget):
         self.viewer.EndButton.clicked.connect(self.clicked_for_end_button)
         self.viewer.AuditionAlarmButton.clicked.connect(self.handle_audition_alarm)
         self.viewer.MergeALButton.clicked.connect(self.clicked_for_al_button)
-        self.viewer.TestButton.clicked.connect(self.handel_test_button)
 
         self.button_sig.connect(self.handel_button_logic)
 
@@ -88,7 +87,7 @@ class OpCtrl(QtWidgets.QWidget):
 
             # 启动GM守护进程
             process_pool.submit(GM_check_loop, sig_dic, sig_mutex, msg_queue, window_title, window_class,
-                                gm_chat_color, gm_check_cool_time, gm_find_pix_max_count)
+                                gm_chat_color, gm_check_cool_time, gm_find_pix_max_count, gui_params)
             # 并重置按钮文字为暂停
             self.viewer.StartPauseButton.setText("暂停 F10")
 
@@ -147,15 +146,6 @@ class OpCtrl(QtWidgets.QWidget):
             dic.update({"stop": False})
         q.put("action::show_gm_modal")
 
-    def handel_test_button(self):
-        available, gui_params, reason = self.collect()
-        if not available:
-            msgBox = QtWidgets.QMessageBox(self)
-            msgBox.setText(reason)
-            msgBox.show()
-        else:
-            print(gui_params)
-
     def collect(self) -> (bool, dict, str):
         """
         收集GUI上的所有配置设置打包成一个数据字典
@@ -169,6 +159,8 @@ class OpCtrl(QtWidgets.QWidget):
         resetView = self.viewer.ResetViewCheckBox.isChecked()
         # 从交易所开始
         startAtTradingWarehouse = self.viewer.StartAtTradingWarehouseButton.isChecked()
+        # 从交易所合球开始
+        StartAtTradingWarehouseAndMergeScroll = self.viewer.StartAtTradingWarehouseAndMergeScrollButton.isChecked()
         # 从球点开始
         startAtCallPlace = self.viewer.StartAtCallPlaceButton.isChecked()
         # 仓库女仆
@@ -187,6 +179,8 @@ class OpCtrl(QtWidgets.QWidget):
         backExchange = self.viewer.BackExchangeCheckBox.isChecked()
         # 如果可以进入赫顿领域，是否要进入赫顿打球
         intoHutton = self.viewer.IntoHuttonCheckBox.isChecked()
+        # 当前在赫顿中
+        inHutton = self.viewer.curInHuttonCheckBox.isChecked()
 
         boss1CanBeHitCoolTimeStr = self.viewer.Boss1CanBeHitCoolTimeEdit.text()
         boss2CanBeHitCoolTimeStr = self.viewer.Boss2CanBeHitCoolTimeEdit.text()
@@ -197,11 +191,13 @@ class OpCtrl(QtWidgets.QWidget):
             # BasicTab
             ("resetView", resetView, "", None),
             ("startAtTradingWarehouse", startAtTradingWarehouse, "", None),
+            ("StartAtTradingWarehouseAndMergeScroll", StartAtTradingWarehouseAndMergeScroll, "", None),
             ("startAtCallPlace", startAtCallPlace, "", None),
             ("useWarehouseMaid", useWarehouseMaid, "", None),
             ("repairWeapons", repairWeapons, "", None),
             ("backExchange", backExchange, "", None),
             ("intoHutton", intoHutton, "", None),
+            ("inHutton", inHutton, "", None),
             ("enableEmailAlarm", self.viewer.EmailAlarmCheckBox.isChecked(), "", None),
             ("email", self.viewer.EmailEdit.text(), "", None),
 

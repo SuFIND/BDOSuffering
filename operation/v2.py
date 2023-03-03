@@ -44,7 +44,7 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
     hwnd = FindWindow(window_class, window_title)
     if hwnd == 0:
         msg_queue.put(fmmsg.to_str(
-            "无法检测到黑色沙漠窗口句柄！请先打开游戏或检查 config/basic.toml 中的 BDO.window_class 是否与游戏窗口名一致",
+            "无法检测到黑色沙漠窗口句柄！请先打开游戏或检查 config/basic.toml 中的 BDO.window_title 是否与游戏窗口名一致",
             level="error"))
         Logger.error("No Found hwnd: BlackDesert!")
         return
@@ -60,17 +60,15 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
     executor = ThreadPoolExecutor(max_workers=1)
 
     # 判断是否开启了回到交易所，选择性初始化任务队列
+    task_queue = []
+    if gui_params["startAtTradingWarehouse"] or gui_params["startAtCallPlace"]:
+        task_queue.append((action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor)))
+    # 如果启动了回到交易所的功能，那么初始化时回到交易所后将会自动合球并回到并球场继续打球
     if gui_params["backExchange"]:
-        # 如果启动了回到交易所的功能，那么初始化时回到交易所后将会自动合球并回到球场继续打球
-        task_queue = [
-            (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor)),
-            (merge_action, (sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debug)),
-        ]
-    else:
-        # 如果没有启动回到交易所功能，那么初始化仅会初始化打球的部分，结束后将会站在球场将控制权交还玩家
-        task_queue = [
-            (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor)),
-        ]
+        task_queue.append((merge_action, (sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debug)))
+    # 如果开启了回到交易所，开始方式为需要先合球，在从交易所出发那么
+    if gui_params["StartAtTradingWarehouseAndMergeScroll"]:
+        task_queue = [(merge_action, (sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debug))]
 
     while len(task_queue) > 0:
         # 是否有来自GUI或者GM检测进程或者前置步骤的中断或者暂停信号
@@ -86,12 +84,17 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
         try:
             rst = func(*args)
 
+            if func.__name__ == "action":
+                if not gui_params["backExchange"]:
+                    task_queue = []
+
             if func.__name__ == "merge_action":
                 success, to_continue, reason = rst
 
                 # 如果回到了交易所并且完成了合球，那么需要对初始化配置进行修改，因为此时人物角色位于交易所，相当于从交易所开始
                 gui_params["startAtCallPlace"] = False
                 gui_params["startAtTradingWarehouse"] = True
+                gui_params["StartAtTradingWarehouseAndMergeScroll"] = False
 
                 # 如果合球成功
                 if success:
@@ -153,17 +156,133 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
     collect_img_Magram = gui_params["collectImgMargram"]
     collect_img_Khalk = gui_params["collectImgKhalk"]
 
+    # # 初始化技能执行模块
+    # TODO mock_group 将有GUI中的参数去取代
+    skill_config = [
+        {
+            "groupName": "技能组1",
+            "groupExpectCost": 3.5,
+            "blocks": [
+                {
+                    "name": "强：蝶旋风",
+                    "pipelines": [
+                        {
+                            "type": "KBPress",
+                            "key": "left shift"
+                        },
+                        {
+                            "type": "MSClick",
+                            "key": "left"
+                        },
+                        {
+                            "type": "KBRelease",
+                            "key": "left shift"
+                        },
+                        {
+                            "type": "wait",
+                            "sec": 1.4
+                        }
+                    ]
+                },
+                {
+                    "name": "强：飓风",
+                    "pipelines": [
+                        {
+                            "type": "KBPress",
+                            "key": "space"
+                        },
+                        {
+                            "type": "wait",
+                            "sec": 0.5
+                        },
+                        {
+                            "type": "KBRelease",
+                            "key": "space"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "groupName": "技能组2",
+            "groupExpectCost": 8,
+            "blocks": [
+                {
+                    "name": "霸体：左移动",
+                    "pipelines": [
+                        {
+                            "type": "KBPress",
+                            "key": "left shift"
+                        },
+                        {
+                            "type": "KBPressAndRelease",
+                            "key": "D"
+                        },
+                        {
+                            "type": "KBRelease",
+                            "key": "left shift"
+                        },
+                        {
+                            "type": "wait",
+                            "sec": 0.75
+                        }
+                    ]
+                },
+                {
+                    "name": "霸体：右移动",
+                    "pipelines": [
+                        {
+                            "type": "KBPress",
+                            "key": "left shift"
+                        },
+                        {
+                            "type": "KBPressAndRelease",
+                            "key": "A"
+                        },
+                        {
+                            "type": "KBRelease",
+                            "key": "left shift"
+                        },
+                        {
+                            "type": "wait",
+                            "sec": 0.75
+                        }
+                    ]
+                },
+                {
+                    "name": "强：骤雨",
+                    "pipelines": [
+                        {
+                            "type": "KBPress",
+                            "key": "left shift"
+                        },
+                        {
+                            "type": "KBPressAndRelease",
+                            "key": "Q"
+                        },
+                        {
+                            "type": "KBRelease",
+                            "key": "left shift"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+    skill_model = classics_op.SkillAction(skill_config)
+
     # 自有变量
     # # 统计指标
     exec_count = 0
     msg_queue.put(fmmsg.to_str("开始运行"))
     start_at = time.perf_counter()
     in_hutton = False
+    if gui_params["inHutton"]:
+        in_hutton = True
 
     # # 运行时的计数变量
     retry_back_to_call_place = 0  # 重试回到卷轴召唤地点的次数
     max_retry_back_to_call_place = 1  # 不采用ADS干预下，允许的自动回到卷轴召唤地点的最大次数
-    skill_play_time = 0  # 当前技能播放次数
 
     my_timer = {
         "usePilaFeScoreAt": None,
@@ -178,8 +297,8 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
         q.append((classics_op.reset_viewer, (), "重置到最大视角"))
         q.append((time.sleep, (0.5,), "等待0.5s"))
 
-    # 如果需要进入赫顿
-    if gui_params["intoHutton"]:
+    # 如果需要进入赫顿，且当前的角色不在赫顿
+    if gui_params["intoHutton"] and not in_hutton:
         q.append((cv_op.go_into_or_out_hutton, (detector, hwnd), "进入赫顿"))
     # # TODO 确认宠物是否开启
 
@@ -259,8 +378,8 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
                         q.append((KeyboardSimulate.release, ("w",), "往前走"))
                         q.append((time.sleep, (1,), "等待人物停稳定可以和鲁西比恩坤进行对话交互"))
 
-                    # 如果启用进入赫顿的功能，且人正在赫顿
-                    if gui_params["intoHutton"] and in_hutton:
+                    # 如果人正在赫顿
+                    if in_hutton:
                         q.append((cv_op.go_into_or_out_hutton, (detector, hwnd), "离开赫顿"))
                 else:
                     # 鼠标移动到卷轴图标
@@ -366,8 +485,8 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
                                                     "CollectImgThread",
                                                     (hwnd, "logs/img/Magram", estimated_kill_boss1_time, 0.1)),
                           "启动采集玛格岚图片的线程"))
-            # 播放自定义技能动作  TODO 未来配置化
-            q.append((classics_op.skill_action, (skill_play_time,), "播放自定义技能动作"))
+            # 播放自定义技能动作
+            q.append((skill_model.run, (), "播放自定义技能动作"))
 
             # 等待BOSS玛格岚倒地动画完成
             q.append((time.sleep, (boss1_dead_action_time,), "等待BOSS玛格岚倒地动画完成"))
@@ -375,14 +494,11 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
             q.append((cv_op.found_boss_Magram_dead_or_Khalk_appear, (detector, hwnd, 3),
                       "检测-BOSS玛格岚是否死亡或柯尔克是否出现"))
 
-        elif func.__name__ == "skill_action":
-            skill_play_time += 1
-
         elif func.__name__ == "found_boss_Magram_dead_or_Khalk_appear":
             # 如果没有发现玛格岚或看到了柯尔克
             if rst:
                 # 重置重试技能次数为0
-                skill_play_time = 0
+                skill_model.reset_exec_times()
 
                 boss2_real_wait_time = boss2_can_be_hit_cool_time + estimated_kill_boss1_time - \
                                        classics_op.calculate_the_elapsed_time_so_far(my_timer["readyHitBossMagram"])
@@ -398,7 +514,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
                                                         (hwnd, "logs/img/Khalk", estimated_kill_boss1_time, 0.1)),
                               "启动采集柯尔克图片的线程"))
 
-                q.append((classics_op.skill_action, (skill_play_time,), "播放自定义技能动作"))
+                q.append((skill_model.run, (), "播放自定义技能动作"))
 
                 # 检测是否完成任务
                 q.append((cv_op.found_task_over, (detector, hwnd, 3, 0.75, collect_img_task_over), "检测-任务是否完成"))
@@ -415,7 +531,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
                                                         (hwnd, "logs/img/Magram", estimated_kill_boss1_time, 0.1)),
                               "启动采集玛格岚图片的线程"))
                 # 根据技能使用次数播放
-                q.append((classics_op.skill_action, (skill_play_time,), "播放自定义技能动作"))
+                q.append((skill_model.run, (), "播放自定义技能动作"))
 
                 # 等待BOSS玛格岚倒地动画完成
                 q.append((time.sleep, (boss1_dead_action_time,), "等待BOSS玛格岚倒地动画完成"))
@@ -445,7 +561,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
                                                         (hwnd, "logs/img/Khalk", estimated_kill_boss1_time, 0.1)),
                               "启动采集柯尔克图片的线程"))
                 # 播放自定义技能动作  TODO 未来配置化
-                q.append((classics_op.skill_action, (skill_play_time,), "播放自定义技能动作"))
+                q.append((skill_model.run, (), "播放自定义技能动作"))
                 # 检测-任务是否完成
                 q.append((cv_op.found_task_over, (detector, hwnd, 1, 0.5, collect_img_task_over), "检测-任务是否完成"))
 
@@ -466,7 +582,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
             # 如果没有发现说明任务正常提交了
             else:
                 # 重置重试技能次数为0
-                skill_play_time = 0
+                skill_model.reset_exec_times()
 
                 # 按T回到召唤地点
                 q.append((classics_op.reposition_before_call, (), "按T回到召唤地点"))

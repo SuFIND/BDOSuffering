@@ -10,6 +10,8 @@ from system_hotkey import SystemHotkey
 from app.app_thread import GMAlarmThread, EmailThread
 from app.init_resource import global_var
 from control.GMCheckDialog import GMCheckDialog
+from control.gameSettingDialog import GameSettingDialog
+from control.aboutDialog import AboutDialog
 
 
 class App(QMainWindow, Ui_MainWindow):
@@ -33,6 +35,8 @@ class App(QMainWindow, Ui_MainWindow):
 
         self.actionSaveConfig.triggered.connect(self.save_config)
         self.actionLoadConfig.triggered.connect(self.load_config)
+        self.actionGameSetting.triggered.connect(self.show_game_setting_dialog)
+        self.actionAbout.triggered.connect(self.show_about_me_dialog)
 
     def sendHotKeySig(self, i_str):
         self.sig_hotkey.emit(i_str)
@@ -78,7 +82,8 @@ class App(QMainWindow, Ui_MainWindow):
 
             fileName_choose, filetype = QFileDialog.getSaveFileName(self,
                                                                     caption="保存配置文件",
-                                                                    directory=os.path.join(os.getcwd(), "config"),  # 起始路径
+                                                                    directory=os.path.join(os.getcwd(), "config"),
+                                                                    # 起始路径
                                                                     filter="Toml Files (*.toml);;All Files (*)",
                                                                     initialFilter="Toml Files (*.toml)")
             if fileName_choose == "":
@@ -103,3 +108,11 @@ class App(QMainWindow, Ui_MainWindow):
             custom_config = toml.load(fp)
 
         self.OpCtrl.load_config(custom_config)
+
+    def show_game_setting_dialog(self):
+        dialog = GameSettingDialog(self)
+        dialog.show()
+
+    def show_about_me_dialog(self):
+        dialog = AboutDialog(self)
+        dialog.show()

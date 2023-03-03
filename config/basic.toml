@@ -13,7 +13,7 @@ chat_color = [57, 181, 47]  # GM私聊时特殊字体的颜色
 find_pix_max_count = 500    # 检测超过该阈值则触发GM督查警报
 
 [model]
-onnx_file_path = "data/onnx/20230215.onnx"  # 模型文件
+onnx_file_path = "data/onnx/20230227.onnx"  # 模型文件
 classes_id_file_path = "data/onnx/class_20230215.txt"   # 标签文件
 
 [email]

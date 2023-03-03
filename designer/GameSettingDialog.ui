@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>584</width>
+    <height>259</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>关于游戏界面设置</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../gui_resource/app.qrc">
+    <normaloff>:/pic/icon.png</normaloff>:/pic/icon.png</iconset>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout_2">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;建议客户端保持如下设置:&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;- 分辨率：1920 * 1080&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;- windows DPI缩放调至100%&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;- N卡用户建议安装 CUDA 11.4&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;- 游戏内UI主题设置为精品&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;- 游戏内字体请保持为原生繁体&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;&lt;span style=&quot; font-size:8pt; color:#ff0000;&quot;&gt;- &lt;/span&gt;&lt;span style=&quot; font-weight:700; color:#ff5500;&quot;&gt;游戏聊天框请置于游戏左下角，并确保开启公共频道，请务必重视，事关GM督查检测功能是否工作正常&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="TestGMCheckSCButton">
+       <property name="text">
+        <string>点击测试截图是否能涵盖游戏聊天窗口</string>
+       </property>
+       <property name="shortcut">
+        <string>Return</string>
+       </property>
+       <property name="autoDefault">
+        <bool>true</bool>
+       </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../gui_resource/app.qrc"/>
+ </resources>
+ <connections/>
+</ui>

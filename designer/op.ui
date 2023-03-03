@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>561</width>
-    <height>466</height>
+    <width>611</width>
+    <height>480</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,12 +19,30 @@
      <item>
       <widget class="QFrame" name="frame">
        <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
+        <enum>QFrame::NoFrame</enum>
        </property>
        <property name="frameShadow">
         <enum>QFrame::Raised</enum>
        </property>
+       <property name="lineWidth">
+        <number>0</number>
+       </property>
        <layout class="QGridLayout" name="gridLayout_2">
+        <property name="leftMargin">
+         <number>5</number>
+        </property>
+        <property name="topMargin">
+         <number>5</number>
+        </property>
+        <property name="rightMargin">
+         <number>5</number>
+        </property>
+        <property name="bottomMargin">
+         <number>5</number>
+        </property>
+        <property name="spacing">
+         <number>6</number>
+        </property>
         <item row="0" column="0">
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
@@ -136,16 +154,6 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="3">
-               <widget class="QRadioButton" name="StartAtCallPlaceButton">
-                <property name="text">
-                 <string>从球点开始</string>
-                </property>
-                <property name="checked">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
               <item row="0" column="1">
                <widget class="QLabel" name="label">
                 <property name="text">
@@ -214,16 +222,6 @@
                 </property>
                </widget>
               </item>
-              <item row="10" column="3">
-               <widget class="QPushButton" name="TestButton">
-                <property name="toolTip">
-                 <string>GM报警</string>
-                </property>
-                <property name="text">
-                 <string>TEST</string>
-                </property>
-               </widget>
-              </item>
               <item row="13" column="2">
                <widget class="QCheckBox" name="EmailAlarmCheckBox">
                 <property name="text">
@@ -245,13 +243,56 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="2">
-               <widget class="QRadioButton" name="StartAtTradingWarehouseButton">
-                <property name="text">
-                 <string>从交易所开始</string>
+              <item row="1" column="3">
+               <widget class="QGroupBox" name="StartModeGroupBox">
+                <property name="title">
+                 <string>开始方式</string>
                 </property>
-                <property name="checked">
-                 <bool>true</bool>
+                <layout class="QHBoxLayout" name="horizontalLayout_7">
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_6">
+                   <item>
+                    <widget class="QRadioButton" name="StartAtTradingWarehouseButton">
+                     <property name="toolTip">
+                      <string>不合球，从交易所自动导航到召唤地点后开始，需要背包中有召唤卷轴</string>
+                     </property>
+                     <property name="text">
+                      <string>从交易所开始</string>
+                     </property>
+                     <property name="checked">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QRadioButton" name="StartAtTradingWarehouseAndMergeScrollButton">
+                     <property name="text">
+                      <string>从交易所合球开始</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QRadioButton" name="StartAtCallPlaceButton">
+                     <property name="toolTip">
+                      <string>不合球，从召唤地点直接开始，需要背包中有召唤卷轴</string>
+                     </property>
+                     <property name="text">
+                      <string>从球点开始</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QCheckBox" name="curInHuttonCheckBox">
+                <property name="text">
+                 <string>当前是否在赫顿中</string>
                 </property>
                </widget>
               </item>
@@ -416,12 +457,27 @@
      <item>
       <widget class="QFrame" name="frame_2">
        <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
+        <enum>QFrame::NoFrame</enum>
        </property>
        <property name="frameShadow">
         <enum>QFrame::Raised</enum>
        </property>
+       <property name="lineWidth">
+        <number>0</number>
+       </property>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <property name="leftMargin">
+         <number>5</number>
+        </property>
+        <property name="topMargin">
+         <number>5</number>
+        </property>
+        <property name="rightMargin">
+         <number>5</number>
+        </property>
+        <property name="bottomMargin">
+         <number>5</number>
+        </property>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
@@ -429,10 +485,19 @@
             <property name="text">
              <string>开始 F10</string>
             </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
+            <property name="default">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="EndButton">
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
             <property name="text">
              <string>结束 F11</string>
             </property>

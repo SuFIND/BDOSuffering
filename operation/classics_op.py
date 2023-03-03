@@ -28,7 +28,7 @@ def skill_group_1():
     kb.release("left shift")
     time.sleep(1.4)
 
-    # 强：飓风/
+    # 强：飓风
     kb.press("space")
     time.sleep(1)
     kb.release("space")
@@ -278,3 +278,59 @@ def set_timer_key_value(dic: dict, key: str, value: int = None) -> None:
     if value is None:
         value = time.perf_counter()
     dic[key] = value
+
+
+class ActionExec:
+    action_mapping = {
+        "wait": time.sleep,
+
+        "KBPress": kb.press,
+        "KBRelease": kb.release,
+        "KBPressAndRelease": kb.press_and_release,
+
+        "MSClick": ms.click,
+    }
+
+    def __init__(self, action_queue):
+        self.queue = action_queue
+
+    def run(self):
+        for action in self.queue:
+            func = self.action_mapping[action["type"]]
+            args = []
+            if action["type"] in {"KBPress", "KBRelease", "KBPressAndRelease", "MSClick"}:
+                args = [action["key"]]
+            if action["type"] in {"wait"}:
+                args = [action["sec"]]
+
+            func(*args)
+
+
+class SkillAction:
+    def __init__(self, groups):
+        self.groups = []
+        self.cur_exec_times = 0
+
+        for group in groups:
+            cost = group["groupExpectCost"]
+            actions = [ActionExec(one['pipelines'] for one in group["blocks"])]
+            self.groups.append({
+                "expectCost": cost,
+                "actions": actions,
+            })
+
+    def reset_exec_times(self):
+        self.cur_exec_times = 0
+
+    def run(self):
+        cur_group_idx = self.cur_exec_times % len(self.groups)
+        start = time.perf_counter()
+        for action in self.groups[cur_group_idx]["actions"]:
+            action.run()
+
+        self.cur_exec_times += 1
+
+        end = time.perf_counter()
+        exec_cost = end - start
+        wait = self.groups[cur_group_idx]["expectCost"] - exec_cost
+        time.sleep(wait)
