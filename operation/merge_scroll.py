@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
-import os
-import re
 import time
 import cv2
 import numpy as np
-import traceback
 
 import operation.classics_op as classics_op
 from utils.capture_utils import WinDCApiCap
 from utils.simulate_utils import MouseSimulate, KeyboardSimulate
 from utils.win_utils import get_bdo_rect
 from utils.cv_utils import Detector, is_pos_can_be_considered_the_same
-from utils.muti_utils import FormatMsg
+from utils.muti_utils import FormatMsg, ExecSig
 import operation.cv_op as cv_op
 from utils.ocr_utils import get_bag_capacity_by_tesseract_ocr
 
@@ -332,7 +329,7 @@ def auto_take_back_ancient_lang_scroll(detector,
     return success, to_continue, reason, cnt
 
 
-def retrieve_the_scroll_from_the_trading_warehouse(sig_mutex, sig_dic, msg_queue, detector: Detector, hwnd,
+def retrieve_the_scroll_from_the_trading_warehouse(exec_sig: ExecSig, msg_queue, detector: Detector, hwnd,
                                                    debug=False) -> tuple[bool, bool, bool, str]:
     """
     从交易所取回当前背包下可容纳的最大安全数量的古语卷轴
@@ -353,13 +350,12 @@ def retrieve_the_scroll_from_the_trading_warehouse(sig_mutex, sig_dic, msg_queue
     ]
     while len(q) > 0:
         # 是否有来自GUI或者GM检测进程或者前置步骤的中断或者暂停信号
-        with sig_mutex:
-            if sig_dic["pause"]:
-                time.sleep(1)
-                continue
-            if sig_dic["stop"]:
-                msg_queue.put(fmmsg.to_str("接受到停止请求，停止模拟!", level="info"))
-                break
+        if exec_sig.is_pause():
+            time.sleep(2)
+            continue
+        if exec_sig.is_stop():
+            msg_queue.put(fmmsg.to_str("接受到停止请求，停止模拟!", level="info"))
+            break
 
         tup = q.pop(0)
         func, args, intention = tup

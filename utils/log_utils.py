@@ -27,17 +27,17 @@ class Logger:
         # 先写在原有的loggerHandler
         cls._logger.removeHandler(cls._timeFileHandler)
 
-        _timeFileHandler = logging.handlers.TimedRotatingFileHandler(
+        cls._timeFileHandler = logging.handlers.TimedRotatingFileHandler(
             os.path.join(cls._log_dir, name),
             when='midnight',
             interval=1,
             backupCount=7,
             encoding="utf8",
         )
-        _timeFileHandler.suffix = "%Y-%m-%d_%H-%M-%S.log"
-        _formatter = logging.Formatter('%(asctime)s|%(name)s | %(levelname)s | %(message)s')
-        _timeFileHandler.setFormatter(_formatter)
-        cls._logger.addHandler(_timeFileHandler)
+        cls._timeFileHandler.suffix = "%Y-%m-%d.log"
+        cls._formatter = logging.Formatter('%(asctime)s|%(name)s | %(levelname)s | %(message)s')
+        cls._timeFileHandler.setFormatter(cls._formatter)
+        cls._logger.addHandler(cls._timeFileHandler)
 
     @classmethod
     def error(cls, msg, *args, **kwargs):
@@ -54,3 +54,8 @@ class Logger:
     @classmethod
     def debug(cls, msg, *args, **kwargs):
         cls._logger.debug(msg, *args, **kwargs)
+
+
+    @classmethod
+    def shutdown(cls):
+        logging.shutdown(cls._logger.handlers)

@@ -7,7 +7,7 @@ from email.mime.text import MIMEText
 
 import cv2
 
-from utils.muti_utils import CanStopThread
+from utils.muti_utils import CanStopThread, ExecSig
 from utils.win_utils import set_unmuted
 from utils.log_utils import Logger
 from utils.capture_utils import WinDCApiCap
@@ -26,15 +26,13 @@ class MsgHandleThread(CanStopThread):
         sig_dic = global_var["process_sig"]
         sig_mutex = global_var["process_sig_lock"]
 
+        exec_sig = ExecSig(sig_dic, sig_mutex)
+
         while self._running:
-            with sig_mutex:
-                try:
-                    if sig_dic["start"] and app.OpCtrl.viewer.StartPauseButton.text() != "暂停 F10":
-                        app.OpCtrl.button_sig.emit("refresh_display:pause")
-                    if (sig_dic["pause"] or sig_dic["stop"]) and app.OpCtrl.viewer.StartPauseButton.text() != "开始 F10":
-                        app.OpCtrl.button_sig.emit("refresh_display:start")
-                except RuntimeError:
-                    pass
+            if exec_sig.is_start() and app.OpCtrl.viewer.StartPauseButton.text() != "暂停 F10":
+                app.OpCtrl.button_sig.emit("refresh_display:pause")
+            if (exec_sig.is_stop() or exec_sig.is_pause()) and app.OpCtrl.viewer.StartPauseButton.text() != "开始 F10":
+                app.OpCtrl.button_sig.emit("refresh_display:start")
 
             if not msg_queue.empty():
                 msg_str: str = msg_queue.get(block=False)

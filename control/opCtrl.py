@@ -1,4 +1,3 @@
-import datetime
 import traceback
 
 from PyQt6 import QtWidgets, QtCore
@@ -7,6 +6,7 @@ from app.init_resource import global_var
 from operation.v2 import start_action, start_merge
 from operation.gm_check import GM_check_loop
 from utils.log_utils import Logger
+from utils.muti_utils import ExecSig
 
 
 class OpCtrl(QtWidgets.QWidget):
@@ -50,6 +50,7 @@ class OpCtrl(QtWidgets.QWidget):
     def handel_button_logic(self, sig):
         sig_dic = global_var["process_sig"]
         sig_mutex = global_var["process_sig_lock"]
+        exec_sig = ExecSig(sig_dic, sig_mutex)
         if sig == "start":
             # 来自GUI可视化配置的资源
             available, gui_params, reason = self.collect()
@@ -60,8 +61,8 @@ class OpCtrl(QtWidgets.QWidget):
                 return
 
             # 初始化信号量
-            with sig_mutex:
-                sig_dic.update({"start": True, "pause": False, "stop": False})
+            exec_sig = ExecSig(sig_dic, sig_mutex)
+
             # 从全局变量中获取进程所需资源
             debug = global_var["debug"]
             process_pool = global_var["process_pool"]
@@ -94,22 +95,26 @@ class OpCtrl(QtWidgets.QWidget):
         elif sig == "pause":
             self.LogCtrl.add_log(msg="暂停")
             # 释放暂停信号
-            with sig_mutex:
-                sig_dic.update({"stop": False, "start": False, "pause": True})
+            exec_sig.set_pause()
 
             # 并重置按钮文字为开始
             self.viewer.StartPauseButton.setText("开始 F10")
 
         elif sig == "stop":
             # 释放结束信号
-            with sig_mutex:
-                sig_dic.update({"stop": True, "start": False, "pause": False})
+            exec_sig.set_stop()
 
             self.LogCtrl.add_log("手动停止")
+
+        # 仅刷新显示为暂停
         elif sig == "refresh_display:pause":
             self.viewer.StartPauseButton.setText("暂停 F10")
+
+        # 仅刷新显示为开始
         elif sig == "refresh_display:start":
             self.viewer.StartPauseButton.setText("开始 F10")
+
+        # 合成古语
         elif sig == "mergeAL":
             # 来自GUI可视化配置的资源
             available, gui_params, reason = self.collect()
@@ -118,9 +123,9 @@ class OpCtrl(QtWidgets.QWidget):
                 msgBox.setText(reason)
                 msgBox.show()
                 return
+            # 设置信号量为开始信号
+            exec_sig.set_start()
 
-            with sig_mutex:
-                sig_dic.update({"start": True, "pause": False, "stop": False})
             # 从全局变量中获取进程所需资源
             debug = global_var["debug"]
             process_pool = global_var["process_pool"]

@@ -35,11 +35,16 @@ def release_share_space(cfg):
         Logger.error(err)
 
 
+def release_log_handle(cfg):
+    Logger.shutdown()
+
+
 def release_resource(cfg: dict):
     funcs = [
         release_process_pool,
         release_thread,
         release_share_space,
+        release_log_handle,
     ]
     for func in funcs:
         func(cfg)

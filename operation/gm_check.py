@@ -11,8 +11,8 @@ import cv2
 from win32gui import FindWindow
 
 from utils.capture_utils import WinDCApiCap
-from utils.cv_utils import static_color_pix_count, static_color_pix_count_by_hsv
-from utils.muti_utils import FormatMsg
+from utils.cv_utils import static_color_pix_count
+from utils.muti_utils import FormatMsg, ExecSig
 
 fmmsg = FormatMsg(source="GM检测")
 
@@ -38,6 +38,9 @@ def GM_check_loop(sig_dic, sig_mutex, msg_queue,
     # 初始化该进程的日志模块
     Logger.set_log_name("GM_check.log")
 
+    # 信号量模块
+    exec_sig = ExecSig(sig_dic, sig_mutex)
+
     # 最后一次发现GM行径的事件
     last_find_at = time.perf_counter() - gm_check_cool_time
 
@@ -53,17 +56,16 @@ def GM_check_loop(sig_dic, sig_mutex, msg_queue,
     win_dc = WinDCApiCap(hwnd)
     try:
         while True:
+            if exec_sig.is_pause():
+                time.sleep(3)
+                continue
+            if exec_sig.is_stop():
+                break
+
             if not win_dc.is_available():
                 # is mean process is exits
                 msg_queue.put(fmmsg.to_str("无法检测到黑色沙漠窗口句柄！", level="error"))
                 break
-
-            with sig_mutex:
-                if sig_dic["pause"]:
-                    time.sleep(10)
-                    continue
-                if sig_dic["stop"]:
-                    return
 
             # 获取截图
             sc_np = win_dc.get_hwnd_screenshot_to_numpy_array()
@@ -82,27 +84,29 @@ def GM_check_loop(sig_dic, sig_mutex, msg_queue,
             # 如果计算出的相近颜色像素值大于阀值，且距离上一次警报已经超出冷却时间
             now_at = time.perf_counter()
             if count > find_pix_max_count and now_at - last_find_at > gm_check_cool_time:
-                with sig_mutex:
-                    sig_dic.update({"start": False, "stop": False, "pause": True})
+                exec_sig.set_pause()
                 last_find_at = now_at
                 msg_queue.put(fmmsg.to_str("发现GM进行检测，模拟仿真程序紧急停止！", level="warning"))
                 msg_queue.put("action::show_gm_modal")
 
                 # save img
                 if gui_params["collectImgGMCheck"]:
-                    dir = os.path.join("log", "GMCheck")
+                    dir = os.path.join("log", "img", "GMCheck")
                     if os.path.exists(dir):
                         os.makedirs(dir)
-                    abs_path = os.path.join(dir, f"{math.floor(time.time())}.jpg")
+                    img_name = str(time.time()).replace(".", "")
+                    abs_path = os.path.join(dir, f"{img_name}.jpg")
 
                     cv2.imwrite(abs_path, sc_np)
 
                 Logger.info("发现GM督查")
 
             # 检测间隔
-            time.sleep(5)
+            time.sleep(3)
     except Exception as e:
         err = traceback.format_exc()
         Logger.error(err)
+    finally:
+        Logger.shutdown()
 
 

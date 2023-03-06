@@ -13,7 +13,7 @@ from app.init_resource import global_var
 from app.init_func import init_labels_dic
 from utils.win_utils import get_bdo_rect
 from utils.cv_utils import Detector
-from utils.muti_utils import FormatMsg
+from utils.muti_utils import FormatMsg, ExecSig
 from utils.simulate_utils import KeyboardSimulate, MouseSimulate
 
 fmmsg = FormatMsg(source="模拟动作")
@@ -41,12 +41,15 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
     # # 初始化相关资源
     Logger.set_log_name("action_simulate.log")
 
+    # # 初始化信号量控制方法
+    exec_sig = ExecSig(sig_dic, sig_mutex)
 
     # # 全局变量的加载
     global_var["BDO_window_title_bar_height"] = title_height
 
     # # 确认是否有程序句柄
     hwnd = FindWindow(window_class, window_title)
+
     if hwnd == 0:
         msg_queue.put(fmmsg.to_str(
             "无法检测到黑色沙漠窗口句柄！请先打开游戏或检查 config/basic.toml 中的 BDO.window_title 是否与游戏窗口名一致",
@@ -61,16 +64,16 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
     # # 初始化线程池，数量为0，用于收集怪物截图
     executor = ThreadPoolExecutor(max_workers=1)
 
-    # 判断是否开启了回到交易所，选择性初始化任务队列
+    # 如果开始方式为从交易所出发或从球点出发
     task_queue = []
     if gui_params["startAtTradingWarehouse"] or gui_params["startAtCallPlace"]:
-        task_queue.append((action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor)))
-    # 如果启动了回到交易所的功能，那么初始化时回到交易所后将会自动合球并回到并球场继续打球
-    if gui_params["backExchange"]:
-        task_queue.append((merge_action, (sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debug)))
-    # 如果开启了回到交易所，开始方式为需要先合球，在从交易所出发那么
+        task_queue.append((action, (exec_sig, msg_queue, detector, hwnd, gui_params, executor)))
+        # 如果启动了回到交易所的功能，那么初始化时回到交易所后将会自动合球并回到并球场继续打球
+        if gui_params["backExchange"]:
+            task_queue.append((merge_action, (exec_sig, msg_queue, detector, hwnd, gui_params, debug)))
+    # 如果开始方式为需要先合球，在从交易所出发那么
     if gui_params["StartAtTradingWarehouseAndMergeScroll"]:
-        task_queue = [(merge_action, (sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debug))]
+        task_queue = [(merge_action, (exec_sig, msg_queue, detector, hwnd, gui_params, debug))]
 
     # # 激活当前前台窗口
     if GetForegroundWindow() != hwnd:
@@ -81,13 +84,12 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
 
     while len(task_queue) > 0:
         # 是否有来自GUI或者GM检测进程或者前置步骤的中断或者暂停信号
-        with sig_mutex:
-            if sig_dic["pause"]:
-                time.sleep(1)
-                continue
-            if sig_dic["stop"]:
-                msg_queue.put(fmmsg.to_str("接受到停止请求，停止模拟!", level="info"))
-                break
+        if exec_sig.is_pause():
+            time.sleep(2)
+            continue
+        if exec_sig.is_stop():
+            msg_queue.put(fmmsg.to_str("接受到停止请求，停止模拟!", level="info"))
+            break
 
         func, args = task_queue.pop(0)
         try:
@@ -108,12 +110,12 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
                 # 如果合球成功
                 if success:
                     task_queue.extend([
-                        (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor)),
-                        (merge_action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, debug)),
+                        (action, (exec_sig, msg_queue, detector, hwnd, gui_params, executor)),
+                        (merge_action, (exec_sig, msg_queue, detector, hwnd, gui_params, debug)),
                     ])
                 else:
                     task_queue.extend([
-                        (action, (sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor)),
+                        (action, (exec_sig, msg_queue, detector, hwnd, gui_params, executor)),
                     ])
 
         except Exception as e:
@@ -122,12 +124,12 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
             msg_queue.put(fmmsg.to_str("意外退出!请查看日志文件定位错误。", level="error"))
 
     # over
+    Logger.shutdown()
+    exec_sig.is_stop()
     msg_queue.put(fmmsg.to_str("完成了所有操作！", level="info"))
-    with sig_mutex:
-        sig_dic.update({"stop": True, "start": False, "pause": False})
 
 
-def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
+def action(exec_sig, msg_queue, detector, hwnd, gui_params, executor):
     # 超参数
     # # 复位的耗时
     reset_place_wait_time = 15
@@ -329,13 +331,12 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
 
     while len(q) > 0:
         # 是否有来自GUI或者GM检测进程或者前置步骤的中断或者暂停信号
-        with sig_mutex:
-            if sig_dic["pause"]:
-                time.sleep(1)
-                continue
-            if sig_dic["stop"]:
-                msg_queue.put(fmmsg.to_str("接受到停止请求，停止模拟!", level="info"))
-                break
+        if exec_sig.is_pause():
+            time.sleep(2)
+            continue
+        if exec_sig.is_stop():
+            msg_queue.put(fmmsg.to_str("接受到停止请求，停止模拟!", level="info"))
+            break
 
         tup = q.pop(0)
         func, args, intention = tup
@@ -631,18 +632,21 @@ def start_merge(sig_dic, sig_mutex, msg_queue, window_title: str, window_class: 
     # # 全局变量的加载
     global_var["BDO_window_title_bar_height"] = title_height
 
+    # # 初始化信号量控制方法
+    exec_sig = ExecSig(sig_dic, sig_mutex)
+
     try:
-        merge_action(sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debug)
+        merge_action(exec_sig, msg_queue, detector, hwnd, gui_params, debug)
     except Exception as e:
         err = traceback.format_exc()
         Logger.error(err)
         msg_queue.put(fmmsg.to_str("意外退出!请查看日志文件定位错误。", level="error"))
+    finally:
+        exec_sig.is_stop()
+        Logger.shutdown()
 
-    with sig_mutex:
-        sig_dic.update({"stop": True, "start": False, "pause": False})
 
-
-def merge_action(sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debug: bool):
+def merge_action(exec_sig, msg_queue, detector, hwnd, gui_params, debug: bool):
     msg_queue.put(fmmsg.to_str("开始合球！", level="info"))
     success, to_continue, reason = True, True, ""
 
@@ -656,18 +660,17 @@ def merge_action(sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debu
 
         # 从交易所仓库中获取古语进行合成
         (merge_scroll.retrieve_the_scroll_from_the_trading_warehouse,
-         (sig_mutex, sig_dic, msg_queue, detector, hwnd, debug)),
+         (exec_sig, msg_queue, detector, hwnd, debug)),
         (time.sleep, (0.4,)),
     ]
 
     while len(task_queue) > 0 and success:
-        with sig_mutex:
-            if sig_dic["pause"]:
-                time.sleep(1)
-                continue
-            if sig_dic["stop"]:
-                msg_queue.put(fmmsg.to_str("接受到停止请求，停止模拟!", level="info"))
-                break
+        if exec_sig.is_pause():
+            time.sleep(2)
+            continue
+        if exec_sig.is_stop():
+            msg_queue.put(fmmsg.to_str("接受到停止请求，停止模拟!", level="info"))
+            break
 
         func, args = task_queue.pop(0)
         rst = func(*args)
@@ -690,7 +693,7 @@ def merge_action(sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debu
             if to_continue_get_al_scroll:
                 task_queue.extend([
                     (merge_scroll.retrieve_the_scroll_from_the_trading_warehouse,
-                     (sig_mutex, sig_dic, msg_queue, detector, hwnd, debug)),
+                     (exec_sig, msg_queue, detector, hwnd, debug)),
                     (time.sleep, (0.4,)),
                 ])
 
