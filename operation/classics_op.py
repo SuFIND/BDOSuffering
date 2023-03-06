@@ -313,7 +313,7 @@ class SkillAction:
 
         for group in groups:
             cost = group["groupExpectCost"]
-            actions = [ActionExec(one['pipelines'] for one in group["blocks"])]
+            actions = [ActionExec(one['pipelines']) for one in group["blocks"]]
             self.groups.append({
                 "expectCost": cost,
                 "actions": actions,
@@ -333,4 +333,5 @@ class SkillAction:
         end = time.perf_counter()
         exec_cost = end - start
         wait = self.groups[cur_group_idx]["expectCost"] - exec_cost
+        wait = max(0, wait)
         time.sleep(wait)

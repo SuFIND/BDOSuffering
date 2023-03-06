@@ -3,7 +3,7 @@ import time
 import traceback
 from concurrent.futures import ThreadPoolExecutor
 
-from win32gui import FindWindow
+from win32gui import FindWindow, SetForegroundWindow, GetForegroundWindow
 
 import operation.classics_op as classics_op
 import operation.cv_op as cv_op
@@ -11,6 +11,7 @@ import operation.merge_scroll as merge_scroll
 import operation.thread_op as thread_op
 from app.init_resource import global_var
 from app.init_func import init_labels_dic
+from utils.win_utils import get_bdo_rect
 from utils.cv_utils import Detector
 from utils.muti_utils import FormatMsg
 from utils.simulate_utils import KeyboardSimulate, MouseSimulate
@@ -40,6 +41,10 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
     # # 初始化相关资源
     Logger.set_log_name("action_simulate.log")
 
+
+    # # 全局变量的加载
+    global_var["BDO_window_title_bar_height"] = title_height
+
     # # 确认是否有程序句柄
     hwnd = FindWindow(window_class, window_title)
     if hwnd == 0:
@@ -52,9 +57,6 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
     # # 目前检测器
     label_dic = init_labels_dic(label_dic_path)
     detector = Detector(onnx_path, label_dic, providers=["CUDAExecutionProvider", "CPUExecutionProvider"])
-
-    # # 全局变量的加载
-    global_var["BDO_window_title_bar_height"] = title_height
 
     # # 初始化线程池，数量为0，用于收集怪物截图
     executor = ThreadPoolExecutor(max_workers=1)
@@ -69,6 +71,13 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
     # 如果开启了回到交易所，开始方式为需要先合球，在从交易所出发那么
     if gui_params["StartAtTradingWarehouseAndMergeScroll"]:
         task_queue = [(merge_action, (sig_dic, sig_mutex, msg_queue, detector, hwnd, gui_params, debug))]
+
+    # # 激活当前前台窗口
+    if GetForegroundWindow() != hwnd:
+        SetForegroundWindow(hwnd)
+        c_l, c_t, c_r, c_b = get_bdo_rect(hwnd)
+        MouseSimulate.move(round((c_l + c_r)/2), round(c_t + c_b)/2)
+        MouseSimulate.click()
 
     while len(task_queue) > 0:
         # 是否有来自GUI或者GM检测进程或者前置步骤的中断或者暂停信号
@@ -161,7 +170,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
     skill_config = [
         {
             "groupName": "技能组1",
-            "groupExpectCost": 3.5,
+            "groupExpectCost": 3.75,
             "blocks": [
                 {
                     "name": "强：蝶旋风",
@@ -193,11 +202,15 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
                         },
                         {
                             "type": "wait",
-                            "sec": 0.5
+                            "sec": 1
                         },
                         {
                             "type": "KBRelease",
                             "key": "space"
+                        },
+                        {
+                            "type": "wait",
+                            "sec": 0.5
                         }
                     ]
                 }
@@ -276,9 +289,6 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
     exec_count = 0
     msg_queue.put(fmmsg.to_str("开始运行"))
     start_at = time.perf_counter()
-    in_hutton = False
-    if gui_params["inHutton"]:
-        in_hutton = True
 
     # # 运行时的计数变量
     retry_back_to_call_place = 0  # 重试回到卷轴召唤地点的次数
@@ -298,7 +308,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
         q.append((time.sleep, (0.5,), "等待0.5s"))
 
     # 如果需要进入赫顿，且当前的角色不在赫顿
-    if gui_params["intoHutton"] and not in_hutton:
+    if gui_params["intoHutton"] and not gui_params["inHutton"]:
         q.append((cv_op.go_into_or_out_hutton, (detector, hwnd), "进入赫顿"))
     # # TODO 确认宠物是否开启
 
@@ -334,9 +344,9 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
 
         if func.__name__ == "go_into_or_out_hutton":
             if intention == "进入赫顿":
-                in_hutton = True
+                gui_params["inHutton"] = True
             elif intention == "离开赫顿":
-                in_hutton = False
+                gui_params["inHutton"] = False
 
         if func.__name__ == "use_Pila_Fe_scroll":
             find_it, scroll_pos, reason = rst
@@ -379,7 +389,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
                         q.append((time.sleep, (1,), "等待人物停稳定可以和鲁西比恩坤进行对话交互"))
 
                     # 如果人正在赫顿
-                    if in_hutton:
+                    if gui_params["inHutton"]:
                         q.append((cv_op.go_into_or_out_hutton, (detector, hwnd), "离开赫顿"))
                 else:
                     # 鼠标移动到卷轴图标
@@ -543,7 +553,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
             # 如果首次检测到任务完成的标志
             if rst:
                 # 等待任务变成可以呼出小黑的状态
-                q.append((time.sleep, (1,), "等待任务变成可以呼出小黑的状态"))
+                q.append((time.sleep, (2,), "等待任务变成可以呼出小黑的状态"))
                 # 呼出小精灵完成任务
                 q.append((classics_op.call_black_wizard_to_finish_task, (), "呼出小精灵完成任务"))
                 # 等待一下动画
@@ -571,7 +581,7 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
                 # 先关闭被错误呼出的菜单
                 q.append((KeyboardSimulate.press_and_release, ("esc",), "关闭因为错误呼出小黑异常导致打开的菜单"))
                 # 等待任务变成可以呼出小黑的状态
-                q.append((time.sleep, (1,), "等待任务变成可以呼出小黑的状态"))
+                q.append((time.sleep, (2,), "等待任务变成可以呼出小黑的状态"))
                 # 呼出小精灵完成任务
                 q.append((classics_op.call_black_wizard_to_finish_task, (), "呼出小精灵完成任务"))
                 # 检测-呼出小精灵完成任务后任务是否真的完成
@@ -581,6 +591,13 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
 
             # 如果没有发现说明任务正常提交了
             else:
+                # 统计性能指标
+                exec_count += 1
+                now_at = time.perf_counter()
+                cur_cost_min = round((now_at - start_at) / 60)
+                efficiency = round(exec_count / ((now_at - start_at) / 3600), 2)
+                msg_queue.put(fmmsg.to_str(f"执行 {exec_count} 次，花费 {cur_cost_min} 分钟，平均 {efficiency} 个/小时。"))
+
                 # 重置重试技能次数为0
                 skill_model.reset_exec_times()
 
@@ -590,14 +607,6 @@ def action(sig_mutex, sig_dic, msg_queue, detector, hwnd, gui_params, executor):
                 q.append((classics_op.open_bag, (), "打开背包"))
                 # 找到召唤书并召唤
                 q.append((cv_op.use_Pila_Fe_scroll, (detector, hwnd, collect_img_bas_ui), "找到召唤书并召唤"))
-
-        elif func.__name__ == "call_black_wizard_to_finish_task":
-            # 统计性能指标
-            exec_count += 1
-            now_at = time.perf_counter()
-            cur_cost_min = round((now_at - start_at) / 60)
-            efficiency = round(exec_count / ((now_at - start_at) / 3600), 2)
-            msg_queue.put(fmmsg.to_str(f"执行 {exec_count} 次，花费 {cur_cost_min} 分钟，平均 {efficiency} 个/小时。"))
 
 
 def start_merge(sig_dic, sig_mutex, msg_queue, window_title: str, window_class: str, title_height: int, onnx_path: str,

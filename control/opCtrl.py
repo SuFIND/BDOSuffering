@@ -256,6 +256,7 @@ class OpCtrl(QtWidgets.QWidget):
             # BasicTab
             self.viewer.ResetViewCheckBox.setChecked(config["resetView"])
             self.viewer.StartAtTradingWarehouseButton.setChecked(config["startAtTradingWarehouse"])
+            self.viewer.StartAtTradingWarehouseAndMergeScrollButton.setChecked(config["StartAtTradingWarehouseAndMergeScroll"])
             self.viewer.StartAtCallPlaceButton.setChecked(config["startAtCallPlace"])
             self.viewer.UseWarehouseMaidCheckBox.setChecked(config["useWarehouseMaid"])
             self.viewer.RepairWeaponsCheckBox.setChecked(config["repairWeapons"])
@@ -264,6 +265,7 @@ class OpCtrl(QtWidgets.QWidget):
             if global_var["enable_email"]:
                 self.viewer.EmailAlarmCheckBox.setChecked(config["enableEmailAlarm"])
                 self.viewer.EmailEdit.setText(config["email"])
+            self.viewer.curInHuttonCheckBox.setChecked(config["inHutton"])
 
             # TimeTab
             self.viewer.Boss1CanBeHitCoolTimeEdit.setText(str(config["boss1CanBeHitCoolTime"]))
