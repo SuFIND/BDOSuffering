@@ -3,8 +3,9 @@ import traceback
 from traceback import format_exc
 from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import Manager
+from pathlib import Path
 
-import toml
+import rtoml
 
 from utils.log_utils import Logger
 
@@ -12,8 +13,9 @@ global global_var
 global_var = {}
 
 
-def init_config(paths: list):
-    config = toml.load(paths)
+def init_config(path: str):
+    p = Path(path)
+    config = rtoml.load(p)
     return config
 
 

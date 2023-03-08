@@ -55,7 +55,6 @@ class Logger:
     def debug(cls, msg, *args, **kwargs):
         cls._logger.debug(msg, *args, **kwargs)
 
-
     @classmethod
     def shutdown(cls):
-        logging.shutdown(cls._logger.handlers)
+        logging.shutdown()

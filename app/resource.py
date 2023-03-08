@@ -6,6 +6,843 @@
 from PyQt6 import QtCore
 
 qt_resource_data = b"\
+\x00\x00\x05\x80\
+<\
+?xml version=\x221.\
+0\x22 ?><!DOCTYPE s\
+vg  PUBLIC '-//W\
+3C//DTD SVG 1.1/\
+/EN'  'http://ww\
+w.w3.org/Graphic\
+s/SVG/1.1/DTD/sv\
+g11.dtd'><svg en\
+able-background=\
+\x22new 0 0 32 32\x22 \
+version=\x221.1\x22 vi\
+ewBox=\x220 0 32 32\
+\x22 xml:space=\x22pre\
+serve\x22 xmlns=\x22ht\
+tp://www.w3.org/\
+2000/svg\x22 xmlns:\
+xlink=\x22http://ww\
+w.w3.org/1999/xl\
+ink\x22><g id=\x22Home\
+\x22/><g id=\x22Print\x22\
+/><g id=\x22Mail\x22/>\
+<g id=\x22Camera\x22/>\
+<g id=\x22Video\x22/><\
+g id=\x22Film\x22/><g \
+id=\x22Message\x22/><g\
+ id=\x22Telephone\x22/\
+><g id=\x22User\x22/><\
+g id=\x22File\x22/><g \
+id=\x22Folder\x22/><g \
+id=\x22Map\x22/><g id=\
+\x22Download\x22/><g i\
+d=\x22Upload\x22/><g i\
+d=\x22Video_Recorde\
+r\x22/><g id=\x22Sched\
+ule\x22/><g id=\x22Car\
+t\x22/><g id=\x22Setti\
+ng\x22/><g id=\x22Sear\
+ch\x22/><g id=\x22Penc\
+ils\x22/><g id=\x22Gro\
+up\x22/><g id=\x22Reco\
+rd\x22/><g id=\x22Head\
+phone\x22/><g id=\x22M\
+usic_Player\x22><pa\
+th d=\x22M16,1C7.7,\
+1,1,7.7,1,16c0,8\
+.3,6.7,15,15,15s\
+15-6.7,15-15C31,\
+7.7,24.3,1,16,1z\
+\x22 fill=\x22#3F51B5\x22\
+/><path d=\x22M23.5\
+,15.1L16,10.8l-4\
+.5-2.6c-0.3-0.2-\
+0.7-0.2-1,0S10,8\
+.6,10,9v14c0,0.4\
+,0.2,0.7,0.5,0.9\
+   C10.7,24,10.8\
+,24,11,24s0.3,0,\
+0.5-0.1l4.5-2.6l\
+7.5-4.4c0.3-0.2,\
+0.5-0.5,0.5-0.9S\
+23.8,15.3,23.5,1\
+5.1z\x22 fill=\x22#FFC\
+10A\x22/></g><g id=\
+\x22Sound_On\x22/><g i\
+d=\x22Sound_Off\x22/><\
+g id=\x22Lock\x22/><g \
+id=\x22Lock_open\x22/>\
+<g id=\x22Love\x22/><g\
+ id=\x22Favorite\x22/>\
+<g id=\x22Film_1_\x22/\
+><g id=\x22Music\x22/>\
+<g id=\x22Puzzle\x22/>\
+<g id=\x22Turn_Off\x22\
+/><g id=\x22Book\x22/>\
+<g id=\x22Save\x22/><g\
+ id=\x22Reload\x22/><g\
+ id=\x22Trash\x22/><g \
+id=\x22Tag\x22/><g id=\
+\x22Link\x22/><g id=\x22L\
+ike\x22/><g id=\x22Bad\
+\x22/><g id=\x22Galler\
+y\x22/><g id=\x22Add\x22/\
+><g id=\x22Close\x22/>\
+<g id=\x22Forward\x22/\
+><g id=\x22Back\x22/><\
+g id=\x22Buy\x22/><g i\
+d=\x22Mac\x22/><g id=\x22\
+Laptop\x22/></svg>\
+\x00\x00\x05\x0b\
+<\
+?xml version=\x221.\
+0\x22 ?><!DOCTYPE s\
+vg  PUBLIC '-//W\
+3C//DTD SVG 1.1/\
+/EN'  'http://ww\
+w.w3.org/Graphic\
+s/SVG/1.1/DTD/sv\
+g11.dtd'><svg en\
+able-background=\
+\x22new 0 0 32 32\x22 \
+version=\x221.1\x22 vi\
+ewBox=\x220 0 32 32\
+\x22 xml:space=\x22pre\
+serve\x22 xmlns=\x22ht\
+tp://www.w3.org/\
+2000/svg\x22 xmlns:\
+xlink=\x22http://ww\
+w.w3.org/1999/xl\
+ink\x22><g id=\x22Home\
+\x22/><g id=\x22Print\x22\
+/><g id=\x22Mail\x22/>\
+<g id=\x22Camera\x22/>\
+<g id=\x22Video\x22/><\
+g id=\x22Film\x22/><g \
+id=\x22Message\x22/><g\
+ id=\x22Telephone\x22/\
+><g id=\x22User\x22/><\
+g id=\x22File\x22/><g \
+id=\x22Folder\x22><pat\
+h d=\x22M28,8H16.4c\
+-0.1,0-0.2,0-0.4\
+-0.1c-0.3-0.1-0.\
+5-0.3-0.6-0.6l-1\
+-2.5C14,3.7,12.9\
+,3,11.7,3H4C2.4,\
+3,1,4.3,1,6   v2\
+0c0,1.6,1.4,3,3,\
+3h12h12c1.7,0,3-\
+1.4,3-3V11C31,9.\
+3,29.7,8,28,8z\x22 \
+fill=\x22#FE9803\x22/>\
+</g><g id=\x22Map\x22/\
+><g id=\x22Download\
+\x22/><g id=\x22Upload\
+\x22/><g id=\x22Video_\
+Recorder\x22/><g id\
+=\x22Schedule\x22/><g \
+id=\x22Cart\x22/><g id\
+=\x22Setting\x22/><g i\
+d=\x22Search\x22/><g i\
+d=\x22Pencils\x22/><g \
+id=\x22Group\x22/><g i\
+d=\x22Record\x22/><g i\
+d=\x22Headphone\x22/><\
+g id=\x22Music_Play\
+er\x22/><g id=\x22Soun\
+d_On\x22/><g id=\x22So\
+und_Off\x22/><g id=\
+\x22Lock\x22/><g id=\x22L\
+ock_open\x22/><g id\
+=\x22Love\x22/><g id=\x22\
+Favorite\x22/><g id\
+=\x22Film_1_\x22/><g i\
+d=\x22Music\x22/><g id\
+=\x22Puzzle\x22/><g id\
+=\x22Turn_Off\x22/><g \
+id=\x22Book\x22/><g id\
+=\x22Save\x22/><g id=\x22\
+Reload\x22/><g id=\x22\
+Trash\x22/><g id=\x22T\
+ag\x22/><g id=\x22Link\
+\x22/><g id=\x22Like\x22/\
+><g id=\x22Bad\x22/><g\
+ id=\x22Gallery\x22/><\
+g id=\x22Add\x22/><g i\
+d=\x22Close\x22/><g id\
+=\x22Forward\x22/><g i\
+d=\x22Back\x22/><g id=\
+\x22Buy\x22/><g id=\x22Ma\
+c\x22/><g id=\x22Lapto\
+p\x22/></svg>\
+\x00\x00\x05\xdf\
+<\
+?xml version=\x221.\
+0\x22 ?><!DOCTYPE s\
+vg  PUBLIC '-//W\
+3C//DTD SVG 1.1/\
+/EN'  'http://ww\
+w.w3.org/Graphic\
+s/SVG/1.1/DTD/sv\
+g11.dtd'><svg en\
+able-background=\
+\x22new 0 0 32 32\x22 \
+version=\x221.1\x22 vi\
+ewBox=\x220 0 32 32\
+\x22 xml:space=\x22pre\
+serve\x22 xmlns=\x22ht\
+tp://www.w3.org/\
+2000/svg\x22 xmlns:\
+xlink=\x22http://ww\
+w.w3.org/1999/xl\
+ink\x22><g id=\x22Home\
+\x22/><g id=\x22Print\x22\
+/><g id=\x22Mail\x22/>\
+<g id=\x22Camera\x22/>\
+<g id=\x22Video\x22/><\
+g id=\x22Film\x22/><g \
+id=\x22Message\x22/><g\
+ id=\x22Telephone\x22/\
+><g id=\x22User\x22/><\
+g id=\x22File\x22/><g \
+id=\x22Folder\x22/><g \
+id=\x22Map\x22/><g id=\
+\x22Download\x22/><g i\
+d=\x22Upload\x22/><g i\
+d=\x22Video_Recorde\
+r\x22/><g id=\x22Sched\
+ule\x22/><g id=\x22Car\
+t\x22/><g id=\x22Setti\
+ng\x22/><g id=\x22Sear\
+ch\x22/><g id=\x22Penc\
+ils\x22/><g id=\x22Gro\
+up\x22/><g id=\x22Reco\
+rd\x22/><g id=\x22Head\
+phone\x22/><g id=\x22M\
+usic_Player\x22/><g\
+ id=\x22Sound_On\x22/>\
+<g id=\x22Sound_Off\
+\x22/><g id=\x22Lock\x22/\
+><g id=\x22Lock_ope\
+n\x22/><g id=\x22Love\x22\
+/><g id=\x22Favorit\
+e\x22/><g id=\x22Film_\
+1_\x22/><g id=\x22Musi\
+c\x22/><g id=\x22Puzzl\
+e\x22><path d=\x22M27,\
+10c0.9,0,1.7,0.3\
+,2.4,0.8c0.3,0.2\
+,0.7,0.3,1,0.1c0\
+.3-0.2,0.6-0.5,0\
+.6-0.9V2c0-0.5-0\
+.5-1-1-1H19   c-\
+0.5,0-1,0.5-1,1c\
+0,2.2-1.8,4-4,4s\
+-4-1.8-4-4c0-0.5\
+-0.5-1-1-1H2C1.5\
+,1,1,1.5,1,2v14v\
+8c0,0.5,0.5,1,1,\
+1h3c0,3.3,2.7,6,\
+6,6   s6-2.7,6-6\
+h13c0.5,0,1-0.5,\
+1-1v-6c0-0.4-0.2\
+-0.7-0.6-0.9s-0.\
+7-0.1-1,0.1C28.7\
+,17.7,27.9,18,27\
+,18c-1.5,0-2.8-0\
+.8-3.5-2   c-0.3\
+-0.6-0.5-1.3-0.5\
+-2C23,11.8,24.8,\
+10,27,10z\x22 fill=\
+\x22#0E9688\x22/></g><\
+g id=\x22Turn_Off\x22/\
+><g id=\x22Book\x22/><\
+g id=\x22Save\x22/><g \
+id=\x22Reload\x22/><g \
+id=\x22Trash\x22/><g i\
+d=\x22Tag\x22/><g id=\x22\
+Link\x22/><g id=\x22Li\
+ke\x22/><g id=\x22Bad\x22\
+/><g id=\x22Gallery\
+\x22/><g id=\x22Add\x22/>\
+<g id=\x22Close\x22/><\
+g id=\x22Forward\x22/>\
+<g id=\x22Back\x22/><g\
+ id=\x22Buy\x22/><g id\
+=\x22Mac\x22/><g id=\x22L\
+aptop\x22/></svg>\
+\x00\x00\x07E\
+<\
+?xml version=\x221.\
+0\x22 ?><!DOCTYPE s\
+vg  PUBLIC '-//W\
+3C//DTD SVG 1.1/\
+/EN'  'http://ww\
+w.w3.org/Graphic\
+s/SVG/1.1/DTD/sv\
+g11.dtd'><svg en\
+able-background=\
+\x22new 0 0 32 32\x22 \
+version=\x221.1\x22 vi\
+ewBox=\x220 0 32 32\
+\x22 xml:space=\x22pre\
+serve\x22 xmlns=\x22ht\
+tp://www.w3.org/\
+2000/svg\x22 xmlns:\
+xlink=\x22http://ww\
+w.w3.org/1999/xl\
+ink\x22><g id=\x22Home\
+\x22/><g id=\x22Print\x22\
+/><g id=\x22Mail\x22/>\
+<g id=\x22Camera\x22/>\
+<g id=\x22Video\x22/><\
+g id=\x22Film\x22/><g \
+id=\x22Message\x22/><g\
+ id=\x22Telephone\x22/\
+><g id=\x22User\x22/><\
+g id=\x22File\x22/><g \
+id=\x22Folder\x22/><g \
+id=\x22Map\x22/><g id=\
+\x22Download\x22/><g i\
+d=\x22Upload\x22/><g i\
+d=\x22Video_Recorde\
+r\x22/><g id=\x22Sched\
+ule\x22/><g id=\x22Car\
+t\x22/><g id=\x22Setti\
+ng\x22/><g id=\x22Sear\
+ch\x22/><g id=\x22Penc\
+ils\x22><path d=\x22M3\
+1,29.7l-0.9-6.8c\
+0-0.2-0.1-0.4-0.\
+3-0.6L13.3,5.8l0\
+,0l0,0L9.4,1.9C8\
+.8,1.3,8,1,7.2,1\
+l0,0   C6.8,1,6.\
+4,1.1,6,1.2c0,0,\
+0,0,0,0C5.8,1.3,\
+5.7,1.4,5.5,1.5c\
+0,0-0.1,0-0.1,0C\
+5.3,1.6,5.1,1.8,\
+4.9,1.9L3.4,3.5l\
+0,0L1.9,5   c-1.\
+2,1.2-1.2,3.2,0,\
+4.5l3.9,3.8l0,0l\
+0,0l16.5,16.5c0.\
+2,0.2,0.4,0.3,0.\
+6,0.3l7,0.9c0,0,\
+0.1,0,0.1,0c0,0,\
+0,0,0,0   c0.3,0\
+,0.5-0.1,0.7-0.3\
+c0.2-0.2,0.3-0.4\
+,0.3-0.7C31,29.9\
+,31,29.8,31,29.7\
+z\x22 fill=\x22#FFC10A\
+\x22/><path d=\x22M13.\
+2,5.7C13.2,5.7,1\
+3.3,5.8,13.2,5.7\
+L9.4,1.9C8.8,1.3\
+,8,1,7.2,1c0,0,0\
+,0,0,0C6.4,1,5.6\
+,1.3,4.9,1.9   L\
+3.4,3.5l0,0L1.9,\
+5c-1.2,1.2-1.2,3\
+.2,0,4.5l3.9,3.8\
+c-0.4-0.4-0.4-1,\
+0-1.4l0.7-0.7l2.\
+3-2.3l3-3c0.2-0.\
+2,0.4-0.3,0.7-0.\
+3   c0,0,0.1,0,0\
+.1,0c0.1,0,0.2,0\
+,0.3,0.1C13.1,5.\
+6,13.2,5.7,13.2,\
+5.7L13.2,5.7C13.\
+3,5.8,13.3,5.8,1\
+3.2,5.7L13.2,5.7\
+z\x22 fill=\x22#F44236\
+\x22/></g><g id=\x22Gr\
+oup\x22/><g id=\x22Rec\
+ord\x22/><g id=\x22Hea\
+dphone\x22/><g id=\x22\
+Music_Player\x22/><\
+g id=\x22Sound_On\x22/\
+><g id=\x22Sound_Of\
+f\x22/><g id=\x22Lock\x22\
+/><g id=\x22Lock_op\
+en\x22/><g id=\x22Love\
+\x22/><g id=\x22Favori\
+te\x22/><g id=\x22Film\
+_1_\x22/><g id=\x22Mus\
+ic\x22/><g id=\x22Puzz\
+le\x22/><g id=\x22Turn\
+_Off\x22/><g id=\x22Bo\
+ok\x22/><g id=\x22Save\
+\x22/><g id=\x22Reload\
+\x22/><g id=\x22Trash\x22\
+/><g id=\x22Tag\x22/><\
+g id=\x22Link\x22/><g \
+id=\x22Like\x22/><g id\
+=\x22Bad\x22/><g id=\x22G\
+allery\x22/><g id=\x22\
+Add\x22/><g id=\x22Clo\
+se\x22/><g id=\x22Forw\
+ard\x22/><g id=\x22Bac\
+k\x22/><g id=\x22Buy\x22/\
+><g id=\x22Mac\x22/><g\
+ id=\x22Laptop\x22/></\
+svg>\
+\x00\x00\x06\x9b\
+<\
+?xml version=\x221.\
+0\x22 ?><!DOCTYPE s\
+vg  PUBLIC '-//W\
+3C//DTD SVG 1.1/\
+/EN'  'http://ww\
+w.w3.org/Graphic\
+s/SVG/1.1/DTD/sv\
+g11.dtd'><svg en\
+able-background=\
+\x22new 0 0 32 32\x22 \
+version=\x221.1\x22 vi\
+ewBox=\x220 0 32 32\
+\x22 xml:space=\x22pre\
+serve\x22 xmlns=\x22ht\
+tp://www.w3.org/\
+2000/svg\x22 xmlns:\
+xlink=\x22http://ww\
+w.w3.org/1999/xl\
+ink\x22><g id=\x22Home\
+\x22/><g id=\x22Print\x22\
+/><g id=\x22Mail\x22/>\
+<g id=\x22Camera\x22/>\
+<g id=\x22Video\x22/><\
+g id=\x22Film\x22/><g \
+id=\x22Message\x22/><g\
+ id=\x22Telephone\x22/\
+><g id=\x22User\x22/><\
+g id=\x22File\x22/><g \
+id=\x22Folder\x22/><g \
+id=\x22Map\x22/><g id=\
+\x22Download\x22/><g i\
+d=\x22Upload\x22/><g i\
+d=\x22Video_Recorde\
+r\x22/><g id=\x22Sched\
+ule\x22/><g id=\x22Car\
+t\x22/><g id=\x22Setti\
+ng\x22/><g id=\x22Sear\
+ch\x22/><g id=\x22Penc\
+ils\x22/><g id=\x22Gro\
+up\x22/><g id=\x22Reco\
+rd\x22/><g id=\x22Head\
+phone\x22/><g id=\x22M\
+usic_Player\x22/><g\
+ id=\x22Sound_On\x22/>\
+<g id=\x22Sound_Off\
+\x22/><g id=\x22Lock\x22/\
+><g id=\x22Lock_ope\
+n\x22/><g id=\x22Love\x22\
+/><g id=\x22Favorit\
+e\x22/><g id=\x22Film_\
+1_\x22/><g id=\x22Musi\
+c\x22/><g id=\x22Puzzl\
+e\x22/><g id=\x22Turn_\
+Off\x22/><g id=\x22Boo\
+k\x22/><g id=\x22Save\x22\
+/><g id=\x22Reload\x22\
+/><g id=\x22Trash\x22/\
+><g id=\x22Tag\x22/><g\
+ id=\x22Link\x22/><g i\
+d=\x22Like\x22/><g id=\
+\x22Bad\x22/><g id=\x22Ga\
+llery\x22/><g id=\x22A\
+dd\x22/><g id=\x22Clos\
+e\x22><path d=\x22M26.\
+6,5.4C23.8,2.6,2\
+0,1,16,1S8.2,2.6\
+,5.4,5.4C2.6,8.2\
+,1,12,1,16s1.6,7\
+.8,4.4,10.6C8.2,\
+29.4,12,31,16,31\
+   s7.8-1.6,10.6\
+-4.4C29.4,23.8,3\
+1,20,31,16S29.4,\
+8.2,26.6,5.4z\x22 f\
+ill=\x22#FE9803\x22/><\
+path d=\x22M17.4,16\
+l5-5c0.2-0.2,0.3\
+-0.5,0.3-0.7c0-0\
+.3-0.1-0.5-0.3-0\
+.7c-0.4-0.4-1-0.\
+4-1.4,0l-5,4.9l-\
+5-4.9   c-0.4-0.\
+4-1-0.4-1.4,0c-0\
+.2,0.2-0.3,0.4-0\
+.3,0.7c0,0.3,0.1\
+,0.5,0.3,0.7l5,5\
+l-5,5c-0.2,0.2-0\
+.3,0.4-0.3,0.7c0\
+,0.3,0.1,0.5,0.3\
+,0.7   c0.2,0.2,\
+0.5,0.3,0.7,0.3c\
+0.3,0,0.5-0.1,0.\
+7-0.3l5-5l5,5c0.\
+2,0.2,0.5,0.3,0.\
+7,0.3c0.3,0,0.5-\
+0.1,0.7-0.3c0.2-\
+0.2,0.3-0.5,0.3-\
+0.7   c0-0.3-0.1\
+-0.5-0.3-0.7L17.\
+4,16z\x22 fill=\x22#67\
+3AB7\x22/></g><g id\
+=\x22Forward\x22/><g i\
+d=\x22Back\x22/><g id=\
+\x22Buy\x22/><g id=\x22Ma\
+c\x22/><g id=\x22Lapto\
+p\x22/></svg>\
+\x00\x00\x01i\
+<\
+?xml version=\x221.\
+0\x22 ?><svg data-n\
+ame=\x22Layer 1\x22 id\
+=\x22Layer_1\x22 viewB\
+ox=\x220 0 24 24\x22 x\
+mlns=\x22http://www\
+.w3.org/2000/svg\
+\x22><path d=\x22M12,2\
+A10,10,0,1,0,22,\
+12,10.01114,10.0\
+1114,0,0,0,12,2Z\
+m0,18a8,8,0,1,1,\
+8-8A8.00917,8.00\
+917,0,0,1,12,20Z\
+m0-8.5a1,1,0,0,0\
+-1,1v3a1,1,0,0,0\
+,2,0v-3A1,1,0,0,\
+0,12,11.5Zm0-4a1\
+.25,1.25,0,1,0,1\
+.25,1.25A1.25,1.\
+25,0,0,0,12,7.5Z\
+\x22 fill=\x22#6563ff\x22\
+/></svg>\
+\x00\x00\x08\x0c\
+<\
+?xml version=\x221.\
+0\x22 ?><!DOCTYPE s\
+vg  PUBLIC '-//W\
+3C//DTD SVG 1.1/\
+/EN'  'http://ww\
+w.w3.org/Graphic\
+s/SVG/1.1/DTD/sv\
+g11.dtd'><svg en\
+able-background=\
+\x22new 0 0 32 32\x22 \
+version=\x221.1\x22 vi\
+ewBox=\x220 0 32 32\
+\x22 xml:space=\x22pre\
+serve\x22 xmlns=\x22ht\
+tp://www.w3.org/\
+2000/svg\x22 xmlns:\
+xlink=\x22http://ww\
+w.w3.org/1999/xl\
+ink\x22><g id=\x22Home\
+\x22/><g id=\x22Print\x22\
+/><g id=\x22Mail\x22/>\
+<g id=\x22Camera\x22/>\
+<g id=\x22Video\x22/><\
+g id=\x22Film\x22/><g \
+id=\x22Message\x22/><g\
+ id=\x22Telephone\x22/\
+><g id=\x22User\x22/><\
+g id=\x22File\x22/><g \
+id=\x22Folder\x22/><g \
+id=\x22Map\x22/><g id=\
+\x22Download\x22/><g i\
+d=\x22Upload\x22/><g i\
+d=\x22Video_Recorde\
+r\x22/><g id=\x22Sched\
+ule\x22/><g id=\x22Car\
+t\x22/><g id=\x22Setti\
+ng\x22/><g id=\x22Sear\
+ch\x22/><g id=\x22Penc\
+ils\x22/><g id=\x22Gro\
+up\x22><line fill=\x22\
+none\x22 x1=\x228\x22 x2=\
+\x228\x22 y1=\x2217\x22 y2=\x22\
+15\x22/><g><path d=\
+\x22M8,1C4.1,1,1,4.\
+1,1,8s3.1,7,7,7c\
+2.3,0,4.5-1.1,5.\
+8-3c0.2-0.3,0.4-\
+0.6,0.5-0.9c0.2-\
+0.3,0.3-0.6,0.4-\
+0.9    C14.9,9.5\
+,15,8.8,15,8C15,\
+4.1,11.9,1,8,1z\x22\
+ fill=\x22#E92662\x22/\
+><path d=\x22M14.3,\
+20.9c-0.2-0.3-0.\
+3-0.6-0.5-0.9c-1\
+.3-1.9-3.4-3-5.8\
+-3c-3.9,0-7,3.1-\
+7,7s3.1,7,7,7s7-\
+3.1,7-7    c0-0.\
+8-0.1-1.5-0.4-2.\
+2C14.5,21.5,14.4\
+,21.2,14.3,20.9z\
+\x22 fill=\x22#E92662\x22\
+/><path d=\x22M24,9\
+c-2.3,0-4.5,1.1-\
+5.8,3c-0.2,0.3-0\
+.4,0.6-0.5,0.9c-\
+0.1,0.3-0.3,0.6-\
+0.4,0.9C17.1,14.\
+5,17,15.2,17,16 \
+   s0.1,1.5,0.4,\
+2.2c0.1,0.3,0.2,\
+0.6,0.4,0.9c0.2,\
+0.3,0.3,0.6,0.5,\
+0.9c1.3,1.9,3.4,\
+3,5.8,3c3.9,0,7-\
+3.1,7-7S27.9,9,2\
+4,9z\x22 fill=\x22#E92\
+662\x22/></g><g><pa\
+th d=\x22M18.3,20l-\
+3.6,1.8c-0.1-0.3\
+-0.2-0.6-0.4-0.9\
+s-0.3-0.6-0.5-0.\
+9l3.6-1.8c0.1,0.\
+3,0.2,0.6,0.4,0.\
+9    C17.9,19.4,\
+18.1,19.7,18.3,2\
+0z\x22 fill=\x22#3F51B\
+5\x22/></g><g><path\
+ d=\x22M18.3,12c-0.\
+2,0.3-0.4,0.6-0.\
+5,0.9c-0.1,0.3-0\
+.3,0.6-0.4,0.9L1\
+3.8,12c0.2-0.3,0\
+.4-0.6,0.5-0.9  \
+  c0.2-0.3,0.3-0\
+.6,0.4-0.9L18.3,\
+12z\x22 fill=\x22#3F51\
+B5\x22/></g></g><g \
+id=\x22Record\x22/><g \
+id=\x22Headphone\x22/>\
+<g id=\x22Music_Pla\
+yer\x22/><g id=\x22Sou\
+nd_On\x22/><g id=\x22S\
+ound_Off\x22/><g id\
+=\x22Lock\x22/><g id=\x22\
+Lock_open\x22/><g i\
+d=\x22Love\x22/><g id=\
+\x22Favorite\x22/><g i\
+d=\x22Film_1_\x22/><g \
+id=\x22Music\x22/><g i\
+d=\x22Puzzle\x22/><g i\
+d=\x22Turn_Off\x22/><g\
+ id=\x22Book\x22/><g i\
+d=\x22Save\x22/><g id=\
+\x22Reload\x22/><g id=\
+\x22Trash\x22/><g id=\x22\
+Tag\x22/><g id=\x22Lin\
+k\x22/><g id=\x22Like\x22\
+/><g id=\x22Bad\x22/><\
+g id=\x22Gallery\x22/>\
+<g id=\x22Add\x22/><g \
+id=\x22Close\x22/><g i\
+d=\x22Forward\x22/><g \
+id=\x22Back\x22/><g id\
+=\x22Buy\x22/><g id=\x22M\
+ac\x22/><g id=\x22Lapt\
+op\x22/></svg>\
+\x00\x00\x05\x90\
+<\
+?xml version=\x221.\
+0\x22 ?><!DOCTYPE s\
+vg  PUBLIC '-//W\
+3C//DTD SVG 1.1/\
+/EN'  'http://ww\
+w.w3.org/Graphic\
+s/SVG/1.1/DTD/sv\
+g11.dtd'><svg en\
+able-background=\
+\x22new 0 0 32 32\x22 \
+version=\x221.1\x22 vi\
+ewBox=\x220 0 32 32\
+\x22 xml:space=\x22pre\
+serve\x22 xmlns=\x22ht\
+tp://www.w3.org/\
+2000/svg\x22 xmlns:\
+xlink=\x22http://ww\
+w.w3.org/1999/xl\
+ink\x22><g id=\x22Home\
+\x22/><g id=\x22Print\x22\
+/><g id=\x22Mail\x22/>\
+<g id=\x22Camera\x22/>\
+<g id=\x22Video\x22/><\
+g id=\x22Film\x22/><g \
+id=\x22Message\x22/><g\
+ id=\x22Telephone\x22/\
+><g id=\x22User\x22/><\
+g id=\x22File\x22/><g \
+id=\x22Folder\x22/><g \
+id=\x22Map\x22/><g id=\
+\x22Download\x22/><g i\
+d=\x22Upload\x22/><g i\
+d=\x22Video_Recorde\
+r\x22/><g id=\x22Sched\
+ule\x22/><g id=\x22Car\
+t\x22/><g id=\x22Setti\
+ng\x22/><g id=\x22Sear\
+ch\x22/><g id=\x22Penc\
+ils\x22/><g id=\x22Gro\
+up\x22/><g id=\x22Reco\
+rd\x22/><g id=\x22Head\
+phone\x22/><g id=\x22M\
+usic_Player\x22/><g\
+ id=\x22Sound_On\x22/>\
+<g id=\x22Sound_Off\
+\x22/><g id=\x22Lock\x22/\
+><g id=\x22Lock_ope\
+n\x22/><g id=\x22Love\x22\
+/><g id=\x22Favorit\
+e\x22/><g id=\x22Film_\
+1_\x22/><g id=\x22Musi\
+c\x22/><g id=\x22Puzzl\
+e\x22/><g id=\x22Turn_\
+Off\x22/><g id=\x22Boo\
+k\x22/><g id=\x22Save\x22\
+/><g id=\x22Reload\x22\
+/><g id=\x22Trash\x22/\
+><g id=\x22Tag\x22/><g\
+ id=\x22Link\x22/><g i\
+d=\x22Like\x22/><g id=\
+\x22Bad\x22/><g id=\x22Ga\
+llery\x22/><g id=\x22A\
+dd\x22><path d=\x22M16\
+,1C11.9,1,8.1,2.\
+7,5.4,5.4C2.7,8.\
+1,1,11.9,1,16c0,\
+8.3,6.7,15,15,15\
+c4.1,0,7.9-1.7,1\
+0.6-4.4   C29.3,\
+23.9,31,20.1,31,\
+16C31,7.7,24.3,1\
+,16,1z\x22 fill=\x22#F\
+44236\x22/><path d=\
+\x22M24,15h-7V8c0-0\
+.5-0.5-1-1-1s-1,\
+0.5-1,1v7H8c-0.5\
+,0-1,0.5-1,1s0.5\
+,1,1,1h7v7c0,0.5\
+,0.5,1,1,1s1-0.5\
+,1-1v-7   h7c0.5\
+,0,1-0.5,1-1S24.\
+5,15,24,15z\x22 fil\
+l=\x22#FEEA3A\x22/></g\
+><g id=\x22Close\x22/>\
+<g id=\x22Forward\x22/\
+><g id=\x22Back\x22/><\
+g id=\x22Buy\x22/><g i\
+d=\x22Mac\x22/><g id=\x22\
+Laptop\x22/></svg>\
+\x00\x00\x05\xb1\
+<\
+?xml version=\x221.\
+0\x22 ?><!DOCTYPE s\
+vg  PUBLIC '-//W\
+3C//DTD SVG 1.1/\
+/EN'  'http://ww\
+w.w3.org/Graphic\
+s/SVG/1.1/DTD/sv\
+g11.dtd'><svg en\
+able-background=\
+\x22new 0 0 32 32\x22 \
+version=\x221.1\x22 vi\
+ewBox=\x220 0 32 32\
+\x22 xml:space=\x22pre\
+serve\x22 xmlns=\x22ht\
+tp://www.w3.org/\
+2000/svg\x22 xmlns:\
+xlink=\x22http://ww\
+w.w3.org/1999/xl\
+ink\x22><g id=\x22Home\
+\x22/><g id=\x22Print\x22\
+/><g id=\x22Mail\x22><\
+path d=\x22M28,5H16\
+H4C2.3,5,1,6.3,1\
+,8v16c0,1.6,1.3,\
+3,3,3h12h12c1.7,\
+0,3-1.4,3-3V8C31\
+,6.3,29.7,5,28,5\
+z\x22 fill=\x22#FFC10A\
+\x22/><path d=\x22M26.\
+9,9.5c-0.2-0.4-0\
+.6-0.5-1-0.5c-0.\
+1,0-0.3,0.1-0.4,\
+0.1L16,14.8L6.5,\
+9.1C6,8.9,5.4,9,\
+5.1,9.5   C4.9,1\
+0,5,10.6,5.5,10.\
+9l10,6c0.1,0.1,0\
+.3,0.1,0.5,0.1v0\
+c0,0,0,0,0,0s0,0\
+,0,0c0.2,0,0.4,0\
+,0.5-0.1l10-6C27\
+,10.6,27.1,10,26\
+.9,9.5z\x22 fill=\x22#\
+9C27B0\x22/></g><g \
+id=\x22Camera\x22/><g \
+id=\x22Video\x22/><g i\
+d=\x22Film\x22/><g id=\
+\x22Message\x22/><g id\
+=\x22Telephone\x22/><g\
+ id=\x22User\x22/><g i\
+d=\x22File\x22/><g id=\
+\x22Folder\x22/><g id=\
+\x22Map\x22/><g id=\x22Do\
+wnload\x22/><g id=\x22\
+Upload\x22/><g id=\x22\
+Video_Recorder\x22/\
+><g id=\x22Schedule\
+\x22/><g id=\x22Cart\x22/\
+><g id=\x22Setting\x22\
+/><g id=\x22Search\x22\
+/><g id=\x22Pencils\
+\x22/><g id=\x22Group\x22\
+/><g id=\x22Record\x22\
+/><g id=\x22Headpho\
+ne\x22/><g id=\x22Musi\
+c_Player\x22/><g id\
+=\x22Sound_On\x22/><g \
+id=\x22Sound_Off\x22/>\
+<g id=\x22Lock\x22/><g\
+ id=\x22Lock_open\x22/\
+><g id=\x22Love\x22/><\
+g id=\x22Favorite\x22/\
+><g id=\x22Film_1_\x22\
+/><g id=\x22Music\x22/\
+><g id=\x22Puzzle\x22/\
+><g id=\x22Turn_Off\
+\x22/><g id=\x22Book\x22/\
+><g id=\x22Save\x22/><\
+g id=\x22Reload\x22/><\
+g id=\x22Trash\x22/><g\
+ id=\x22Tag\x22/><g id\
+=\x22Link\x22/><g id=\x22\
+Like\x22/><g id=\x22Ba\
+d\x22/><g id=\x22Galle\
+ry\x22/><g id=\x22Add\x22\
+/><g id=\x22Close\x22/\
+><g id=\x22Forward\x22\
+/><g id=\x22Back\x22/>\
+<g id=\x22Buy\x22/><g \
+id=\x22Mac\x22/><g id=\
+\x22Laptop\x22/></svg>\
+\
 \x00\x02\xeb\x15\
 \x89\
 PNG\x0d\x0a\x1a\x0a\x00\x00\x00\x0dIHDR\x00\
@@ -11962,6 +12799,416 @@ Gz\xe8L\xba\xf4\xf6\x18\xc4\xfc\x17DqP\xe3\x83\
 _\xee\xf6o\xab\xa7\xd7\xcd3\x8d)\xbd!\xbb\xe9O\
 v\xcb\xb7l\xd8\x87gb\x00\x00\x00\x00IEND\
 \xaeB`\x82\
+\x00\x00\x06>\
+<\
+?xml version=\x221.\
+0\x22 ?><!DOCTYPE s\
+vg  PUBLIC '-//W\
+3C//DTD SVG 1.1/\
+/EN'  'http://ww\
+w.w3.org/Graphic\
+s/SVG/1.1/DTD/sv\
+g11.dtd'><svg en\
+able-background=\
+\x22new 0 0 32 32\x22 \
+version=\x221.1\x22 vi\
+ewBox=\x220 0 32 32\
+\x22 xml:space=\x22pre\
+serve\x22 xmlns=\x22ht\
+tp://www.w3.org/\
+2000/svg\x22 xmlns:\
+xlink=\x22http://ww\
+w.w3.org/1999/xl\
+ink\x22><g id=\x22Home\
+\x22/><g id=\x22Print\x22\
+/><g id=\x22Mail\x22/>\
+<g id=\x22Camera\x22/>\
+<g id=\x22Video\x22/><\
+g id=\x22Film\x22/><g \
+id=\x22Message\x22/><g\
+ id=\x22Telephone\x22/\
+><g id=\x22User\x22/><\
+g id=\x22File\x22/><g \
+id=\x22Folder\x22/><g \
+id=\x22Map\x22/><g id=\
+\x22Download\x22><line\
+ fill=\x22none\x22 x1=\
+\x2216\x22 x2=\x2216\x22 y1=\
+\x2229\x22 y2=\x2228\x22/><p\
+ath d=\x22M25.9,17.\
+6C25.8,17.2,25.4\
+,17,25,17h0h-4V2\
+c0-0.5-0.5-1-1-1\
+h0h-4h0h-4c-0.5,\
+0-1,0.5-1,1v15H7\
+   c-0.4,0-0.8,0\
+.2-0.9,0.6C5.9,1\
+8,6,18.4,6.3,18.\
+7l9,9c0.2,0.2,0.\
+5,0.3,0.7,0.3c0,\
+0,0,0,0,0v0c0.3,\
+0,0.5-0.1,0.7-0.\
+3l9-9   C26,18.4\
+,26.1,18,25.9,17\
+.6z\x22 fill=\x22#0E96\
+88\x22/><path d=\x22M3\
+0,17c-0.5,0-1,0.\
+5-1,1v8c0,1.6-1.\
+3,3-3,3H16H6c-1.\
+7,0-3-1.4-3-3v-8\
+c0-0.5-0.5-1-1-1\
+s-1,0.5-1,1v8   \
+c0,2.8,2.2,5,5,5\
+h10h10c2.8,0,5-2\
+.2,5-5v-8C31,17.\
+5,30.5,17,30,17z\
+\x22 fill=\x22#F44236\x22\
+/></g><g id=\x22Upl\
+oad\x22/><g id=\x22Vid\
+eo_Recorder\x22/><g\
+ id=\x22Schedule\x22/>\
+<g id=\x22Cart\x22/><g\
+ id=\x22Setting\x22/><\
+g id=\x22Search\x22/><\
+g id=\x22Pencils\x22/>\
+<g id=\x22Group\x22/><\
+g id=\x22Record\x22/><\
+g id=\x22Headphone\x22\
+/><g id=\x22Music_P\
+layer\x22/><g id=\x22S\
+ound_On\x22/><g id=\
+\x22Sound_Off\x22/><g \
+id=\x22Lock\x22/><g id\
+=\x22Lock_open\x22/><g\
+ id=\x22Love\x22/><g i\
+d=\x22Favorite\x22/><g\
+ id=\x22Film_1_\x22/><\
+g id=\x22Music\x22/><g\
+ id=\x22Puzzle\x22/><g\
+ id=\x22Turn_Off\x22/>\
+<g id=\x22Book\x22/><g\
+ id=\x22Save\x22/><g i\
+d=\x22Reload\x22/><g i\
+d=\x22Trash\x22/><g id\
+=\x22Tag\x22/><g id=\x22L\
+ink\x22/><g id=\x22Lik\
+e\x22/><g id=\x22Bad\x22/\
+><g id=\x22Gallery\x22\
+/><g id=\x22Add\x22/><\
+g id=\x22Close\x22/><g\
+ id=\x22Forward\x22/><\
+g id=\x22Back\x22/><g \
+id=\x22Buy\x22/><g id=\
+\x22Mac\x22/><g id=\x22La\
+ptop\x22/></svg>\
+\x00\x00\x05\xd2\
+<\
+?xml version=\x221.\
+0\x22 ?><!DOCTYPE s\
+vg  PUBLIC '-//W\
+3C//DTD SVG 1.1/\
+/EN'  'http://ww\
+w.w3.org/Graphic\
+s/SVG/1.1/DTD/sv\
+g11.dtd'><svg en\
+able-background=\
+\x22new 0 0 32 32\x22 \
+version=\x221.1\x22 vi\
+ewBox=\x220 0 32 32\
+\x22 xml:space=\x22pre\
+serve\x22 xmlns=\x22ht\
+tp://www.w3.org/\
+2000/svg\x22 xmlns:\
+xlink=\x22http://ww\
+w.w3.org/1999/xl\
+ink\x22><g id=\x22Home\
+\x22/><g id=\x22Print\x22\
+/><g id=\x22Mail\x22/>\
+<g id=\x22Camera\x22/>\
+<g id=\x22Video\x22/><\
+g id=\x22Film\x22/><g \
+id=\x22Message\x22/><g\
+ id=\x22Telephone\x22/\
+><g id=\x22User\x22/><\
+g id=\x22File\x22/><g \
+id=\x22Folder\x22/><g \
+id=\x22Map\x22/><g id=\
+\x22Download\x22/><g i\
+d=\x22Upload\x22/><g i\
+d=\x22Video_Recorde\
+r\x22/><g id=\x22Sched\
+ule\x22/><g id=\x22Car\
+t\x22/><g id=\x22Setti\
+ng\x22/><g id=\x22Sear\
+ch\x22/><g id=\x22Penc\
+ils\x22/><g id=\x22Gro\
+up\x22/><g id=\x22Reco\
+rd\x22/><g id=\x22Head\
+phone\x22/><g id=\x22M\
+usic_Player\x22/><g\
+ id=\x22Sound_On\x22/>\
+<g id=\x22Sound_Off\
+\x22/><g id=\x22Lock\x22/\
+><g id=\x22Lock_ope\
+n\x22/><g id=\x22Love\x22\
+/><g id=\x22Favorit\
+e\x22/><g id=\x22Film_\
+1_\x22/><g id=\x22Musi\
+c\x22/><g id=\x22Puzzl\
+e\x22/><g id=\x22Turn_\
+Off\x22><g><path d=\
+\x22M29,18c0,7.2-5.\
+8,13-13,13S3,25.\
+2,3,18c0-5.5,3.5\
+-10.4,8.7-12.3c0\
+.5-0.2,1.1,0.1,1\
+.3,0.6    c0.2,0\
+.5-0.1,1.1-0.6,1\
+.3C8,9.2,5,13.3,\
+5,18c0,6.1,4.9,1\
+1,11,11s11-4.9,1\
+1-11c0-4.7-3-8.8\
+-7.3-10.4c-0.5-0\
+.2-0.8-0.8-0.6-1\
+.3    c0.2-0.5,0\
+.8-0.8,1.3-0.6C2\
+5.5,7.6,29,12.5,\
+29,18z\x22 fill=\x22#F\
+E9803\x22/></g><g><\
+path d=\x22M17,2v10\
+c0,0.5-0.5,1-1,1\
+s-1-0.5-1-1V2c0-\
+0.5,0.5-1,1-1S17\
+,1.5,17,2z\x22 fill\
+=\x22#2197F3\x22/></g>\
+</g><g id=\x22Book\x22\
+/><g id=\x22Save\x22/>\
+<g id=\x22Reload\x22/>\
+<g id=\x22Trash\x22/><\
+g id=\x22Tag\x22/><g i\
+d=\x22Link\x22/><g id=\
+\x22Like\x22/><g id=\x22B\
+ad\x22/><g id=\x22Gall\
+ery\x22/><g id=\x22Add\
+\x22/><g id=\x22Close\x22\
+/><g id=\x22Forward\
+\x22/><g id=\x22Back\x22/\
+><g id=\x22Buy\x22/><g\
+ id=\x22Mac\x22/><g id\
+=\x22Laptop\x22/></svg\
+>\
+\x00\x00\x06v\
+<\
+?xml version=\x221.\
+0\x22 ?><!DOCTYPE s\
+vg  PUBLIC '-//W\
+3C//DTD SVG 1.1/\
+/EN'  'http://ww\
+w.w3.org/Graphic\
+s/SVG/1.1/DTD/sv\
+g11.dtd'><svg en\
+able-background=\
+\x22new 0 0 32 32\x22 \
+version=\x221.1\x22 vi\
+ewBox=\x220 0 32 32\
+\x22 xml:space=\x22pre\
+serve\x22 xmlns=\x22ht\
+tp://www.w3.org/\
+2000/svg\x22 xmlns:\
+xlink=\x22http://ww\
+w.w3.org/1999/xl\
+ink\x22><g id=\x22Home\
+\x22/><g id=\x22Print\x22\
+/><g id=\x22Mail\x22/>\
+<g id=\x22Camera\x22/>\
+<g id=\x22Video\x22/><\
+g id=\x22Film\x22/><g \
+id=\x22Message\x22/><g\
+ id=\x22Telephone\x22/\
+><g id=\x22User\x22/><\
+g id=\x22File\x22/><g \
+id=\x22Folder\x22/><g \
+id=\x22Map\x22/><g id=\
+\x22Download\x22/><g i\
+d=\x22Upload\x22/><g i\
+d=\x22Video_Recorde\
+r\x22/><g id=\x22Sched\
+ule\x22/><g id=\x22Car\
+t\x22/><g id=\x22Setti\
+ng\x22/><g id=\x22Sear\
+ch\x22/><g id=\x22Penc\
+ils\x22/><g id=\x22Gro\
+up\x22/><g id=\x22Reco\
+rd\x22/><g id=\x22Head\
+phone\x22/><g id=\x22M\
+usic_Player\x22/><g\
+ id=\x22Sound_On\x22/>\
+<g id=\x22Sound_Off\
+\x22/><g id=\x22Lock\x22/\
+><g id=\x22Lock_ope\
+n\x22/><g id=\x22Love\x22\
+/><g id=\x22Favorit\
+e\x22/><g id=\x22Film_\
+1_\x22/><g id=\x22Musi\
+c\x22/><g id=\x22Puzzl\
+e\x22/><g id=\x22Turn_\
+Off\x22/><g id=\x22Boo\
+k\x22/><g id=\x22Save\x22\
+/><g id=\x22Reload\x22\
+/><g id=\x22Trash\x22>\
+<path d=\x22M28,5h-\
+5V4c0-1.7-1.3-3-\
+3-3h-4h-4c-1.7,0\
+-3,1.3-3,3v1H4C3\
+.5,5,3,5.5,3,6s0\
+.5,1,1,1h1v19c0,\
+2.8,2.2,5,5,5h6 \
+  h6c2.8,0,5-2.2\
+,5-5V7h1c0.5,0,1\
+-0.5,1-1S28.5,5,\
+28,5z\x22 fill=\x22#FE\
+9803\x22/><g><path \
+d=\x22M12,11.1c-0.5\
+,0-1,0.5-1,1v12c\
+0,0.6,0.5,1,1,1s\
+1-0.4,1-1v-12C13\
+,11.6,12.5,11.1,\
+12,11.1z\x22 fill=\x22\
+#3F51B5\x22/><path \
+d=\x22M20,11.1c-0.5\
+,0-1,0.5-1,1v12c\
+0,0.6,0.5,1,1,1s\
+1-0.4,1-1v-12C21\
+,11.6,20.5,11.1,\
+20,11.1z\x22 fill=\x22\
+#3F51B5\x22/><path \
+d=\x22M28,5h-5V4c0-\
+1.7-1.3-3-3-3h-4\
+h-4c-1.7,0-3,1.3\
+-3,3v1H4C3.5,5,3\
+,5.5,3,6s0.5,1,1\
+,1h12h12c0.5,0,1\
+-0.5,1-1    S28.\
+5,5,28,5z\x22 fill=\
+\x22#3F51B5\x22/></g><\
+/g><g id=\x22Tag\x22/>\
+<g id=\x22Link\x22/><g\
+ id=\x22Like\x22/><g i\
+d=\x22Bad\x22/><g id=\x22\
+Gallery\x22/><g id=\
+\x22Add\x22/><g id=\x22Cl\
+ose\x22/><g id=\x22For\
+ward\x22/><g id=\x22Ba\
+ck\x22/><g id=\x22Buy\x22\
+/><g id=\x22Mac\x22/><\
+g id=\x22Laptop\x22/><\
+/svg>\
+\x00\x00\x06v\
+<\
+?xml version=\x221.\
+0\x22 ?><!DOCTYPE s\
+vg  PUBLIC '-//W\
+3C//DTD SVG 1.1/\
+/EN'  'http://ww\
+w.w3.org/Graphic\
+s/SVG/1.1/DTD/sv\
+g11.dtd'><svg en\
+able-background=\
+\x22new 0 0 32 32\x22 \
+version=\x221.1\x22 vi\
+ewBox=\x220 0 32 32\
+\x22 xml:space=\x22pre\
+serve\x22 xmlns=\x22ht\
+tp://www.w3.org/\
+2000/svg\x22 xmlns:\
+xlink=\x22http://ww\
+w.w3.org/1999/xl\
+ink\x22><g id=\x22Home\
+\x22/><g id=\x22Print\x22\
+/><g id=\x22Mail\x22/>\
+<g id=\x22Camera\x22/>\
+<g id=\x22Video\x22/><\
+g id=\x22Film\x22/><g \
+id=\x22Message\x22/><g\
+ id=\x22Telephone\x22/\
+><g id=\x22User\x22/><\
+g id=\x22File\x22/><g \
+id=\x22Folder\x22/><g \
+id=\x22Map\x22/><g id=\
+\x22Download\x22/><g i\
+d=\x22Upload\x22/><g i\
+d=\x22Video_Recorde\
+r\x22/><g id=\x22Sched\
+ule\x22/><g id=\x22Car\
+t\x22/><g id=\x22Setti\
+ng\x22/><g id=\x22Sear\
+ch\x22/><g id=\x22Penc\
+ils\x22/><g id=\x22Gro\
+up\x22/><g id=\x22Reco\
+rd\x22/><g id=\x22Head\
+phone\x22/><g id=\x22M\
+usic_Player\x22/><g\
+ id=\x22Sound_On\x22/>\
+<g id=\x22Sound_Off\
+\x22/><g id=\x22Lock\x22/\
+><g id=\x22Lock_ope\
+n\x22/><g id=\x22Love\x22\
+/><g id=\x22Favorit\
+e\x22/><g id=\x22Film_\
+1_\x22/><g id=\x22Musi\
+c\x22/><g id=\x22Puzzl\
+e\x22/><g id=\x22Turn_\
+Off\x22/><g id=\x22Boo\
+k\x22/><g id=\x22Save\x22\
+/><g id=\x22Reload\x22\
+/><g id=\x22Trash\x22>\
+<path d=\x22M28,5h-\
+5V4c0-1.7-1.3-3-\
+3-3h-4h-4c-1.7,0\
+-3,1.3-3,3v1H4C3\
+.5,5,3,5.5,3,6s0\
+.5,1,1,1h1v19c0,\
+2.8,2.2,5,5,5h6 \
+  h6c2.8,0,5-2.2\
+,5-5V7h1c0.5,0,1\
+-0.5,1-1S28.5,5,\
+28,5z\x22 fill=\x22#FE\
+9803\x22/><g><path \
+d=\x22M12,11.1c-0.5\
+,0-1,0.5-1,1v12c\
+0,0.6,0.5,1,1,1s\
+1-0.4,1-1v-12C13\
+,11.6,12.5,11.1,\
+12,11.1z\x22 fill=\x22\
+#3F51B5\x22/><path \
+d=\x22M20,11.1c-0.5\
+,0-1,0.5-1,1v12c\
+0,0.6,0.5,1,1,1s\
+1-0.4,1-1v-12C21\
+,11.6,20.5,11.1,\
+20,11.1z\x22 fill=\x22\
+#3F51B5\x22/><path \
+d=\x22M28,5h-5V4c0-\
+1.7-1.3-3-3-3h-4\
+h-4c-1.7,0-3,1.3\
+-3,3v1H4C3.5,5,3\
+,5.5,3,6s0.5,1,1\
+,1h12h12c0.5,0,1\
+-0.5,1-1    S28.\
+5,5,28,5z\x22 fill=\
+\x22#3F51B5\x22/></g><\
+/g><g id=\x22Tag\x22/>\
+<g id=\x22Link\x22/><g\
+ id=\x22Like\x22/><g i\
+d=\x22Bad\x22/><g id=\x22\
+Gallery\x22/><g id=\
+\x22Add\x22/><g id=\x22Cl\
+ose\x22/><g id=\x22For\
+ward\x22/><g id=\x22Ba\
+ck\x22/><g id=\x22Buy\x22\
+/><g id=\x22Mac\x22/><\
+g id=\x22Laptop\x22/><\
+/svg>\
 \x00\x00\xab\xf0\
 \x89\
 PNG\x0d\x0a\x1a\x0a\x00\x00\x00\x0dIHDR\x00\
@@ -14715,6 +15962,223 @@ _\x97\x19\xc6\xc1\xef\x05i\x0e\xff\x14E\x01\xcc\xba\x0c\
 Z\x8f\x16\xbe\x1f\x0a\xd0\x0e\x7fP\xaf\x1d\xfeFY\xd2\
 \xf4\xda\xe17\xf58\x04\xf7\xe3\xff\x03Ch4\xbe\x0b\
 ^\xa8\x22\x00\x00\x00\x00IEND\xaeB`\x82\
+\x00\x00\x07d\
+<\
+?xml version=\x221.\
+0\x22 ?><!DOCTYPE s\
+vg  PUBLIC '-//W\
+3C//DTD SVG 1.1/\
+/EN'  'http://ww\
+w.w3.org/Graphic\
+s/SVG/1.1/DTD/sv\
+g11.dtd'><svg en\
+able-background=\
+\x22new 0 0 32 32\x22 \
+version=\x221.1\x22 vi\
+ewBox=\x220 0 32 32\
+\x22 xml:space=\x22pre\
+serve\x22 xmlns=\x22ht\
+tp://www.w3.org/\
+2000/svg\x22 xmlns:\
+xlink=\x22http://ww\
+w.w3.org/1999/xl\
+ink\x22><g id=\x22Home\
+\x22/><g id=\x22Print\x22\
+/><g id=\x22Mail\x22/>\
+<g id=\x22Camera\x22/>\
+<g id=\x22Video\x22/><\
+g id=\x22Film\x22/><g \
+id=\x22Message\x22/><g\
+ id=\x22Telephone\x22/\
+><g id=\x22User\x22/><\
+g id=\x22File\x22/><g \
+id=\x22Folder\x22/><g \
+id=\x22Map\x22/><g id=\
+\x22Download\x22/><g i\
+d=\x22Upload\x22/><g i\
+d=\x22Video_Recorde\
+r\x22/><g id=\x22Sched\
+ule\x22/><g id=\x22Car\
+t\x22/><g id=\x22Setti\
+ng\x22><path d=\x22M29\
+,12l-1.7,0c-0.1-\
+0.4-0.3-0.8-0.5-\
+1.1L28,9.6c0.4-0\
+.4,0.6-0.9,0.6-1\
+.4c0-0.5-0.2-1-0\
+.6-1.4L25.2,4   \
+c-0.8-0.8-2.1-0.\
+8-2.8,0l-1.2,1.2\
+C20.8,5,20.4,4.8\
+,20,4.7V3c0-1.1-\
+0.9-2-2-2h-2h-2c\
+-1.1,0-2,0.9-2,2\
+l0,1.7   c-0.4,0\
+.1-0.8,0.3-1.1,0\
+.5L9.6,4C8.9,3.2\
+,7.6,3.2,6.8,4L4\
+,6.8C3.6,7.2,3.4\
+,7.7,3.4,8.2c0,0\
+.5,0.2,1,0.6,1.4\
+l1.2,1.2   C5,11\
+.2,4.8,11.6,4.7,\
+12H3c-1.1,0-2,0.\
+9-2,2v4c0,1.1,0.\
+9,2,2,2l1.7,0c0.\
+1,0.4,0.3,0.8,0.\
+5,1.1L4,22.4c-0.\
+8,0.8-0.8,2,0,2.\
+8L6.8,28   c0.8,\
+0.8,2.1,0.8,2.8,\
+0l1.2-1.2c0.4,0.\
+2,0.7,0.3,1.1,0.\
+5V29c0,1.1,0.9,2\
+,2,2h2h2c1.1,0,2\
+-0.9,2-2l0-1.7c0\
+.4-0.1,0.8-0.3,1\
+.1-0.5   l1.2,1.\
+2c0.8,0.8,2.1,0.\
+8,2.8,0l2.8-2.8c\
+0.8-0.8,0.8-2,0-\
+2.8l-1.2-1.2c0.2\
+-0.4,0.3-0.7,0.5\
+-1.1H29c1.1,0,2-\
+0.9,2-2v-4   C31\
+,12.9,30.1,12,29\
+,12z M16,22c-3.3\
+,0-6-2.7-6-6s2.7\
+-6,6-6s6,2.7,6,6\
+S19.3,22,16,22z\x22\
+ fill=\x22#673AB7\x22/\
+></g><g id=\x22Sear\
+ch\x22/><g id=\x22Penc\
+ils\x22/><g id=\x22Gro\
+up\x22/><g id=\x22Reco\
+rd\x22/><g id=\x22Head\
+phone\x22/><g id=\x22M\
+usic_Player\x22/><g\
+ id=\x22Sound_On\x22/>\
+<g id=\x22Sound_Off\
+\x22/><g id=\x22Lock\x22/\
+><g id=\x22Lock_ope\
+n\x22/><g id=\x22Love\x22\
+/><g id=\x22Favorit\
+e\x22/><g id=\x22Film_\
+1_\x22/><g id=\x22Musi\
+c\x22/><g id=\x22Puzzl\
+e\x22/><g id=\x22Turn_\
+Off\x22/><g id=\x22Boo\
+k\x22/><g id=\x22Save\x22\
+/><g id=\x22Reload\x22\
+/><g id=\x22Trash\x22/\
+><g id=\x22Tag\x22/><g\
+ id=\x22Link\x22/><g i\
+d=\x22Like\x22/><g id=\
+\x22Bad\x22/><g id=\x22Ga\
+llery\x22/><g id=\x22A\
+dd\x22/><g id=\x22Clos\
+e\x22/><g id=\x22Forwa\
+rd\x22/><g id=\x22Back\
+\x22/><g id=\x22Buy\x22/>\
+<g id=\x22Mac\x22/><g \
+id=\x22Laptop\x22/></s\
+vg>\
+\x00\x00\x05\xd6\
+<\
+?xml version=\x221.\
+0\x22 ?><!DOCTYPE s\
+vg  PUBLIC '-//W\
+3C//DTD SVG 1.1/\
+/EN'  'http://ww\
+w.w3.org/Graphic\
+s/SVG/1.1/DTD/sv\
+g11.dtd'><svg en\
+able-background=\
+\x22new 0 0 32 32\x22 \
+version=\x221.1\x22 vi\
+ewBox=\x220 0 32 32\
+\x22 xml:space=\x22pre\
+serve\x22 xmlns=\x22ht\
+tp://www.w3.org/\
+2000/svg\x22 xmlns:\
+xlink=\x22http://ww\
+w.w3.org/1999/xl\
+ink\x22><g id=\x22Home\
+\x22/><g id=\x22Print\x22\
+/><g id=\x22Mail\x22/>\
+<g id=\x22Camera\x22/>\
+<g id=\x22Video\x22/><\
+g id=\x22Film\x22/><g \
+id=\x22Message\x22/><g\
+ id=\x22Telephone\x22/\
+><g id=\x22User\x22/><\
+g id=\x22File\x22/><g \
+id=\x22Folder\x22/><g \
+id=\x22Map\x22/><g id=\
+\x22Download\x22/><g i\
+d=\x22Upload\x22/><g i\
+d=\x22Video_Recorde\
+r\x22/><g id=\x22Sched\
+ule\x22/><g id=\x22Car\
+t\x22/><g id=\x22Setti\
+ng\x22/><g id=\x22Sear\
+ch\x22/><g id=\x22Penc\
+ils\x22/><g id=\x22Gro\
+up\x22/><g id=\x22Reco\
+rd\x22/><g id=\x22Head\
+phone\x22/><g id=\x22M\
+usic_Player\x22/><g\
+ id=\x22Sound_On\x22/>\
+<g id=\x22Sound_Off\
+\x22/><g id=\x22Lock\x22/\
+><g id=\x22Lock_ope\
+n\x22/><g id=\x22Love\x22\
+/><g id=\x22Favorit\
+e\x22/><g id=\x22Film_\
+1_\x22/><g id=\x22Musi\
+c\x22/><g id=\x22Puzzl\
+e\x22/><g id=\x22Turn_\
+Off\x22/><g id=\x22Boo\
+k\x22/><g id=\x22Save\x22\
+><path d=\x22M30.7,\
+9.3l-8-8C22.5,1.\
+1,22.3,1,22,1h-4\
+h-2H8H2C1.5,1,1,\
+1.5,1,2v28c0,0.5\
+,0.5,1,1,1h6h8h8\
+h6   c0.5,0,1-0.\
+5,1-1V10C31,9.7,\
+30.9,9.5,30.7,9.\
+3z\x22 fill=\x22#3F51B\
+5\x22/><g><path d=\x22\
+M8,9h8h2c0.5,0,1\
+-0.5,1-1V2c0-0.5\
+-0.5-1-1-1h-2H8C\
+7.5,1,7,1.5,7,2v\
+6C7,8.5,7.5,9,8,\
+9z\x22 fill=\x22#8CC44\
+A\x22/><path d=\x22M24\
+,17h-8H8c-0.5,0-\
+1,0.5-1,1v12c0,0\
+.5,0.5,1,1,1h8h8\
+c0.5,0,1-0.5,1-1\
+V18C25,17.5,24.5\
+,17,24,17z\x22 fill\
+=\x22#8CC44A\x22/></g>\
+</g><g id=\x22Reloa\
+d\x22/><g id=\x22Trash\
+\x22/><g id=\x22Tag\x22/>\
+<g id=\x22Link\x22/><g\
+ id=\x22Like\x22/><g i\
+d=\x22Bad\x22/><g id=\x22\
+Gallery\x22/><g id=\
+\x22Add\x22/><g id=\x22Cl\
+ose\x22/><g id=\x22For\
+ward\x22/><g id=\x22Ba\
+ck\x22/><g id=\x22Buy\x22\
+/><g id=\x22Mac\x22/><\
+g id=\x22Laptop\x22/><\
+/svg>\
 "
 
 qt_resource_name = b"\
@@ -14722,25 +16186,111 @@ qt_resource_name = b"\
 \x00\x00v\xf3\
 \x00p\
 \x00i\x00c\
+\x00\x08\
+\x02\x8cT'\
+\x00p\
+\x00l\x00a\x00y\x00.\x00s\x00v\x00g\
+\x00\x0f\
+\x0f\xafz\x87\
+\x00f\
+\x00i\x00l\x00e\x00_\x00f\x00o\x00l\x00d\x00e\x00r\x00.\x00s\x00v\x00g\
+\x00\x0a\
+\x0e\x0f\xbd\xa7\
+\x00p\
+\x00l\x00u\x00g\x00i\x00n\x00.\x00s\x00v\x00g\
+\x00\x08\
+\x0b\x07W\xa7\
+\x00e\
+\x00d\x00i\x00t\x00.\x00s\x00v\x00g\
+\x00\x0a\
+\x09\xb2jG\
+\x00c\
+\x00a\x00n\x00c\x00e\x00l\x00.\x00s\x00v\x00g\
+\x00\x08\
+\x04\xd2T\xc7\
+\x00i\
+\x00n\x00f\x00o\x00.\x00s\x00v\x00g\
+\x00\x09\
+\x06\xc3\x87\xe7\
+\x00g\
+\x00r\x00o\x00u\x00p\x00.\x00s\x00v\x00g\
+\x00\x07\
+\x07\xa7Z\x07\
+\x00a\
+\x00d\x00d\x00.\x00s\x00v\x00g\
+\x00\x09\
+\x07\xff\x82\xa7\
+\x00e\
+\x00m\x00a\x00i\x00l\x00.\x00s\x00v\x00g\
 \x00\x09\
 \x06\xc7\x98g\
 \x00a\
 \x00b\x00o\x00u\x00t\x00.\x00p\x00n\x00g\
 \x00\x08\
+\x05wT\xa7\
+\x00l\
+\x00o\x00a\x00d\x00.\x00s\x00v\x00g\
+\x00\x09\
+\x08\x97\xaf\x87\
+\x00s\
+\x00t\x00a\x00r\x00t\x00.\x00s\x00v\x00g\
+\x00\x0a\
+\x06\xcbBG\
+\x00r\
+\x00e\x00m\x00o\x00v\x00e\x00.\x00s\x00v\x00g\
+\x00\x08\
 \x0aaZ\xa7\
 \x00i\
 \x00c\x00o\x00n\x00.\x00p\x00n\x00g\
+\x00\x0b\
+\x00\xbd\xcd\xa7\
+\x00s\
+\x00e\x00t\x00t\x00i\x00n\x00g\x00.\x00s\x00v\x00g\
+\x00\x08\
+\x08\xc8U\xe7\
+\x00s\
+\x00a\x00v\x00e\x00.\x00s\x00v\x00g\
 "
 
 qt_resource_struct = b"\
 \x00\x00\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x01\
 \x00\x00\x00\x00\x00\x00\x00\x00\
-\x00\x00\x00\x00\x00\x02\x00\x00\x00\x02\x00\x00\x00\x02\
+\x00\x00\x00\x00\x00\x02\x00\x00\x00\x11\x00\x00\x00\x02\
 \x00\x00\x00\x00\x00\x00\x00\x00\
+\x00\x00\x01`\x00\x00\x00\x00\x00\x01\x00\x03\xe3=\
+\x00\x00\x01\x86\xb9\xd7\xd8\x5c\
 \x00\x00\x00\x0c\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\
-\x00\x00\x01\x86\xa6\xde\x1e\xba\
-\x00\x00\x00$\x00\x00\x00\x00\x00\x01\x00\x02\xeb\x19\
+\x00\x00\x01\x86\xb9\xd7n\xf7\
+\x00\x00\x00\x90\x00\x00\x00\x00\x00\x01\x00\x00\x1e^\
+\x00\x00\x01\x86\xb9\xdf\xda\xd9\
+\x00\x00\x01\x02\x00\x00\x00\x00\x00\x01\x00\x03\x1e=\
+\x00\x00\x01\x86\xb9\xd8\xcd\x9f\
+\x00\x00\x00\xa6\x00\x00\x00\x00\x00\x01\x00\x00\x1f\xcb\
+\x00\x00\x01\x86\xb9\xdcz.\
+\x00\x00\x00\xea\x00\x00\x00\x00\x00\x01\x00\x003$\
+\x00\x00\x01\x86\xa7CGp\
+\x00\x00\x010\x00\x00\x00\x00\x00\x01\x00\x03*U\
+\x00\x00\x01\x86\xb9\xd7\x12\xf8\
+\x00\x00\x010\x00\x00\x00\x00\x00\x01\x00\x030\xcf\
+\x00\x00\x01\x86\xb9\xd7\x12\xf8\
+\x00\x00\x00\xbe\x00\x00\x00\x00\x00\x01\x00\x00'\xdb\
+\x00\x00\x01\x86\xb9\xdc\xaa\x0a\
+\x00\x00\x00\xd2\x00\x00\x00\x00\x00\x01\x00\x00-o\
+\x00\x00\x01\x86\xb9\xda\x8f\xe5\
+\x00\x00\x01\x18\x00\x00\x00\x00\x00\x01\x00\x03$\x7f\
+\x00\x00\x01\x86\xb9\xd9f\x9d\
+\x00\x00\x01|\x00\x00\x00\x00\x00\x01\x00\x03\xea\xa5\
+\x00\x00\x01\x86\xb9\xd9\x1d\x1c\
+\x00\x00\x00v\x00\x00\x00\x00\x00\x01\x00\x00\x17\xbf\
+\x00\x00\x01\x86\xb9\xdc\xdc\xae\
+\x00\x00\x01J\x00\x00\x00\x00\x00\x01\x00\x037I\
 \x00\x00\x01\x86q\xb5\xb1\xd6\
+\x00\x00\x00`\x00\x00\x00\x00\x00\x01\x00\x00\x10v\
+\x00\x00\x01\x86\xb9\xda\xdb$\
+\x00\x00\x00F\x00\x00\x00\x00\x00\x01\x00\x00\x0a\x93\
+\x00\x00\x01\x86\xb9\xddx\x16\
+\x00\x00\x00\x22\x00\x00\x00\x00\x00\x01\x00\x00\x05\x84\
+\x00\x00\x01\x86\xb9\xdc,\xe6\
 "
 
 def qInitResources():

@@ -1,7 +1,7 @@
 import os
 from threading import Thread
 
-import toml
+import rtoml
 from PyQt6.QtWidgets import QMainWindow, QFileDialog
 from PyQt6.QtCore import pyqtSignal as Signal
 from ui.ui_app import Ui_MainWindow
@@ -42,15 +42,21 @@ class App(QMainWindow, Ui_MainWindow):
         self.sig_hotkey.emit(i_str)
 
     def handleHotKeyEvent(self, i_str):
-        if i_str == 'f10':
-            # 开始 / 暂停
-            self.OpCtrl.clicked_for_start_pause_button()
-        if i_str == 'f11':
-            # 停止
-            self.OpCtrl.clicked_for_end_button()
-        if i_str == 'f9':
-            # 仅合球
-            self.OpCtrl.clicked_for_al_button()
+        op_ctrl_cur_tab_idx = self.OpCtrl.viewer.tabWidget.currentIndex()
+        # 如果GUI上当前的tab也属于第一页被激活，那么对应的热键操作逻辑如下
+        if op_ctrl_cur_tab_idx == 0:
+            if i_str == 'f10':
+                # 开始 / 暂停
+                self.OpCtrl.clicked_for_start_pause_button()
+            if i_str == 'f11':
+                # 停止
+                self.OpCtrl.clicked_for_end_button()
+            if i_str == 'f9':
+                # 仅合球
+                self.OpCtrl.clicked_for_al_button()
+        if op_ctrl_cur_tab_idx == 1:
+            if i_str == "f9":
+                self.OpCtrl.handel_test_group_skill()
 
     def showGMCheckDialog(self, i_str):
         # 启动警报音的播放线程
@@ -78,7 +84,7 @@ class App(QMainWindow, Ui_MainWindow):
         """保存配置逻辑"""
         available, rst, reason = self.OpCtrl.collect()
         if available:
-            toml_content = toml.dumps(rst)
+            toml_content = rtoml.dumps(rst)
 
             fileName_choose, filetype = QFileDialog.getSaveFileName(self,
                                                                     caption="保存配置文件",
@@ -105,9 +111,10 @@ class App(QMainWindow, Ui_MainWindow):
             return
 
         with open(fileName_choose, encoding="utf-8") as fp:
-            custom_config = toml.load(fp)
+            custom_config = rtoml.load(fp)
 
         self.OpCtrl.load_config(custom_config)
+        self.OpCtrl.refresh_skill_group_view()
 
     def show_game_setting_dialog(self):
         dialog = GameSettingDialog(self)

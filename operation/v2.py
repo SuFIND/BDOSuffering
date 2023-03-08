@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import time
+import json
 import traceback
 from concurrent.futures import ThreadPoolExecutor
 
@@ -168,122 +169,7 @@ def action(exec_sig, msg_queue, detector, hwnd, gui_params, executor):
     collect_img_Khalk = gui_params["collectImgKhalk"]
 
     # # 初始化技能执行模块
-    # TODO mock_group 将有GUI中的参数去取代
-    skill_config = [
-        {
-            "groupName": "技能组1",
-            "groupExpectCost": 3.75,
-            "blocks": [
-                {
-                    "name": "强：蝶旋风",
-                    "pipelines": [
-                        {
-                            "type": "KBPress",
-                            "key": "left shift"
-                        },
-                        {
-                            "type": "MSClick",
-                            "key": "left"
-                        },
-                        {
-                            "type": "KBRelease",
-                            "key": "left shift"
-                        },
-                        {
-                            "type": "wait",
-                            "sec": 1.4
-                        }
-                    ]
-                },
-                {
-                    "name": "强：飓风",
-                    "pipelines": [
-                        {
-                            "type": "KBPress",
-                            "key": "space"
-                        },
-                        {
-                            "type": "wait",
-                            "sec": 1
-                        },
-                        {
-                            "type": "KBRelease",
-                            "key": "space"
-                        },
-                        {
-                            "type": "wait",
-                            "sec": 0.5
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "groupName": "技能组2",
-            "groupExpectCost": 8,
-            "blocks": [
-                {
-                    "name": "霸体：左移动",
-                    "pipelines": [
-                        {
-                            "type": "KBPress",
-                            "key": "left shift"
-                        },
-                        {
-                            "type": "KBPressAndRelease",
-                            "key": "D"
-                        },
-                        {
-                            "type": "KBRelease",
-                            "key": "left shift"
-                        },
-                        {
-                            "type": "wait",
-                            "sec": 0.75
-                        }
-                    ]
-                },
-                {
-                    "name": "霸体：右移动",
-                    "pipelines": [
-                        {
-                            "type": "KBPress",
-                            "key": "left shift"
-                        },
-                        {
-                            "type": "KBPressAndRelease",
-                            "key": "A"
-                        },
-                        {
-                            "type": "KBRelease",
-                            "key": "left shift"
-                        },
-                        {
-                            "type": "wait",
-                            "sec": 0.75
-                        }
-                    ]
-                },
-                {
-                    "name": "强：骤雨",
-                    "pipelines": [
-                        {
-                            "type": "KBPress",
-                            "key": "left shift"
-                        },
-                        {
-                            "type": "KBPressAndRelease",
-                            "key": "Q"
-                        },
-                        {
-                            "type": "KBRelease",
-                            "key": "left shift"
-                        }
-                    ]
-                }
-            ]
-        }
-    ]
+    skill_config = json.loads(gui_params["skill_config"])
     skill_model = classics_op.SkillAction(skill_config)
 
     # 自有变量

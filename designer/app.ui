@@ -105,11 +105,19 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionLoadConfig">
+   <property name="icon">
+    <iconset resource="../gui_resource/app.qrc">
+     <normaloff>:/pic/load.svg</normaloff>:/pic/load.svg</iconset>
+   </property>
    <property name="text">
     <string>加载配置</string>
    </property>
   </action>
   <action name="actionSaveConfig">
+   <property name="icon">
+    <iconset resource="../gui_resource/app.qrc">
+     <normaloff>:/pic/save.svg</normaloff>:/pic/save.svg</iconset>
+   </property>
    <property name="text">
     <string>保存当前配置</string>
    </property>

@@ -1,3 +1,4 @@
+import threading
 import time
 import traceback
 import pythoncom
@@ -12,6 +13,7 @@ from utils.win_utils import set_unmuted
 from utils.log_utils import Logger
 from utils.capture_utils import WinDCApiCap
 from app.init_resource import global_var
+from operation.classics_op import SkillAction
 
 
 class MsgHandleThread(CanStopThread):
@@ -130,3 +132,16 @@ class ShowImgThread(CanStopThread):
     def terminate(self):
         cv2.destroyAllWindows()
 
+
+def start_thread_play_skill_group(group_one_config):
+    """
+    启动一个线程播放配置的技能动作
+    :param group_one_config:
+    :return:
+    """
+    def _run():
+        exc_unit = SkillAction([group_one_config])
+        exc_unit.run()
+
+    t = threading.Thread(target=_run)
+    t.start()

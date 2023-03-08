@@ -1,12 +1,15 @@
 import traceback
+import json
 
-from PyQt6 import QtWidgets, QtCore
+from PyQt6 import QtWidgets, QtCore, QtGui
 from ui.ui_op_ctrl import Ui_OpCtrl
 from app.init_resource import global_var
 from operation.v2 import start_action, start_merge
 from operation.gm_check import GM_check_loop
+from app.app_thread import start_thread_play_skill_group
 from utils.log_utils import Logger
 from utils.muti_utils import ExecSig
+from control.skillGroupEditDialog import SkillGroupEditDialog
 
 
 class OpCtrl(QtWidgets.QWidget):
@@ -19,16 +22,35 @@ class OpCtrl(QtWidgets.QWidget):
 
         self.viewer = Ui_OpCtrl()
         self.viewer.setupUi(self)
-        self.other_init()
 
+        # 一些自用数据变量的缓存
+        self.skill_config = []
+
+        # 一些业务逻辑部分的初始化控制
+        self.init_basic_tab()
+        self.init_group_tab()
+
+        # 信号槽对应的激活处理
+        # # basic tab
         self.viewer.StartPauseButton.clicked.connect(self.clicked_for_start_pause_button)
         self.viewer.EndButton.clicked.connect(self.clicked_for_end_button)
         self.viewer.AuditionAlarmButton.clicked.connect(self.handle_audition_alarm)
         self.viewer.MergeALButton.clicked.connect(self.clicked_for_al_button)
+        # # skill group tab
+        self.viewer.SkillGroupView.itemClicked.connect(self.handle_skill_group_select)
+        self.viewer.SkillGroupView.itemDoubleClicked.connect(self.handel_group_skill_edit)
+        self.viewer.AddGroupButton.clicked.connect(self.handel_add_skill_group)  # 添加一个技能组
+        self.viewer.DelGroupButton.clicked.connect(self.handel_del_skill_group)
+        self.viewer.GroupSkillEditButton.clicked.connect(self.handel_group_skill_edit)  # 组内技能编辑
+        self.viewer.PlayButton.clicked.connect(self.handel_test_group_skill)
 
+        # # 通用信号槽部分
         self.button_sig.connect(self.handel_button_logic)
 
-    def other_init(self):
+        # # 其他
+        self.viewer.SkillGroupView.dropEvent = self.overload_skillGroupView_DropEvent
+
+    def init_basic_tab(self):
         # 根据 global_var 中标志变量的情况设置GUI控件的可编辑情况
         if not global_var["enable_email"]:
             self.viewer.EmailEdit.setDisabled(True)
@@ -151,6 +173,7 @@ class OpCtrl(QtWidgets.QWidget):
             dic.update({"stop": False})
         q.put("action::show_gm_modal")
 
+    # 顶部 menubar 部分
     def collect(self) -> (bool, dict, str):
         """
         收集GUI上的所有配置设置打包成一个数据字典
@@ -186,6 +209,8 @@ class OpCtrl(QtWidgets.QWidget):
         intoHutton = self.viewer.IntoHuttonCheckBox.isChecked()
         # 当前在赫顿中
         inHutton = self.viewer.curInHuttonCheckBox.isChecked()
+        # 技能配置
+        skill_config_json = json.dumps(self.skill_config, ensure_ascii=False)
 
         boss1CanBeHitCoolTimeStr = self.viewer.Boss1CanBeHitCoolTimeEdit.text()
         boss2CanBeHitCoolTimeStr = self.viewer.Boss2CanBeHitCoolTimeEdit.text()
@@ -205,6 +230,9 @@ class OpCtrl(QtWidgets.QWidget):
             ("inHutton", inHutton, "", None),
             ("enableEmailAlarm", self.viewer.EmailAlarmCheckBox.isChecked(), "", None),
             ("email", self.viewer.EmailEdit.text(), "", None),
+
+            # SkillTab
+            ("skill_config", skill_config_json, "", None),
 
             # TimeTab
             ("boss1CanBeHitCoolTime", boss1CanBeHitCoolTimeStr, "召唤到玛格岚可以被打(s)必须为数字类型", "num"),
@@ -248,6 +276,9 @@ class OpCtrl(QtWidgets.QWidget):
                     if val == "":
                         raise ValueError
                     rst[key] = _val
+                # elif check_type == "skill_config":
+                #     # TODO 增加一个校验模块，初步校验配置是否合法
+                #     pass
                 else:
                     rst[key] = val
             except Exception:
@@ -261,7 +292,8 @@ class OpCtrl(QtWidgets.QWidget):
             # BasicTab
             self.viewer.ResetViewCheckBox.setChecked(config["resetView"])
             self.viewer.StartAtTradingWarehouseButton.setChecked(config["startAtTradingWarehouse"])
-            self.viewer.StartAtTradingWarehouseAndMergeScrollButton.setChecked(config["StartAtTradingWarehouseAndMergeScroll"])
+            self.viewer.StartAtTradingWarehouseAndMergeScrollButton.setChecked(
+                config["StartAtTradingWarehouseAndMergeScroll"])
             self.viewer.StartAtCallPlaceButton.setChecked(config["startAtCallPlace"])
             self.viewer.UseWarehouseMaidCheckBox.setChecked(config["useWarehouseMaid"])
             self.viewer.RepairWeaponsCheckBox.setChecked(config["repairWeapons"])
@@ -271,6 +303,9 @@ class OpCtrl(QtWidgets.QWidget):
                 self.viewer.EmailAlarmCheckBox.setChecked(config["enableEmailAlarm"])
                 self.viewer.EmailEdit.setText(config["email"])
             self.viewer.curInHuttonCheckBox.setChecked(config["inHutton"])
+
+            # SkillTab
+            self.skill_config = json.loads(config["skill_config"])
 
             # TimeTab
             self.viewer.Boss1CanBeHitCoolTimeEdit.setText(str(config["boss1CanBeHitCoolTime"]))
@@ -296,3 +331,103 @@ class OpCtrl(QtWidgets.QWidget):
             msgBox = QtWidgets.QMessageBox(self)
             msgBox.setText("加载配置文件失败，该文件可能与当前程序版本不匹配，请在日志文件中确认报错！")
             msgBox.show()
+
+    # skill group 相关部分
+    def init_group_tab(self):
+        pass
+
+    def handle_skill_group_select(self):
+        """
+        处理skill group在GUI中被备选项改变时
+        :return:
+        """
+        cur_item = self.viewer.SkillGroupView.currentItem()
+        if cur_item:
+            cur_item_data = cur_item.data(1)
+            self.viewer.SkillGroupNameEdit.setText(cur_item_data["groupName"])
+            self.viewer.SkillGroupCostEdit.setText(str(cur_item_data["groupExpectCost"]))
+
+    def handel_add_skill_group(self):
+        """
+        处理时添加一个技能组
+        :return:
+        """
+        skill_group_name = self.viewer.SkillGroupNameEdit.text()
+        try:
+            skill_group_cost = float(self.viewer.SkillGroupCostEdit.text())
+        except ValueError:
+            dialog = QtWidgets.QMessageBox(self)
+            dialog.setWindowTitle("提示")
+            dialog.setText("技能组动画释放时间值必须为数值类型！")
+            dialog.show()
+            return
+
+        data = {
+            "groupName": skill_group_name,
+            "groupExpectCost": skill_group_cost,
+            "blocks": []
+        }
+        self.skill_config.append(data)
+        self.refresh_skill_group_view()
+
+    def handel_del_skill_group(self):
+        cur_row = self.viewer.SkillGroupView.currentRow()
+        if cur_row < 0:
+            dialog = QtWidgets.QMessageBox(self)
+            dialog.setWindowTitle("提示")
+            dialog.setText("请先选择要编辑的技能组")
+            dialog.show()
+        else:
+            self.skill_config.pop(cur_row)
+            self.refresh_skill_group_view()
+
+    def handel_group_skill_edit(self):
+        group_idx = self.viewer.SkillGroupView.currentRow()
+        # 如果当前的cur_row小于0说明没有选项被选中，应该弹出对话框提示需要选中某个技能组
+        if group_idx < 0:
+            dialog = QtWidgets.QMessageBox(self)
+            dialog.setWindowTitle("提示")
+            dialog.setText("请先选择要编辑的技能组")
+            dialog.show()
+        else:
+            group_idx = self.viewer.SkillGroupView.currentRow()
+
+            dialog = SkillGroupEditDialog(self)
+            dialog.setModal(True)
+            dialog.set_group_data(self.skill_config[group_idx]["blocks"])
+            result = dialog.exec()
+            if result == 1:
+                new_blocks = dialog.collect()
+                self.skill_config[group_idx]["blocks"] = new_blocks
+
+    def refresh_skill_group_view(self):
+        self.viewer.SkillGroupView.clear()
+        for unit in self.skill_config:
+            item = QtWidgets.QListWidgetItem()
+            item.setData(0, unit["groupName"])
+            item.setData(1, unit)
+            self.viewer.SkillGroupView.addItem(item)
+
+    def handel_test_group_skill(self):
+        """
+        测试技能组技能是否可以顺利释放
+        :return:
+        """
+        # 启动一个独立的线程执行模拟动作
+        cur_group_idx = self.viewer.SkillGroupView.currentRow()
+        if cur_group_idx >= 0:
+            start_thread_play_skill_group(self.skill_config[cur_group_idx])
+        else:
+            QtWidgets.QMessageBox.information(self, "提示", "必须先选择一组技能才能继续播放")
+
+    def overload_skillGroupView_DropEvent(self, a0: QtGui.QDropEvent) -> None:
+        super(QtWidgets.QListWidget, self.viewer.SkillGroupView).dropEvent(a0)
+        new_skill_config = []
+        for cur_row in range(self.viewer.SkillGroupView.count()):
+            item = self.viewer.SkillGroupView.item(cur_row)
+            new_skill_config.append(item.data(1))
+        self.skill_config = new_skill_config
+
+    def dump_skill_config(self):
+        toml_content = json.dumps(self.skill_config)
+

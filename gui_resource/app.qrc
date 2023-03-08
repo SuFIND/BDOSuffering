@@ -1,5 +1,19 @@
 <RCC>
   <qresource prefix="pic">
+    <file>info.svg</file>
+    <file>add.svg</file>
+    <file>edit.svg</file>
+    <file>file_folder.svg</file>
+    <file>group.svg</file>
+    <file>cancel.svg</file>
+    <file>plugin.svg</file>
+    <file>email.svg</file>
+    <file>load.svg</file>
+    <file>play.svg</file>
+    <file>remove.svg</file>
+    <file>save.svg</file>
+    <file>setting.svg</file>
+    <file>start.svg</file>
     <file>icon.png</file>
     <file>about.png</file>
   </qresource>
