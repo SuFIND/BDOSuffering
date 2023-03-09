@@ -63,10 +63,13 @@ class ExecSig:
             })
 
     def is_pause(self):
-        return self.sig_dic["pause"]
+        with self.sig_lock:
+            return self.sig_dic["pause"]
 
     def is_stop(self):
-        return self.sig_dic["stop"]
+        with self.sig_lock:
+            return self.sig_dic["stop"]
 
     def is_start(self):
-        return self.sig_dic["start"]
+        with self.sig_lock:
+            return self.sig_dic["start"]

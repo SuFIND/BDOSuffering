@@ -58,4 +58,4 @@ class Logger:
 
     @classmethod
     def shutdown(cls):
-        logging.shutdown(cls._logger.handlers)
+        logging.shutdown()
