@@ -5,9 +5,10 @@
 @Author : FF
 @Time : 2023/2/27 20:30
 """
-from Crypto.Cipher import AES
 import os
 
+from Crypto.Cipher import AES
+import rtoml
 
 # 加密配置文件
 def encrypt_config_file(file_path, key, remove_nocrypt_file=False):
@@ -38,6 +39,21 @@ def decrypt_config_file(file_path, key):
     cipher = AES.new(key, AES.MODE_EAX, nonce)
     plaintext = cipher.decrypt_and_verify(ciphertext, tag)
 
-    # 写入明文文件
-    with open(file_path[:-4], 'wb') as f:
-        f.write(plaintext)
+    return rtoml.loads(plaintext.decode("utf8"))
+
+
+def build_key(key: str) -> tuple[str, bytes]:
+    k_l = len(key)
+    tg = 0
+    if k_l <= 16:
+        tg = 16
+    elif 16 < k_l <= 24:
+        tg = 24
+    elif 24 < k_l <= 32:
+        tg = 32
+    else:
+        raise ValueError("key must be 16, 24 or 32 bytes long (respectively for *AES-128*, *AES-192* or *AES-256*).")
+    to_stuff_cnt = tg - k_l
+    real_key = "".join(["0" for _ in range(to_stuff_cnt)]) + key
+    real_key_bytes = bytes(real_key.encode("utf8"))
+    return real_key, real_key_bytes

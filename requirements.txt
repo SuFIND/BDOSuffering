@@ -10,3 +10,4 @@ numpy~=1.24.1
 pyqtdarktheme==2.1.0
 pytesseract~=0.3.10
 pycaw>=20220416
+pycryptodome>=3.17

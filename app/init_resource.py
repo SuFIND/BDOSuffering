@@ -1,4 +1,5 @@
 import sys
+import os
 import traceback
 from traceback import format_exc
 from concurrent.futures import ProcessPoolExecutor
@@ -8,14 +9,20 @@ from pathlib import Path
 import rtoml
 
 from utils.log_utils import Logger
+from utils.crypt_utils import decrypt_config_file, build_key
 
 global global_var
 global_var = {}
 
+cipher = os.environ.get("CIPHER", "")
 
-def init_config(path: str):
-    p = Path(path)
-    config = rtoml.load(p)
+def init_config(public_cfg_path: str, private_cfg_path: str):
+    public_p = Path(public_cfg_path)
+    public_config = rtoml.load(public_p)
+    _, r_key = build_key(cipher)
+    config = decrypt_config_file(private_cfg_path, r_key)
+    config["BDO"]["window_title"] = public_config["window_title"]
+    config["BDO"]["window_title_bar_height"] = public_config["window_title_bar_height"]
     return config
 
 

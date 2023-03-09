@@ -22,8 +22,11 @@ def main():
     Logger.info("app start ...")
 
     # 初始化配置模块
-    config_path = os.environ.get("CFG_PATH", os.path.join(os.getcwd(), "config", "basic.toml"))
-    config = init_config(config_path)
+    public_config_path = os.environ.get("PUBLIC_CFG_PATH", os.path.join(os.getcwd(), "config", "public.toml"))
+    private_config_path = os.environ.get("PRIVATE_CFG_PATH", os.path.join(os.getcwd(), "config", "private.toml.enc"))
+
+    # merge config
+    config = init_config(public_config_path, private_config_path)
 
     # 初始化必要资源
     init_resource(config)
