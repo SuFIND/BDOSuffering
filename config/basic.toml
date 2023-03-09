@@ -3,7 +3,7 @@ max_process_cnt = 2
 debug = false   # 开启debug模式，会自动收集客户端的截图，保存在log/img下
 
 [BDO]
-window_title = "黑色沙漠 - 437158"  # 黑色沙漠窗口的名称，每次版本更新需要更改
+window_title = "黑色沙漠 - 437635"  # 黑色沙漠窗口的名称，每次版本更新需要更改
 window_class = "BlackDesertWindowClass"
 window_title_bar_height = 30    # 窗口标题栏的高度，无边框或全屏设置为0
 

@@ -84,6 +84,7 @@ class OpCtrl(QtWidgets.QWidget):
 
             # 初始化信号量
             exec_sig = ExecSig(sig_dic, sig_mutex)
+            exec_sig.set_start()
 
             # 从全局变量中获取进程所需资源
             debug = global_var["debug"]
