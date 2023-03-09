@@ -66,8 +66,14 @@ class Ui_MainWindow(object):
         self.actionGameSetting.setObjectName("actionGameSetting")
         self.actionAbout = QtGui.QAction(parent=MainWindow)
         self.actionAbout.setObjectName("actionAbout")
+        self.actionHwndSetting = QtGui.QAction(parent=MainWindow)
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap(":/pic/setting.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.actionHwndSetting.setIcon(icon3)
+        self.actionHwndSetting.setObjectName("actionHwndSetting")
         self.configMenu.addAction(self.actionLoadConfig)
         self.configMenu.addAction(self.actionSaveConfig)
+        self.configMenu.addAction(self.actionHwndSetting)
         self.aboutMenu.addAction(self.actionGameSetting)
         self.aboutMenu.addAction(self.actionAbout)
         self.menubar.addAction(self.configMenu.menuAction())
@@ -78,13 +84,14 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "黑沙苦难"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "黑沙-格兰威特10年"))
         self.configMenu.setTitle(_translate("MainWindow", "配置"))
         self.aboutMenu.setTitle(_translate("MainWindow", "关于"))
         self.actionLoadConfig.setText(_translate("MainWindow", "加载配置"))
         self.actionSaveConfig.setText(_translate("MainWindow", "保存当前配置"))
         self.actionGameSetting.setText(_translate("MainWindow", "游戏内设置"))
         self.actionAbout.setText(_translate("MainWindow", "本软件"))
+        self.actionHwndSetting.setText(_translate("MainWindow", "黑沙句柄设置"))
 
     def init_op_ctrl(self):
         self.OpCtrl = OpCtrl(self.centralwidget, logCtrl=self.LogCtrl)

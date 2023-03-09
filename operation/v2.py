@@ -53,7 +53,7 @@ def start_action(sig_dic, sig_mutex, msg_queue, window_title: str, window_class:
 
     if hwnd == 0:
         msg_queue.put(fmmsg.to_str(
-            "无法检测到黑色沙漠窗口句柄！请先打开游戏或检查 config/basic.toml 中的 BDO.window_title 是否与游戏窗口名一致",
+            "无法检测到黑色沙漠窗口句柄！请确认游戏是否开启，或检查 “配置”-“黑沙句柄设置” 中窗口名称是否与游戏窗口匹配",
             level="error"))
         Logger.error("No Found hwnd: BlackDesert!")
         return
@@ -506,7 +506,7 @@ def start_merge(sig_dic, sig_mutex, msg_queue, window_title: str, window_class: 
     hwnd = FindWindow(window_class, window_title)
     if hwnd == 0:
         msg_queue.put(fmmsg.to_str(
-            "无法检测到黑色沙漠窗口句柄！请先打开游戏或检查 config/basic.toml 中的 BDO.window_class 是否与游戏窗口名一致",
+            "无法检测到黑色沙漠窗口句柄！请确认游戏是否开启，或检查 “配置”-“黑沙句柄设置” 中窗口名称是否与游戏窗口匹配",
             level="error"))
         Logger.error("No Found hwnd: BlackDesert!")
         return

@@ -49,7 +49,7 @@ def GM_check_loop(sig_dic, sig_mutex, msg_queue,
     if hwnd == 0:
         # 如果句柄地址为0代表未能找到句柄则异常退出
         msg_queue.put(fmmsg.to_str(
-            "无法检测到黑色沙漠窗口句柄！请先打开游戏或检查 config/basic.toml 中的 BDO.window_title 是否与游戏窗口名一致",
+            "无法检测到黑色沙漠窗口句柄！请确认游戏是否开启，或检查 “配置”-“黑沙句柄设置” 中窗口名称是否与游戏窗口匹配",
             level="error"))
         return
 

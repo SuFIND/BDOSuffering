@@ -28,6 +28,5 @@ class GameSettingDialog(QtWidgets.QDialog):
         else:
             msgBox = QtWidgets.QMessageBox(self)
             msgBox.setWindowTitle("错误")
-            msgBox.setText(
-                "无法检测到黑色沙漠窗口句柄！请先打开游戏或检查 config/basic.toml 中的 BDO.window_title 是否与游戏窗口名一致")
+            msgBox.setText("无法检测到黑色沙漠窗口句柄！请确认游戏是否开启，或检查 “配置”-“黑沙句柄设置” 中窗口名称是否与游戏窗口匹配")
             msgBox.show()

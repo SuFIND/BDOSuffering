@@ -83,7 +83,7 @@
      <x>0</x>
      <y>0</y>
      <width>907</width>
-     <height>22</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="configMenu">
@@ -92,6 +92,7 @@
     </property>
     <addaction name="actionLoadConfig"/>
     <addaction name="actionSaveConfig"/>
+    <addaction name="actionHwndSetting"/>
    </widget>
    <widget class="QMenu" name="aboutMenu">
     <property name="title">
@@ -130,6 +131,15 @@
   <action name="actionAbout">
    <property name="text">
     <string>本软件</string>
+   </property>
+  </action>
+  <action name="actionHwndSetting">
+   <property name="icon">
+    <iconset resource="../gui_resource/app.qrc">
+     <normaloff>:/pic/setting.svg</normaloff>:/pic/setting.svg</iconset>
+   </property>
+   <property name="text">
+    <string>黑沙句柄设置</string>
    </property>
   </action>
  </widget>

@@ -2,7 +2,7 @@ import os
 from threading import Thread
 
 import rtoml
-from PyQt6.QtWidgets import QMainWindow, QFileDialog
+from PyQt6.QtWidgets import QMainWindow, QFileDialog, QMessageBox
 from PyQt6.QtCore import pyqtSignal as Signal
 from ui.ui_app import Ui_MainWindow
 from system_hotkey import SystemHotkey
@@ -12,6 +12,7 @@ from app.init_resource import global_var
 from control.GMCheckDialog import GMCheckDialog
 from control.gameSettingDialog import GameSettingDialog
 from control.aboutDialog import AboutDialog
+from control.hwndSettingDialog import HwndSettingDialog
 
 
 class App(QMainWindow, Ui_MainWindow):
@@ -36,6 +37,7 @@ class App(QMainWindow, Ui_MainWindow):
         self.actionSaveConfig.triggered.connect(self.save_config)
         self.actionLoadConfig.triggered.connect(self.load_config)
         self.actionGameSetting.triggered.connect(self.show_game_setting_dialog)
+        self.actionHwndSetting.triggered.connect(self.show_hwnd_setting_dialog)
         self.actionAbout.triggered.connect(self.show_about_me_dialog)
 
     def sendHotKeySig(self, i_str):
@@ -120,6 +122,27 @@ class App(QMainWindow, Ui_MainWindow):
         dialog = GameSettingDialog(self)
         dialog.show()
 
+    def show_hwnd_setting_dialog(self):
+        dialog = HwndSettingDialog(self)
+        if dialog.exec() == 1:
+            try:
+                global_var["BDO_window_title"] = dialog.viewer.lineEdit.text()
+                global_var["BDO_window_title_bar_height"] = int(dialog.viewer.lineEdit_2.text())
+                self.dump_public_config()
+
+            except ValueError:
+                QMessageBox.critical(self, "错误", "窗口高度必须为数值类型！")
+
     def show_about_me_dialog(self):
         dialog = AboutDialog(self)
         dialog.show()
+
+    def dump_public_config(self):
+        cfg = {
+            "window_title": global_var["BDO_window_title"],
+            "window_title_bar_height": global_var["BDO_window_title_bar_height"],
+        }
+        plaintext = rtoml.dumps(cfg)
+        public_config_path = os.environ.get("PUBLIC_CFG_PATH", os.path.join(os.getcwd(), "config", "public.toml"))
+        with open(public_config_path, "w", encoding="utf8") as fp:
+            fp.write(plaintext)
